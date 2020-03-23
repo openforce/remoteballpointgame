@@ -1,0 +1,5 @@
+interface IDrawable {
+
+    draw() : void
+
+}

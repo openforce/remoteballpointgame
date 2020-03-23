@@ -1,0 +1,5 @@
+interface IUpdateable {
+
+    update() : void
+
+}

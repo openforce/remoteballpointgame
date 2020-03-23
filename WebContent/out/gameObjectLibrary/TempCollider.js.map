@@ -1,0 +1,1 @@
+{"version":3,"file":"TempCollider.js","sourceRoot":"","sources":["../../static/src/gameObjectLibrary/TempCollider.ts"],"names":[],"mappings":"AAAA,MAAM,YAAY;IAMd,YAAY,CAAQ,EAAE,CAAQ,EAAE,KAAY,EAAE,MAAa;QACvD,IAAI,CAAC,CAAC,GAAG,CAAC,CAAC;QACX,IAAI,CAAC,CAAC,GAAG,CAAC,CAAC;QACX,IAAI,CAAC,KAAK,GAAG,KAAK,CAAC;QACnB,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACzB,CAAC;CAEJ"}

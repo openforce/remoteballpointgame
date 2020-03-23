@@ -1,0 +1,12 @@
+{
+    
+    "compileOnSave": true,
+
+    "compilerOptions": {
+        "noImplicitAny" : true,
+        "target": "esnext",
+        "watch": true,
+        "sourceMap": true
+      }
+
+}

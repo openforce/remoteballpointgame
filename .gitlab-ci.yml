@@ -1,0 +1,16 @@
+stages:
+  - deploy
+
+
+deploy_job:
+  stage: deploy
+  resource_group: staging
+  tags:
+    - ballpointgame
+  only:
+    - /^master$/
+  script:
+    - docker build -t onlineballpointgame .
+    - docker stop $(docker ps -q -f "label=onlineballpointgame") || true
+    - docker rm onlineballpointgame || true
+    - docker run -d --label "onlineballpointgame" --name "onlineballpointgame" -p 5000:5000 onlineballpointgame

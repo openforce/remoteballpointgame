@@ -1,0 +1,17 @@
+{
+  "name": "onlineballpointgame",
+  "version": "1.0.0",
+  "description": "Multiplayer BallPointGame",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "dependencies": {
+    "@types/node": "^13.9.2",
+    "express": "^4.17.1",
+    "socket.io": "^1.7.4"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
+}
