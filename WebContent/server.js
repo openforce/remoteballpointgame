@@ -96,8 +96,7 @@ io.on('connection', function(socket) {
   socket.on('sync ball', function(ball) {
     // add Ball to the world
     //console.log('sync ball: ' + ball.id);
-    balls[ball.id] = ball;
-
+    if(balls[ball.id] != null) balls[ball.id] = ball;
   });
 
 });
