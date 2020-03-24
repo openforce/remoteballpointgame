@@ -76,7 +76,8 @@ function initGame(){
 	gameSpeedMode = GAME_SPEED_SPRINT;
 	
 	// open socket connection to server
-	socket = io();
+	// @ts-ignore
+	socket = window.io();
 
 	socket.on('state', processServerSync);
 
