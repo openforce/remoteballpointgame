@@ -4,7 +4,7 @@
 //import { Ball } from "../gameObjects/Ball";
 
 //let socketio = require("socket.io");
-let socketio:any;
+let io:any;
 
 /************************************************
 ################# CONSTANTS #####################
@@ -76,7 +76,7 @@ function initGame(){
 	gameSpeedMode = GAME_SPEED_SPRINT;
 	
 	// open socket connection to server
-	socket = socketio.io();
+	socket = io();
 
 	socket.on('state', processServerSync);
 
