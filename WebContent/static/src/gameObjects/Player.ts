@@ -36,8 +36,8 @@ class Player {
     spriteHeight:number;
     
     // controls 
-    clickedLeft:boolean;
-    clickedRight:boolean;
+    clickedLeft:boolean = false;
+    clickedRight:boolean = false;
 
     clickedX:number;
     clickedY:number;
@@ -150,7 +150,7 @@ class Player {
     }
 
     public checkClick(mouseX:number, mouseY:number, clickType:number){
-        console.log("clicked");
+        //console.log("clicked");
         
         if(clickType == CLICK_LEFT) this.clickedLeft = true;
         if(clickType == CLICK_RIGHT) this.clickedRight = true;
@@ -158,6 +158,16 @@ class Player {
         this.clickedX = mouseX;
         this.clickedY = mouseY;
 
+    }
+
+    public checkMouseUp(clickType:number){
+        console.log("mouse up");
+
+        if(clickType == CLICK_LEFT) this.clickedLeft = false;
+        if(clickType == CLICK_RIGHT) this.clickedRight = false;
+
+        console.log("clickedLeft: " + this.clickedLeft);
+        console.log("clickedRight: " + this.clickedRight);
     }
 
     // LOGIC
@@ -218,13 +228,19 @@ class Player {
         }
 
         if(this.clickedLeft){
-            this.performAction(CLICK_LEFT);
-            this.clickedLeft = false;
+            if(this.performAction(CLICK_LEFT)) {
+                this.clickedLeft = false;
+                console.log("clickedLeft: " + this.clickedLeft);
+                console.log("clickedRight: " + this.clickedRight);
+            }
         }
 
         if(this.clickedRight){
-            this.performAction(CLICK_RIGHT);
-            this.clickedRight = false;
+            if(this.performAction(CLICK_RIGHT)) {
+                this.clickedRight = false;
+                console.log("clickedLeft: " + this.clickedLeft);
+                console.log("clickedRight: " + this.clickedRight);
+            }
         }
 
         if(this.syncToServer) socket.emit('player sync', this.getSyncObject());
@@ -241,7 +257,7 @@ class Player {
     }
     
 
-    public performAction(clickType:number){
+    public performAction(clickType:number) : boolean{
 
         if(clickType == CLICK_LEFT && this.leftHand != null
             || clickType == CLICK_RIGHT && this.rightHand != null) {
@@ -251,10 +267,11 @@ class Player {
                 if(clickType == CLICK_LEFT) this.leftHand = null;
                 if(clickType == CLICK_RIGHT) this.rightHand = null;
                 
-                return;
+                return true;
             }
             
             this.shootBall(clickType);
+            return true;
 
         } else { // nothing in Hand
 
@@ -263,7 +280,7 @@ class Player {
                 if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, balls[i].x, balls[i].y, balls[i].radius)){
                     this.takeBall(balls[i], clickType);
                     balls.splice(i,1);
-                    return;
+                    return true;
                 }
             }
 
@@ -271,9 +288,12 @@ class Player {
             if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBasket.x, ballBasket.y, ballBasket.radius)){
                 var newBall = new Ball(this.middleX, this.middleY, true);
                 this.takeBall(newBall, clickType);
+                return true;
             }
         }
-        
+
+        // nothing done
+        return false;
     }
 
     public takeBall(ball:Ball, clickType:number){

@@ -92,7 +92,7 @@ function keyUp(evt:KeyboardEvent) {
 function mouseDownHandler(evt:MouseEvent) {
 	//updateMousePos(canvas, evt);
 
-	console.log(evt.which);
+	//console.log(evt.which);
 
 	if(evt.which == 1) gameEngine.checkClickEvents(mousePosX, mousePosY); // left Click
 	if(evt.which == 3) gameEngine.checkRightClickEvents(mousePosX, mousePosY); // right Click
@@ -102,7 +102,10 @@ function mouseDownHandler(evt:MouseEvent) {
 # handle mouse up
 ***********************************/
 function mouseUpHandler(evt:MouseEvent) {
-	gameEngine.checkMouseUpEvents();
+
+	if(evt.which == 1) gameEngine.checkMouseUpEvents();
+	if(evt.which == 3) gameEngine.checkMouseRightUpEvents();
+	
 }
 
 /***********************************

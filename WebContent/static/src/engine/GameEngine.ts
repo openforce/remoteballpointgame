@@ -159,6 +159,34 @@ class GameEngine{
 		}	 
 	}
 
+	public checkMouseRightUpEvents(){
+		
+		switch(this.navigation) {
+		
+		case nav_menu:
+			break;
+			
+		case nav_game:
+			checkGameRightMouseUp();
+			break;
+			
+		case nav_after_game:
+			break;
+			
+		case nav_level_menu:
+			break;
+			
+		case nav_scene_menu:
+			break;
+			
+		case nav_scene:
+			break;
+			
+		default:
+			break;
+		}	 
+	}
+
 
 }
 

@@ -307,7 +307,7 @@ function checkGameClicks(mouseX:number, mouseY:number){
 }
 
 function checkGameRightClicks(mouseX:number, mouseY:number){
-	console.log("checkGameRightClicks");
+	//console.log("checkGameRightClicks");
 	player.checkClick(mouseX, mouseY, CLICK_RIGHT);
 	
 }
@@ -317,6 +317,15 @@ function checkGameRightClicks(mouseX:number, mouseY:number){
 ***********************************/
 function checkGameMouseUp(){
 	//console.log("checkGameClicks");
+	player.checkMouseUp(CLICK_LEFT);
+}
+
+/***********************************
+# check mouse up
+***********************************/
+function checkGameRightMouseUp(){
+	//console.log("checkGameClicks");
+	player.checkMouseUp(CLICK_RIGHT);
 }
 
 
