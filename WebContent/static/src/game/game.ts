@@ -230,7 +230,7 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 			var clientBall = balls[i];
 
 			if(clientBall.id == serverBall.id){
-				if(clientBall.state != serverBall.state && serverBall.lastHolderId != player.id) 
+				if(serverBall.lastHolderId != player.id) 
 					clientBall.syncBallState(serverBall);
 				foundBall = true;
 				break;
