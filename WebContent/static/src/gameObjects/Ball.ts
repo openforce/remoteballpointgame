@@ -125,9 +125,9 @@ class Ball {
             this.lastY = this.y;
         }
 
-        if(this.state != this.lastState){ // this.lastHolderId == player.id && 
+        if(this.lastHolderId == player.id){ // && this.state != this.lastState){ 
             socket.emit('sync ball', this.getSyncObject());
-            this.lastState = this.state;
+            //this.lastState = this.state;
         }
 
     }

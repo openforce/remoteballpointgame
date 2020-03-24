@@ -72,7 +72,7 @@ class Player {
         this.radius = 30;
         this.rotation = 180;
 
-        this.actionCircleRadius = 30;
+        this.actionCircleRadius = 40;
 
         if(ui){
             this.sprite = new Image();
