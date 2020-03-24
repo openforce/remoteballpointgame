@@ -56,7 +56,7 @@ var players:Player[];
 // GAME Object Controller
 var gameDraw:GameDraw;
 
-var drawColliders = true;
+var drawColliders = false;
 
 //Multiplayer
 var socket:any;
