@@ -3,8 +3,8 @@
 
 //import { Ball } from "../gameObjects/Ball";
 
-let socketio = require("socket.io");
-
+//let socketio = require("socket.io");
+let socketio:any;
 
 /************************************************
 ################# CONSTANTS #####################
