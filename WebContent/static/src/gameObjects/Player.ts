@@ -105,7 +105,11 @@ class Player {
     }
     
     public init(){
+        setInterval(this.sendStateToServer, 1000/50);
+    }
 
+    public sendStateToServer(){
+        socket.emit('player sync', player.getSyncObject());
     }
 
     public syncPlayerState(player:any){
@@ -161,13 +165,10 @@ class Player {
     }
 
     public checkMouseUp(clickType:number){
-        console.log("mouse up");
+        //console.log("mouse up");
 
         if(clickType == CLICK_LEFT) this.clickedLeft = false;
         if(clickType == CLICK_RIGHT) this.clickedRight = false;
-
-        console.log("clickedLeft: " + this.clickedLeft);
-        console.log("clickedRight: " + this.clickedRight);
     }
 
     // LOGIC
@@ -230,20 +231,14 @@ class Player {
         if(this.clickedLeft){
             if(this.performAction(CLICK_LEFT)) {
                 this.clickedLeft = false;
-                console.log("clickedLeft: " + this.clickedLeft);
-                console.log("clickedRight: " + this.clickedRight);
             }
         }
 
         if(this.clickedRight){
             if(this.performAction(CLICK_RIGHT)) {
                 this.clickedRight = false;
-                console.log("clickedLeft: " + this.clickedLeft);
-                console.log("clickedRight: " + this.clickedRight);
             }
         }
-
-        if(this.syncToServer) socket.emit('player sync', this.getSyncObject());
     }
 
     public setActionAreaCircle(){

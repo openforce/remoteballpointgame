@@ -9,6 +9,8 @@ var app = express();
 var server = http.Server(app);
 var io = socketIO(server);
 
+var logToConsole = false;
+
 app.set('port', 5000);
 app.use('/static', express.static(__dirname + '/static'));
 
@@ -18,7 +20,7 @@ app.get('/', function(request, response) {
 });
 
 server.listen(5000, function() {
-  console.log('Starting server on port 5000');
+  log('Starting server on port 5000');
 });
 
 
@@ -34,7 +36,7 @@ var lastTime = 0;
 var timeDiff = 0;
 
 io.on('connection', function(socket) {
-  console.log('New Socket Connection');
+  log('New Socket Connection');
   
   // Player functions
   socket.on('new player', function(newPlayer, newMeetingRoom, newBallBasket) {
@@ -44,7 +46,7 @@ io.on('connection', function(socket) {
     newPlayer.socketId = socket.id;
     players[newPlayer.id] = newPlayer;
 
-    console.log('New Player: ' + newPlayer.id);
+    log('New Player: ' + newPlayer.id);
   });
 
   socket.on('player sync', function(player) {
@@ -56,7 +58,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('disconnect', function() {
-    console.log('remove Player with socked id: ' + socket.id);
+    log('remove Player with socked id: ' + socket.id);
 
     var playerId = null;
     var tempPlayers = {};
@@ -65,17 +67,17 @@ io.on('connection', function(socket) {
     }
     players = tempPlayers;
 
-    console.log('Players: ');
+    log('Players: ');
     for(var id in players){
-      console.log(players[id].id);
+      log(players[id].id);
     }
-    console.log('removed Player with socked id: ' + socket.id);
+    log('removed Player with socked id: ' + socket.id);
   });
 
   // Ball action functions
   socket.on('throw ball', function(ball) {
     // add Ball to the world
-    console.log('throw ball: ' + ball.id);
+    log('throw ball: ' + ball.id);
     balls[ball.id] = ball;
     
   });
@@ -89,7 +91,7 @@ io.on('connection', function(socket) {
     }
     balls = tempBalls;
 
-    console.log('take ball: ' + ball.id);
+    log('take ball: ' + ball.id);
     
   });
   
@@ -113,7 +115,7 @@ setInterval(function() {
   //console.log(players);
   io.sockets.emit('state', players, balls);
 
-}, 1000/60); // / 60
+}, 1000/50); // / 60
 
 
 function updateGameObjects(){
@@ -132,5 +134,9 @@ function updateGameObjects(){
     //balls[id].update(timeDiff);
   }
 
+}
+
+function log(text){
+  if(logToConsole) console.log(text);
 }
 

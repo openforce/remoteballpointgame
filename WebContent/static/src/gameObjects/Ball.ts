@@ -20,7 +20,6 @@ class Ball {
     speedY:number;
 
     state:number;
-    lastState:number;
 
     ui:boolean;
 
@@ -40,6 +39,12 @@ class Ball {
 
         this.speedX = 0;
         this.speedY = 0;
+    }
+
+    public sendStateToServer(){
+        if(this.lastHolderId == player.id){ 
+            socket.emit('sync ball', this.getSyncObject());
+        }
     }
 
     public getSyncObject(){
@@ -125,10 +130,11 @@ class Ball {
             this.lastY = this.y;
         }
 
+        /*
         if(this.lastHolderId == player.id){ // this.state != this.lastState
             socket.emit('sync ball', this.getSyncObject());
             this.lastState = this.state;
-        }
+        }*/
 
     }
 

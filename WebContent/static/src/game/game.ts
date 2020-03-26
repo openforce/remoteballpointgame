@@ -28,6 +28,9 @@ const CLICK_RIGHT = 1;
 var lastTime = 0;
 var timeDiff = 0;
 
+var maxTimeDiff = 0;
+var averageTimeDiff = 0;
+
 
 var gameName = "Ball Point Game";
 
@@ -111,7 +114,12 @@ function initGame(){
 	initButtons();
 
 	player.init();
-	
+
+	setInterval(function(){
+		for(var i = 0; i < balls.length; i++){
+			balls[i].sendStateToServer();
+		}
+	}, 1000/30);
 }
 
 
@@ -125,6 +133,14 @@ function updateGame() {
 	var time = now.getTime();
 	
 	timeDiff = time - lastTime;
+
+	if(timeDiff > maxTimeDiff) {
+		maxTimeDiff = timeDiff;
+		console.log('maxTimeDiff: ' + maxTimeDiff);
+	}
+	if(timeDiff > 20) console.log(timeDiff);
+
+	//console.log(timeDiff);
 	
 	lastTime = time;
 
@@ -246,8 +262,6 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 			var newBall = new Ball(serverBall.x, serverBall.y, true);
 			newBall.syncBallState(serverBall);
 			balls.push(newBall);
-
-			console.log(balls);
 		}
 		
 	}
