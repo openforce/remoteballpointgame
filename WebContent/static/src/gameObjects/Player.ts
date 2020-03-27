@@ -100,12 +100,14 @@ class Player {
             moveUp: this.moveUp,
             moveDown: this.moveDown,
             moveLeft: this.moveLeft,
-            moveRight: this.moveRight
+            moveRight: this.moveRight,
+            lookX: this.lookX,
+            lookY: this.lookY
         }
     }
     
     public init(){
-        setInterval(this.sendStateToServer, 1000/50);
+        setInterval(this.sendStateToServer, 1000/60);
     }
 
     public sendStateToServer(){
@@ -125,6 +127,8 @@ class Player {
         this.moveDown = player.moveDown;
         this.moveLeft = player.moveLeft;
         this.moveRight = player.moveRight;
+        this.lookX = player.lookX;
+        this.lookY = player.lookY;
 
         if(player.rightHand) this.rightHand = new Ball(this.x, this.y, true);
         else this.rightHand = null;

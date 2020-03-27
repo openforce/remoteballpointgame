@@ -20,6 +20,9 @@ class Ball {
     speedY:number;
 
     state:number;
+    lastState:number;
+
+    lastSyncState:number;
 
     ui:boolean;
 
@@ -42,8 +45,12 @@ class Ball {
     }
 
     public sendStateToServer(){
-        if(this.lastHolderId == player.id){ 
+        if(this.lastHolderId == player.id && this.state != BALL_STATE_TAKEN &&
+            (this.state != BALL_STATE_ONGROUND || this.lastSyncState != BALL_STATE_ONGROUND)){ 
+            
             socket.emit('sync ball', this.getSyncObject());
+            this.lastSyncState = this.state;
+
         }
     }
 
@@ -55,6 +62,7 @@ class Ball {
             speedX: this.speedX,
             speedY: this.speedY,
             state: this.state,
+            lastState: this.lastState,
             lastHolderId: this.lastHolderId
         }
     }
@@ -66,6 +74,7 @@ class Ball {
         this.speedX = serverBall.speedX;
         this.speedY = serverBall.speedY;
         this.state = serverBall.state;
+        this.lastState = serverBall.lastState;
         this.lastX = serverBall.x;
         this.lastY = serverBall.y;
         this.lastHolderId = serverBall.lastHolderId;
@@ -92,7 +101,7 @@ class Ball {
             if(Math.abs(this.speedY) < 0.01) this.speedY = 0;
 
             if(this.speedX == 0 && this.speedY == 0) {
-                this.state = BALL_STATE_ONGROUND;
+                this.changeStateTo(BALL_STATE_ONGROUND);
             }
 
         }
@@ -123,23 +132,22 @@ class Ball {
 
             this.speedX *= -0.6;
             this.speedY *= -0.6;
-            this.state = BALL_STATE_FALLING;
+            this.changeStateTo(BALL_STATE_FALLING);
 
         }else{ // save position
             this.lastX = this.x;
             this.lastY = this.y;
         }
 
-        /*
-        if(this.lastHolderId == player.id){ // this.state != this.lastState
-            socket.emit('sync ball', this.getSyncObject());
-            this.lastState = this.state;
-        }*/
+    }
 
+    public changeStateTo(newState:number){
+        this.lastState = this.state;
+        this.state = newState;
     }
 
     public take(player:Player){
-        this.state = BALL_STATE_TAKEN;
+        this.changeStateTo(BALL_STATE_TAKEN);
         this.speedX = 0;
         this.speedY = 0;
         this.lastHolderId = player.id;
@@ -149,7 +157,7 @@ class Ball {
         this.speedX = shootSpeed * (Math.cos(shootAngle));
         this.speedY = shootSpeed * (Math.sin(shootAngle));
 
-        this.state = BALL_STATE_INAIR;
+        this.changeStateTo(BALL_STATE_INAIR);
     }
 
 

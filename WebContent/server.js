@@ -115,7 +115,7 @@ setInterval(function() {
   //console.log(players);
   io.sockets.emit('state', players, balls);
 
-}, 1000/50); // / 60
+}, 1000/60); // / 60
 
 
 function updateGameObjects(){

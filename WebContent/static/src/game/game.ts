@@ -119,7 +119,7 @@ function initGame(){
 		for(var i = 0; i < balls.length; i++){
 			balls[i].sendStateToServer();
 		}
-	}, 1000/30);
+	}, 1000/60);
 }
 
 
@@ -136,9 +136,9 @@ function updateGame() {
 
 	if(timeDiff > maxTimeDiff) {
 		maxTimeDiff = timeDiff;
-		console.log('maxTimeDiff: ' + maxTimeDiff);
+		//console.log('maxTimeDiff: ' + maxTimeDiff);
 	}
-	if(timeDiff > 20) console.log(timeDiff);
+	//if(timeDiff > 20) console.log(timeDiff);
 
 	//console.log(timeDiff);
 	
@@ -240,14 +240,16 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 	// loop server balls and refresh / add existing balls
 	for (var id in serverBalls) {
 		var serverBall = serverBalls[id];
+
 		var foundBall= false;
 
 		for(var i = 0; i < balls.length; i++){
 			var clientBall = balls[i];
 
 			if(clientBall.id == serverBall.id){
-				if(serverBall.lastHolderId != player.id) 
+				if(serverBall.lastHolderId != player.id && clientBall.state != serverBall.state) {
 					clientBall.syncBallState(serverBall);
+				}
 				foundBall = true;
 				break;
 			}
