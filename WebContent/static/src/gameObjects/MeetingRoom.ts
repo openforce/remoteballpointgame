@@ -13,7 +13,7 @@ class MeetingRoom {
         
         if(ui){
             this.spriteBG = new Image();
-            this.spriteBG.src = "/static/resources/meetingRoom2.png";
+            this.spriteBG.src = "/static/resources/meetingroom2.png";
             
             this.spriteBGWidth = 1024;
             this.spriteBGHeight = 768;
