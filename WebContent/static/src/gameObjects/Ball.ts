@@ -14,6 +14,8 @@ class Ball {
     lastY:number;
 
     radius:number;
+
+    static colors = ['blue', 'white', 'orange', 'red', 'yellow'];
     color:string;
 
     speedX:number;
@@ -38,7 +40,7 @@ class Ball {
         this.y = y;
 
         this.radius = 7;
-        this.color = 'red';
+        this.color = getRandomEntryFromNumberedArray(Ball.colors);
 
         this.speedX = 0;
         this.speedY = 0;
@@ -59,6 +61,7 @@ class Ball {
             id: this.id,
             x: this.x,
             y: this.y,
+            color: this.color,
             speedX: this.speedX,
             speedY: this.speedY,
             state: this.state,
@@ -71,6 +74,7 @@ class Ball {
         this.id = serverBall.id;
         this.x = serverBall.x;
         this.y = serverBall.y;
+        this.color = serverBall.color;
         this.speedX = serverBall.speedX;
         this.speedY = serverBall.speedY;
         this.state = serverBall.state;
@@ -115,6 +119,10 @@ class Ball {
         else if(this.x + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
         //Basket
         else if(colCheckCirlces(this.x, this.y, this.radius, ballBasket.x, ballBasket.y, ballBasket.radius)) col = true;
+        //Flipchart
+        else if(colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        //Timer
+        else if(colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleX, timer.radius)) col = true;
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR && balls[i].x != this.x && balls[i].y != this.y)
@@ -167,7 +175,7 @@ class Ball {
         if(!this.ui) return;
 
         if(this.state != BALL_STATE_TAKEN) {
-            if(drawColliders) drawCyrcle(this.x, this.y, this.radius+1, 'blue');
+            drawCyrcle(this.x, this.y, this.radius+1, 'black');
             drawCyrcle(this.x, this.y, this.radius, this.color);
         }
     }

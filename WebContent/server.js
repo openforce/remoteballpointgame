@@ -74,7 +74,7 @@ io.on('connection', function(socket) {
     log('removed Player with socked id: ' + socket.id);
   });
 
-  // Ball action functions
+  // BALL action functions
   socket.on('throw ball', function(ball) {
     // add Ball to the world
     log('throw ball: ' + ball.id);
@@ -99,6 +99,16 @@ io.on('connection', function(socket) {
     // add Ball to the world
     //console.log('sync ball: ' + ball.id);
     if(balls[ball.id] != null) balls[ball.id] = ball;
+  });
+
+  // TIMER
+  socket.on('trigger timer', function(ball) {
+    
+  });
+
+  // Flipchart
+  socket.on('trigger flipchart', function(ball) {
+    
   });
 
 });

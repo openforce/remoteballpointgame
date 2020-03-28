@@ -52,6 +52,8 @@ var player:Player;
 var balls:Ball[];
 var ballBasket:BallBasket;
 var meetingRoom:MeetingRoom;
+var flipchart:Flipchart;
+var timer:Timer;
 
 //Multiplayer Objects
 var players:Player[];
@@ -86,10 +88,12 @@ function initGame(){
 
 	//init object controllers
 
-	player = new Player(620, 180, true, true);
+	player = new Player(620, 180, true, getRandomEntryFromNumberedArray(Player.colors), true);
 
-	ballBasket = new BallBasket(200, 130, true);
+	ballBasket = new BallBasket(400, 300, true);
 	meetingRoom = new MeetingRoom(true);
+	flipchart = new Flipchart(40, 80, true);
+	timer = new Timer(170, 60, true);
 	
 	gameDraw = new GameDraw();
 
@@ -152,6 +156,8 @@ function updateGame() {
 	
 	ballBasket.update(timeDiff);
 	meetingRoom.update(timeDiff);
+	flipchart.update(timeDiff);
+	timer.update(timeDiff);
 
 	for(var i = 0; i < players.length; i++){
 		//players[i].update(timeDiff);

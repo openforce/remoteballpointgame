@@ -31,9 +31,18 @@ class Player {
     // UI
     ui:boolean;
 
-    sprite:CanvasImageSource;
+    //sprite:CanvasImageSource;
+    sprites:CanvasImageSource[];
 	spriteWidth:number;
     spriteHeight:number;
+
+    static colors = ['blue', 'white', 'orange'];
+    color:string;
+
+    walkAnimationFrames:number = 2;
+    walkAnimationCount:number = 0;
+    walkAnimationTime:number = 200;
+    walkAnimationTimeDif:number = 0;
     
     // controls 
     clickedLeft:boolean = false;
@@ -53,9 +62,11 @@ class Player {
     // Multplayer
     syncToServer:boolean;
 
-    constructor(x:number, y:number, ui:boolean, syncToServer:boolean){
+    constructor(x:number, y:number, ui:boolean, color:string, syncToServer:boolean){
         this.ui = ui;
         this.syncToServer = syncToServer;
+
+        this.color = color;
 
         var date = Date.now();
         this.id = date.toString();
@@ -75,8 +86,13 @@ class Player {
         this.actionCircleRadius = 40;
 
         if(ui){
-            this.sprite = new Image();
-            this.sprite.src = "/static/resources/person_blue_stand.png";
+            this.sprites = [];
+            this.sprites[0] = new Image();
+            this.sprites[0].src = '/static/resources/person_' + color + '_stand.png';
+            this.sprites[1] = new Image();
+            this.sprites[1].src = '/static/resources/person_' + color + '_walk1.png';
+            this.sprites[2] = new Image();
+            this.sprites[2].src = '/static/resources/person_' + color + '_walk2.png';
             
             this.spriteWidth = 218;
             this.spriteHeight = 170;
@@ -183,7 +199,9 @@ class Player {
         if(this.moveUp) this.y -= this.speed * timeDiff;
         if(this.moveLeft) this.x -= this.speed * timeDiff;
         if(this.moveDown) this.y += this.speed * timeDiff;
-        if(this.moveRight) this.x += this.speed * timeDiff;    
+        if(this.moveRight) this.x += this.speed * timeDiff;   
+
+        this.walkAnimationTimeDif += timeDiff;
 
         this.middleX = this.x + this.width/2;
         this.middleY = this.y + this.height/2;
@@ -197,6 +215,10 @@ class Player {
         else if(this.middleX + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
         //Basket
         else if(colCheckCirlces(this.middleX, this.middleY, this.radius, ballBasket.x, ballBasket.y, ballBasket.radius)) col = true;
+        //Flipchart
+        else if(colCheckCirlces(this.middleX, this.middleY, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        //Timer
+        else if(colCheckCirlces(this.middleX, this.middleY, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR)
@@ -289,6 +311,18 @@ class Player {
                 this.takeBall(newBall, clickType);
                 return true;
             }
+
+            //check Flipchart
+            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, flipchart.middleX, flipchart.middleY, flipchart.radius)){
+                flipchart.triggerFlipchart();
+                return true;
+            }
+
+            //check Timer
+            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, timer.middleX, timer.middleY, timer.radius)){
+                timer.triggerTimer();
+                return true;
+            }
         }
 
         // nothing done
@@ -334,19 +368,30 @@ class Player {
         ctx.rotate(this.rotation * Math.PI / 180);
 
         //Sprite
-        ctx.drawImage(this.sprite,
+        if(this.moveDown || this.moveLeft || this.moveRight || this.moveUp){
+            if(this.walkAnimationTimeDif > this.walkAnimationTime){
+                this.walkAnimationCount++;
+                if(this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
+                this.walkAnimationTimeDif = 0;
+            }
+        }else this.walkAnimationCount = 0;
+
+        ctx.drawImage(this.sprites[this.walkAnimationCount],
 			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
             -this.width / 2, -this.height / 2, this.width, this.height); 	 // draw position and size
 
         if(this.leftHand != null){
             var myBall = this.leftHand;
             
+            drawCyrcle(13, 13, myBall.radius+1, 'black');
             drawCyrcle(13, 13, myBall.radius, myBall.color);
+
         }
 
         if(this.rightHand != null){
             var myBall = this.rightHand;
-            
+
+            drawCyrcle(-13, 15, myBall.radius+1, 'black');
             drawCyrcle(-13, 15, myBall.radius, myBall.color);
         }
 

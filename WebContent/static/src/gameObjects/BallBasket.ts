@@ -24,19 +24,23 @@ class BallBasket {
         if(!this.ui) return;
 
         //Basket
-        if(drawColliders) this.drawBasketColider();
+        if(drawColliders) this.drawColider();
+        drawCyrcle(this.x, this.y, this.radius+1, 'black');
         drawCyrcle(this.x, this.y, this.radius, 'chocolate');
 
         //balls
+        var ballColor = 0;
         for(var i = -12; i <= 12; i+=12){
             for(var j = -12; j <= 12; j+=12){
-                drawCyrcle(this.x+i, this.y+j, this.ballRadius, this.ballColor);
+                drawCyrcle(this.x+i, this.y+j, this.ballRadius+1, 'black');
+                drawCyrcle(this.x+i, this.y+j, this.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
+                ballColor++;
             }
 		}
 
     }
 
-    public drawBasketColider(){
+    public drawColider(){
         drawCyrcle(this.x, this.y, this.radius+1, 'blue');
     }
 
