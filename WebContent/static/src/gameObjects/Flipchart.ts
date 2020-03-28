@@ -71,7 +71,6 @@ class Flipchart {
 		// infos
 		ctx.fillStyle = "black";
 	    ctx.font = "bold 12px Arial";
-		ctx.fillText(this.name, infoBox_x+5, infoBox_y+15);
 		
 		ctx.font = "bold 10px Arial";
 		ctx.fillText('Flipchart', infoBox_x+5, infoBox_y+30);

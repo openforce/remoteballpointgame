@@ -199,7 +199,7 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 		
 		if(!foundPlayer){
 			//console.log('Add new Player to client');
-			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, false);
+			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, getRandomEntryFromNumberedArray(Player.colors), false);
 			newPlayer.syncPlayerState(serverPlayer);
 			players.push(newPlayer);
 		}
