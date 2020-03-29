@@ -122,7 +122,7 @@ class Ball {
         //Flipchart
         else if(colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
         //Timer
-        else if(colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleX, timer.radius)) col = true;
+        else if(colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR && balls[i].x != this.x && balls[i].y != this.y)
