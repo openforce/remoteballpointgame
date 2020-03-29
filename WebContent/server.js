@@ -35,6 +35,18 @@ var balls = {};
 var lastTime = 0;
 var timeDiff = 0;
 
+var timer = {
+  targetTime: 120 * 1000, //2 Minuten
+  startTime: null,
+  playTime: 0
+}
+
+var flipchart = {
+  active: false,
+  activeFlipchart: 0,
+  length: 4
+}
+
 io.on('connection', function(socket) {
   log('New Socket Connection');
   
@@ -102,13 +114,24 @@ io.on('connection', function(socket) {
   });
 
   // TIMER
-  socket.on('trigger timer', function(ball) {
-    
+  socket.on('trigger timer', function() {
+    if(timer.startTime == null) timer.startTime = new Date().getTime();
+    else timer.startTime = null;
   });
 
   // Flipchart
-  socket.on('trigger flipchart', function(ball) {
-    
+  socket.on('trigger flipchart', function() {
+    flipchart.active = !flipchart.active;
+  });
+  socket.on('trigger next flipchart', function() {
+    flipchart.activeFlipchart++;
+    if(flipchart.activeFlipchart == flipchart.length) flipchart.activeFlipchart = 0; 
+        
+  });
+  socket.on('trigger previous flipchart', function() {
+    flipchart.activeFlipchart--;
+    if(flipchart.activeFlipchart < 0) flipchart.activeFlipchart = flipchart.length-1; 
+
   });
 
 });
@@ -123,7 +146,7 @@ setInterval(function() {
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls);
+  io.sockets.emit('state', players, balls, timer, flipchart);
 
 }, 1000/60); // / 60
 
@@ -134,9 +157,19 @@ function updateGameObjects(){
 	var time = now.getTime();
 	
 	timeDiff = time - lastTime;
-	
-	lastTime = time;
+  lastTime = time;
 
+  
+  // Timer
+  var playedTime; 
+
+  if(timer.startTime == null) playedTime = 0;
+  else playedTime = now - timer.startTime;
+
+  timer.playTime = Math.round((timer.targetTime - playedTime)/1000);
+
+
+  //Player
   for(var id in players){
     //players[id].update(timeDiff);
   }

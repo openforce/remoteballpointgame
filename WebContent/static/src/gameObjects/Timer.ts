@@ -45,6 +45,8 @@ class Timer {
     public triggerTimer(){
         if(this.startTime == null) this.startTime = new Date().getTime();
         else this.startTime = null;
+
+        socket.emit('trigger timer');  
     }
 
     public draw(){

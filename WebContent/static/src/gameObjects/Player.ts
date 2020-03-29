@@ -103,6 +103,12 @@ class Player {
     }
 
     public getSyncObject(){
+        var rightHandColor = null;
+        var leftHandColor = null;
+
+        if(this.rightHand != null) rightHandColor = this.rightHand.color;
+        if(this.leftHand != null) leftHandColor = this.leftHand.color;
+
         return {
             id: this.id,
             socketId: this.socketId, 
@@ -111,8 +117,9 @@ class Player {
             middleX: this.middleX,
             middleY: this.middleY,
             rotation: this.rotation,
-            rightHand: this.rightHand != null,
-            leftHand: this.leftHand != null,
+            color: this.color,
+            rightHand: rightHandColor,
+            leftHand: leftHandColor,
             moveUp: this.moveUp,
             moveDown: this.moveDown,
             moveLeft: this.moveLeft,
@@ -139,6 +146,7 @@ class Player {
         this.middleX = player.middleX;
         this.middleY = player.middleY;
         this.rotation = player.rotation;
+        this.color = player.color;
         this.moveUp = player.moveUp;
         this.moveDown = player.moveDown;
         this.moveLeft = player.moveLeft;
@@ -146,11 +154,15 @@ class Player {
         this.lookX = player.lookX;
         this.lookY = player.lookY;
 
-        if(player.rightHand) this.rightHand = new Ball(this.x, this.y, true);
-        else this.rightHand = null;
+        if(player.rightHand != null) {
+            if(this.rightHand == null) this.rightHand = new Ball(this.x, this.y, true);
+            this.rightHand.color = player.rightHand;
+        }else this.rightHand = null;
 
-        if(player.leftHand) this.leftHand = new Ball(this.x, this.y, true);
-        else this.leftHand = null;
+        if(player.leftHand != null) {
+            if(this.leftHand == null) this.leftHand = new Ball(this.x, this.y, true);
+            this.leftHand.color = player.leftHand;
+        }else this.leftHand = null;
     }
 
     // CONTROLS

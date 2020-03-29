@@ -176,10 +176,20 @@ function updateGame() {
 /***********************************
 # sync client with server states
 ***********************************/
-function processServerSync(serverPlayers:any, serverBalls:any) {
+function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any) {
 	//console.log(players);
 	//console.log(balls);
+
+	// SYNC TIMER
+	timer.targetTime = serverTimer.targetTime;
+  	timer.startTime = serverTimer.startTime;
+	timer.playTime = serverTimer.playTimer;
 	
+	// SYNC FLIPCHART 
+	flipchart.active = serverFlipchart.active;
+	flipchart.activeFlipchart = serverFlipchart.activeFlipchart;
+
+	// SYNC PLAYERS
 	for (var id in serverPlayers) {
 	  var serverPlayer = serverPlayers[id];
 	  
@@ -199,7 +209,7 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 		
 		if(!foundPlayer){
 			//console.log('Add new Player to client');
-			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, getRandomEntryFromNumberedArray(Player.colors), false);
+			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, serverPlayer.color, false);
 			newPlayer.syncPlayerState(serverPlayer);
 			players.push(newPlayer);
 		}
@@ -241,7 +251,7 @@ function processServerSync(serverPlayers:any, serverBalls:any) {
 	}
 
 
-	// Balls
+	// SYNC BALLS
 
 	// loop server balls and refresh / add existing balls
 	for (var id in serverBalls) {
@@ -325,6 +335,7 @@ function endGame(){
 function checkGameClicks(mouseX:number, mouseY:number){
 	//console.log("checkGameClicks");
 	player.checkClick(mouseX, mouseY, CLICK_LEFT);
+	flipchart.checkClick(mouseX, mouseY);
 	
 }
 
