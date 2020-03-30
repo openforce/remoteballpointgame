@@ -10,6 +10,34 @@ class Flipchart {
     active:boolean;
     activeFlipchart:number = 0;
 
+    resultTable = {
+        round1: {
+            estimation: '',
+            result: '',
+            bugs: ''
+        },
+        round2: {
+            estimation: '',
+            result: '',
+            bugs: ''
+        },
+        round3: {
+            estimation: '',
+            result: '',
+            bugs: ''
+        },
+        round4: {
+            estimation: '',
+            result: '',
+            bugs: ''
+        },
+        round5: {
+            estimation: '',
+            result: '',
+            bugs: ''
+        },
+    }
+
     // UI 
     ui:boolean;
     
@@ -37,6 +65,10 @@ class Flipchart {
         this.middleY = this.y + this.spriteHeight/2;
 
         this.active = false;
+
+        socket.on('new result table', function(serverResultTable:any) {
+            flipchart.resultTable = serverResultTable;
+        });
 
         this.ui = ui;
 
@@ -87,6 +119,40 @@ class Flipchart {
         socket.emit('trigger previous flipchart'); 
     }
 
+    public syncResultTable(){
+        socket.emit('sync result table', this.resultTable);
+    }
+
+    public resetResultTable(){
+        this.resultTable = {
+            round1: {
+                estimation: '',
+                result: '',
+                bugs: ''
+            },
+            round2: {
+                estimation: '',
+                result: '',
+                bugs: ''
+            },
+            round3: {
+                estimation: '',
+                result: '',
+                bugs: ''
+            },
+            round4: {
+                estimation: '',
+                result: '',
+                bugs: ''
+            },
+            round5: {
+                estimation: '',
+                result: '',
+                bugs: ''
+            },
+        }
+    }
+
     public draw(){
         if(!this.ui) return;
 
@@ -105,9 +171,10 @@ class Flipchart {
             
     }
 
+    
     public drawFlipchartScreen(){
         
-		// BG
+        // BG
 		ctx.beginPath();
 		ctx.fillStyle = 'white';
 		ctx.fillRect(this.infoBox_x, this.infoBox_y, this.infoBoxWidth, this.infoBoxHeight);
@@ -123,7 +190,41 @@ class Flipchart {
         ctx.drawImage(this.flipchartSprites[this.activeFlipchart],
 			0, 0, this.flipchartSpriteWidth, this.flipchartSpriteHeight, // sprite cutout position and size
             this.infoBox_x-15, this.infoBox_y, this.infoBoxWidth, this.infoBoxHeight); 	 // draw position and size
-		
+
+        if(this.activeFlipchart == 3) this.drawResultTable();
+            
+        }
+        
+    public drawResultTable(){
+        ctx.fillStyle = "black";
+        ctx.font = "bold 20px Arial";
+
+        var x = 340;
+        var xOffset = 60;
+
+        var y = 163;
+        var yOffset = 50;
+        
+        // Runde 1
+        ctx.fillText(this.resultTable.round1.estimation, x, y);
+        ctx.fillText(this.resultTable.round1.result, x + xOffset, y);
+        ctx.fillText(this.resultTable.round1.bugs, x + xOffset*2, y);
+        // Runde 2
+        ctx.fillText(this.resultTable.round2.estimation, x, y + yOffset);
+        ctx.fillText(this.resultTable.round2.result, x + xOffset, y + yOffset);
+        ctx.fillText(this.resultTable.round2.bugs, x + xOffset*2, y + yOffset);
+        // Runde 3
+        ctx.fillText(this.resultTable.round3.estimation, x, y + yOffset*2);
+        ctx.fillText(this.resultTable.round3.result, x + xOffset, y + yOffset*2);
+        ctx.fillText(this.resultTable.round3.bugs, x + xOffset*2, y + yOffset*2);
+        // Runde 4
+        ctx.fillText(this.resultTable.round4.estimation, x, y + yOffset*3);
+        ctx.fillText(this.resultTable.round4.result, x + xOffset, y + yOffset*3);
+        ctx.fillText(this.resultTable.round4.bugs, x + xOffset*2, y + yOffset*3);
+        // Runde 5
+        ctx.fillText(this.resultTable.round5.estimation, x, y + yOffset*4);
+        ctx.fillText(this.resultTable.round5.result, x + xOffset, y + yOffset*4);
+        ctx.fillText(this.resultTable.round5.bugs, x + xOffset*2, y + yOffset*4);
     }
 
     public drawColider(){

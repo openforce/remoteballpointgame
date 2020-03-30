@@ -48,7 +48,31 @@ var flipchart = {
 };
 
 var resultTable = {
-
+  round1: {
+      estimation: '',
+      result: '',
+      bugs: ''
+  },
+  round2: {
+      estimation: '',
+      result: '',
+      bugs: ''
+  },
+  round3: {
+      estimation: '',
+      result: '',
+      bugs: ''
+  },
+  round4: {
+      estimation: '',
+      result: '',
+      bugs: ''
+  },
+  round5: {
+      estimation: '',
+      result: '',
+      bugs: ''
+  },
 };
 
 io.on('connection', function(socket) {
@@ -61,6 +85,8 @@ io.on('connection', function(socket) {
     
     newPlayer.socketId = socket.id;
     players[newPlayer.id] = newPlayer;
+
+    io.sockets.emit('new result table', resultTable);
 
     log('New Player: ' + newPlayer.id);
   });
@@ -138,6 +164,12 @@ io.on('connection', function(socket) {
 
   });
 
+  socket.on('sync result table', function(clientResultTable) {
+    log('sync result table');
+    resultTable = clientResultTable;
+    io.sockets.emit('new result table', resultTable);
+  });
+
 });
 
 
@@ -150,7 +182,7 @@ setInterval(function() {
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls, timer, flipchart);
+  io.sockets.emit('state', players, balls, timer, flipchart, resultTable);
 
 }, 1000/60); // / 60
 

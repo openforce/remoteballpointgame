@@ -178,7 +178,7 @@ function updateGame() {
 /***********************************
 # sync client with server states
 ***********************************/
-function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any) {
+function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, resultTable:any) {
 	//console.log(players);
 	//console.log(balls);
 

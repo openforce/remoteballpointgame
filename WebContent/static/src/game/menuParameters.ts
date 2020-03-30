@@ -76,24 +76,24 @@ function drawMenuParameters(){
     ctx.font = "bold 20px Arial";
 	
 	ctx.fillText("SPEED", 20, 170);
-	input_speed.render();
+	//input_speed.render();
 	 
 	ctx.fillText("TIME", 250, 170);
-	input_time.render();
+	//input_time.render();
 	
 	
 	ctx.fillText("Workitems", 20, 220);
-	input_items.render();
+	//input_items.render();
 
 	ctx.fillText("Teamsize", 250, 220);
-	input_teamMembers.render();
+	//input_teamMembers.render();
 	
 	
 	// DRAW targets
 	ctx.fillText("Targets", 20, 320);
 	
 	ctx.fillText("Points", 20, 350);
-	input_target_points.render();
+	//input_target_points.render();
 	
 }
 
