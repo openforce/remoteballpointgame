@@ -73,7 +73,7 @@ var socket:any;
 /***********************************
 # Method to init all game objects 
 ***********************************/
-function initGame(){
+function initGame(playerColor:string){
 	//console.log("init game");
 	
 	gameEngine.navigation = nav_game;
@@ -87,8 +87,10 @@ function initGame(){
 	socket.on('state', processServerSync);
 
 	//init object controllers
-
-	player = new Player(620, 180, true, getRandomEntryFromNumberedArray(Player.colors), true);
+	var color = playerColor;
+	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors)
+	
+	player = new Player(620, 180, true, color, true);
 
 	ballBasket = new BallBasket(400, 300, true);
 	meetingRoom = new MeetingRoom(true);

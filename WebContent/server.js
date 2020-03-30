@@ -39,13 +39,17 @@ var timer = {
   targetTime: 120 * 1000, //2 Minuten
   startTime: null,
   playTime: 0
-}
+};
 
 var flipchart = {
   active: false,
   activeFlipchart: 0,
   length: 4
-}
+};
+
+var resultTable = {
+
+};
 
 io.on('connection', function(socket) {
   log('New Socket Connection');
