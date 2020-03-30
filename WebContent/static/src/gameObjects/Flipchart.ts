@@ -9,6 +9,7 @@ class Flipchart {
     
     active:boolean;
     activeFlipchart:number = 0;
+    lastActivator:string;
 
     resultTable = {
         round1: {
@@ -103,7 +104,7 @@ class Flipchart {
     public triggerFlipchart(){
         this.active = !this.active;
 
-        socket.emit('trigger flipchart');  
+        socket.emit('trigger flipchart', player.id);  
     }
 
     public triggerNextFlipchart(){
@@ -165,8 +166,11 @@ class Flipchart {
 
         if(this.active){
             this.drawFlipchartScreen();
-            this.nextFlipchartButton.draw();
-            this.previousFlipchartButton.draw();
+            
+            if(this.lastActivator == player.id){
+                this.nextFlipchartButton.draw();
+                this.previousFlipchartButton.draw();
+            }
         }
             
     }

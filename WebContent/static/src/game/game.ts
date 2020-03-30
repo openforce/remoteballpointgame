@@ -190,6 +190,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 	// SYNC FLIPCHART 
 	flipchart.active = serverFlipchart.active;
 	flipchart.activeFlipchart = serverFlipchart.activeFlipchart;
+	flipchart.lastActivator = serverFlipchart.lastActivator;
 
 	// SYNC PLAYERS
 	for (var id in serverPlayers) {

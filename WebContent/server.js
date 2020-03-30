@@ -44,6 +44,7 @@ var timer = {
 var flipchart = {
   active: false,
   activeFlipchart: 0,
+  lastActivator: null,
   length: 4
 };
 
@@ -150,8 +151,9 @@ io.on('connection', function(socket) {
   });
 
   // Flipchart
-  socket.on('trigger flipchart', function() {
+  socket.on('trigger flipchart', function(clientLastActivator) {
     flipchart.active = !flipchart.active;
+    flipchart.lastActivator = clientLastActivator;
   });
   socket.on('trigger next flipchart', function() {
     flipchart.activeFlipchart++;

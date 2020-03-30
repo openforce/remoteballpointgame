@@ -34,7 +34,7 @@ class Ball {
         this.ui = ui;
 
         var date = Date.now();
-        this.id = date.toString();
+        this.id = date.toString() + getRandomNumber(1,100);
         
         this.x = x;
         this.y = y;
