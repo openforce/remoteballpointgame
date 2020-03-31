@@ -43,8 +43,14 @@ class Flipchart {
     ui:boolean;
     
     sprite:CanvasImageSource;
-	spriteWidth:number = 131;
-    spriteHeight:number = 83;
+	spriteWidth:number = 131 * 0.9;
+    spriteHeight:number = 83 * 1.2;
+
+    flipchartSpritesSmall:CanvasImageSource[];
+    flipchartSpriteSmallStartX:number = 410;
+    flipchartSpriteSmallStartY:number = 300;
+    flipchartSpriteSmallWidth:number =  860 - 410;
+    flipchartSpriteSmallHeight:number = 615 - 300;
 
     flipchartSprites:CanvasImageSource[];
     flipchartSpriteWidth:number = 1974;
@@ -86,6 +92,16 @@ class Flipchart {
             this.flipchartSprites[2].src = "/static/resources/flipchartRules.png";
             this.flipchartSprites[3] = new Image();
             this.flipchartSprites[3].src = "/static/resources/flipchartResults.png";
+
+            this.flipchartSpritesSmall = [];
+            this.flipchartSpritesSmall[0] = new Image();
+            this.flipchartSpritesSmall[0].src = "/static/resources/flipchartControlesSmall.png";
+            this.flipchartSpritesSmall[1] = new Image();
+            this.flipchartSpritesSmall[1].src = "/static/resources/flipchartWarmupSmall.png";
+            this.flipchartSpritesSmall[2] = new Image();
+            this.flipchartSpritesSmall[2].src = "/static/resources/flipchartRulesSmall.png";
+            this.flipchartSpritesSmall[3] = new Image();
+            this.flipchartSpritesSmall[3].src = "/static/resources/flipchartResultsSmall.png";
 
             this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '     -->');               
             this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '<--');
@@ -158,8 +174,8 @@ class Flipchart {
         if(!this.ui) return;
 
         //BG
-		ctx.drawImage(this.sprite,
-			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
+		ctx.drawImage(this.flipchartSpritesSmall[this.activeFlipchart],
+			this.flipchartSpriteSmallStartX, this.flipchartSpriteSmallStartY, this.flipchartSpriteSmallWidth, this.flipchartSpriteSmallHeight, // sprite cutout position and size
             this.x, this.y, this.spriteWidth, this.spriteHeight); 	 // draw position and size
             
         if(drawColliders) this.drawColider();

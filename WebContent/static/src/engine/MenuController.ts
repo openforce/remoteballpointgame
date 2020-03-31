@@ -50,7 +50,7 @@ class MenuController {
 	}
 	
 	public init(){
-		initMenuParameters();
+		//initMenuParameters();
 	}
 	
 	

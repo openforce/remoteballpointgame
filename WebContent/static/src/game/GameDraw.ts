@@ -22,16 +22,17 @@ class GameDraw {
 		ballBasket.draw();
 		timer.draw();
 		
-		player.draw();
+		flipchart.draw();
+
 		
 		for(var i = 0; i < players.length; i++){
 			players[i].draw();
 		}
 		
+		player.draw();
 		
 		drawButtons();
 		
-		flipchart.draw();
 
 		// DRAW Frame and infos
 		

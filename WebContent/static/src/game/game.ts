@@ -89,7 +89,7 @@ function initGame(playerColor:string){
 	//init object controllers
 	var color = playerColor;
 	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors)
-	
+
 	player = new Player(620, 180, true, color, true);
 
 	ballBasket = new BallBasket(400, 300, true);
@@ -111,9 +111,9 @@ function initGame(playerColor:string){
 	
 	//init game parameters
 	
-	setParametersFromMenu();
+	//setParametersFromMenu();
 	
-	initMissions();
+	//initMissions();
 	
 	
 	// INIT Game Objects here
