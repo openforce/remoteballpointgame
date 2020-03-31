@@ -7,13 +7,16 @@ class MenuController {
 	startButtonHeight:number = 55;
 
 
-	//Player Selection
 	sprites:CanvasImageSource[];
-	spriteWidth:number;
-	spriteHeight:number;
-	spriteDrawWidth:number = 70;
-	spriteDrawHeight:number = 60;
-	playerStartX:number = 260;
+
+	//Player Selection
+	playerSprites:CanvasImageSource[];
+	playerSpriteWidth:number = 218;
+	playerSpriteHeight:number= 170;
+	playerSpriteDrawWidth:number = 70;
+	playerSpriteDrawHeight:number = 60;
+	
+	playerStartX:number = 120;
 	playerDistX:number = 100;
 	playerY:number = 270;
 
@@ -21,28 +24,32 @@ class MenuController {
 	
 	constructor(){
 
+		this.playerSprites = [];
+		this.playerSprites[0] = new Image();
+		this.playerSprites[0].src = '/static/resources/person_blue_stand.png';
+		this.playerSprites[1] = new Image();
+		this.playerSprites[1].src = '/static/resources/person_orange_stand.png';
+		this.playerSprites[2] = new Image();
+		this.playerSprites[2].src = '/static/resources/person_white_stand.png';
+		this.playerSprites[3] = new Image();
+		this.playerSprites[3].src = '/static/resources/person_w_blue_stand.png';
+		this.playerSprites[4] = new Image();
+		this.playerSprites[4].src = '/static/resources/person_w_orange_stand.png';
+		this.playerSprites[5] = new Image();
+		this.playerSprites[5].src = '/static/resources/person_w_white_stand.png';
+
 		this.playerButtons = [];
-		this.playerButtons[0] = new Button(this.playerStartX, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight, '');
-		this.playerButtons[1] = new Button(this.playerStartX + this.playerDistX, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight, '');
-		this.playerButtons[2] = new Button(this.playerStartX + this.playerDistX*2, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight, '');
+		for(var i = 0; i < this.playerSprites.length; i++){
+			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
+		}
 
 		this.sprites = [];
 		this.sprites[0] = new Image();
-		this.sprites[0].src = '/static/resources/person_blue_stand.png';
+		this.sprites[0].src = '/static/resources/titlescreen.png';
 		this.sprites[1] = new Image();
-		this.sprites[1].src = '/static/resources/person_orange_stand.png';
+		this.sprites[1].src = '/static/resources/chooseplayer.png';
 		this.sprites[2] = new Image();
-		this.sprites[2].src = '/static/resources/person_white_stand.png';
-
-		this.sprites[3] = new Image();
-		this.sprites[3].src = '/static/resources/titlescreen.png';
-		this.sprites[4] = new Image();
-		this.sprites[4].src = '/static/resources/chooseplayer.png';
-		this.sprites[5] = new Image();
-		this.sprites[5].src = '/static/resources/controlestitle.png';
-
-		this.spriteWidth = 218;
-        this.spriteHeight = 170;
+		this.sprites[2].src = '/static/resources/controlestitle.png';
 	}
 
 	public gotoMenu(){
@@ -79,30 +86,24 @@ class MenuController {
 		
 
 		// Title Screen
-		ctx.drawImage(this.sprites[3],
+		ctx.drawImage(this.sprites[0],
 			0, 0, 800, 600, // sprite cutout position and size
 			0, 0, 800, 600); 	 // draw position and size
 
-		ctx.drawImage(this.sprites[4],
+		ctx.drawImage(this.sprites[1],
 			0, 0, 800, 600, // sprite cutout position and size
 			0, 0, 800, 600); 	 // draw position and size
 
-		ctx.drawImage(this.sprites[5],
+		ctx.drawImage(this.sprites[2],
 			0, 0, 1974, 2400, // sprite cutout position and size
 			150, 350, 1974/4, 2400/4); 	 // draw position and size
 			
 		// Players
-		ctx.drawImage(this.sprites[0],
-			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
-			this.playerStartX, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight); 	 // draw position and size
-			
-		ctx.drawImage(this.sprites[1],
-			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
-			this.playerStartX + this.playerDistX, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight); 	 // draw position and size
-			
-		ctx.drawImage(this.sprites[2],
-			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
-            this.playerStartX + this.playerDistX*2, this.playerY, this.spriteDrawWidth, this.spriteDrawHeight); 	 // draw position and size
+		for(var i = 0; i < this.playerSprites.length; i++){
+			ctx.drawImage(this.playerSprites[i],
+				0, 0, this.playerSpriteWidth, this.playerSpriteHeight, // sprite cutout position and size
+				this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteDrawHeight); 	 // draw position and size	
+		}
 
 	}
 	
@@ -158,6 +159,9 @@ class MenuController {
 		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame('blue');
 		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame('orange');
 		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame('white');
+		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame('blue');
+		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame('orange');
+		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame('white');
 
 	}
 
