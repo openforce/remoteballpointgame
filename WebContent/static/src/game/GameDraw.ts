@@ -30,6 +30,9 @@ class GameDraw {
 		}
 		
 		player.draw();
+
+		flipchart.drawFlipchartScreen();
+
 		
 		drawButtons();
 		

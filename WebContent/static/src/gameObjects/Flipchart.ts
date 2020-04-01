@@ -179,20 +179,13 @@ class Flipchart {
             this.x, this.y, this.spriteWidth, this.spriteHeight); 	 // draw position and size
             
         if(drawColliders) this.drawColider();
-
-        if(this.active){
-            this.drawFlipchartScreen();
-            
-            if(this.lastActivator == player.id){
-                this.nextFlipchartButton.draw();
-                this.previousFlipchartButton.draw();
-            }
-        }
             
     }
 
     
     public drawFlipchartScreen(){
+        
+        if(!this.active) return;
         
         // BG
 		ctx.beginPath();
@@ -212,8 +205,13 @@ class Flipchart {
             this.infoBox_x-15, this.infoBox_y, this.infoBoxWidth, this.infoBoxHeight); 	 // draw position and size
 
         if(this.activeFlipchart == 3) this.drawResultTable();
-            
+
+        if(this.lastActivator == player.id){
+            this.nextFlipchartButton.draw();
+            this.previousFlipchartButton.draw();
         }
+            
+    }
         
     public drawResultTable(){
         ctx.fillStyle = "black";

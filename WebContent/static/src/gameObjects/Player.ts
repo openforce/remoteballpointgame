@@ -39,6 +39,9 @@ class Player {
     static colors = ['blue', 'white', 'orange'];
     color:string;
 
+    static genders = ['m', 'w'];
+    gender:string;
+
     walkAnimationFrames:number = 2;
     walkAnimationCount:number = 0;
     walkAnimationTime:number = 200;
@@ -62,11 +65,12 @@ class Player {
     // Multplayer
     syncToServer:boolean;
 
-    constructor(x:number, y:number, ui:boolean, color:string, syncToServer:boolean){
+    constructor(x:number, y:number, ui:boolean, color:string, gender:string, syncToServer:boolean){
         this.ui = ui;
         this.syncToServer = syncToServer;
 
         this.color = color;
+        this.gender = gender;
 
         var date = Date.now();
         this.id = date.toString() + getRandomNumber(1,100);
@@ -86,13 +90,17 @@ class Player {
         this.actionCircleRadius = 40;
 
         if(ui){
+            var genderPicString:string;  
+            if(this.gender == 'm') genderPicString = '';
+            else genderPicString = this.gender + '_'; 
+
             this.sprites = [];
             this.sprites[0] = new Image();
-            this.sprites[0].src = '/static/resources/person_' + color + '_stand.png';
+            this.sprites[0].src = '/static/resources/person_' + genderPicString + color + '_stand.png';
             this.sprites[1] = new Image();
-            this.sprites[1].src = '/static/resources/person_' + color + '_walk1.png';
+            this.sprites[1].src = '/static/resources/person_' + genderPicString + color + '_walk1.png';
             this.sprites[2] = new Image();
-            this.sprites[2].src = '/static/resources/person_' + color + '_walk2.png';
+            this.sprites[2].src = '/static/resources/person_' + genderPicString + color + '_walk2.png';
             
             this.spriteWidth = 218;
             this.spriteHeight = 170;
@@ -118,6 +126,7 @@ class Player {
             middleY: this.middleY,
             rotation: this.rotation,
             color: this.color,
+            gender:this.gender,
             rightHand: rightHandColor,
             leftHand: leftHandColor,
             moveUp: this.moveUp,
@@ -147,6 +156,7 @@ class Player {
         this.middleY = player.middleY;
         this.rotation = player.rotation;
         this.color = player.color;
+        this.gender = player.gender;
         this.moveUp = player.moveUp;
         this.moveDown = player.moveDown;
         this.moveLeft = player.moveLeft;

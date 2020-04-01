@@ -28,7 +28,7 @@ class LevelMenuController{
 		// UPDATE
 		
 		// space to start
-		if(this.level_chosen > 0) if (keys[32]) initGame(null);
+		if(this.level_chosen > 0) if (keys[32]) initGame(null, null);
 		// goto menu on m
 		if (keys[77]) gameEngine.menuController.gotoMenu();
 		// delete cookies with d

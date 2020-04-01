@@ -73,7 +73,7 @@ var socket:any;
 /***********************************
 # Method to init all game objects 
 ***********************************/
-function initGame(playerColor:string){
+function initGame(playerColor:string, playerGender:string){
 	//console.log("init game");
 	
 	gameEngine.navigation = nav_game;
@@ -90,7 +90,11 @@ function initGame(playerColor:string){
 	var color = playerColor;
 	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors)
 
-	player = new Player(620, 180, true, color, true);
+	var gender = playerGender;
+	if(gender == null) gender = getRandomEntryFromNumberedArray(Player.genders)
+
+
+	player = new Player(620, 180, true, color, gender, true);
 
 	ballBasket = new BallBasket(400, 300, true);
 	meetingRoom = new MeetingRoom(true);
@@ -212,7 +216,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 		
 		if(!foundPlayer){
 			//console.log('Add new Player to client');
-			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, serverPlayer.color, false);
+			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, serverPlayer.color, serverPlayer.gender, false);
 			newPlayer.syncPlayerState(serverPlayer);
 			players.push(newPlayer);
 		}
