@@ -134,7 +134,8 @@ class Player {
             moveLeft: this.moveLeft,
             moveRight: this.moveRight,
             lookX: this.lookX,
-            lookY: this.lookY
+            lookY: this.lookY,
+            walkAnimationCount: this.walkAnimationCount
         }
     }
     
@@ -163,6 +164,7 @@ class Player {
         this.moveRight = player.moveRight;
         this.lookX = player.lookX;
         this.lookY = player.lookY;
+        this.walkAnimationCount = player.walkAnimationCount;
 
         if(player.rightHand != null) {
             if(this.rightHand == null) this.rightHand = new Ball(this.x, this.y, true);
