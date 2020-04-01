@@ -35,12 +35,7 @@ var averageTimeDiff = 0;
 var gameName = "Ball Point Game";
 
 // GAME Parameters
-var par_speed:number;
-var par_time:number;
-var par_items:number;
-var par_teamMembers:number;
-
-var par_target_points:number;
+var par_name:string;
 
 var actualSpeed:number; 
 var lastGameSpeed = 0;
@@ -73,7 +68,7 @@ var socket:any;
 /***********************************
 # Method to init all game objects 
 ***********************************/
-function initGame(playerColor:string, playerGender:string){
+function initGame(playerName:string, playerColor:string, playerGender:string){
 	//console.log("init game");
 	
 	gameEngine.navigation = nav_game;
@@ -88,13 +83,16 @@ function initGame(playerColor:string, playerGender:string){
 
 	//init object controllers
 	var color = playerColor;
-	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors)
+	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors);
 
 	var gender = playerGender;
-	if(gender == null) gender = getRandomEntryFromNumberedArray(Player.genders)
+	if(gender == null) gender = getRandomEntryFromNumberedArray(Player.genders);
+	
+	var name = playerName;
+	if(name == null) name = getRandomName();
 
 
-	player = new Player(620, 180, true, color, gender, true);
+	player = new Player(620, 180, true, name, color, gender, true);
 
 	ballBasket = new BallBasket(400, 300, true);
 	meetingRoom = new MeetingRoom(true);
@@ -216,7 +214,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 		
 		if(!foundPlayer){
 			//console.log('Add new Player to client');
-			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, serverPlayer.color, serverPlayer.gender, false);
+			var newPlayer = new Player(serverPlayer.x, serverPlayer.y, true, serverPlayer.name, serverPlayer.color, serverPlayer.gender, false);
 			newPlayer.syncPlayerState(serverPlayer);
 			players.push(newPlayer);
 		}

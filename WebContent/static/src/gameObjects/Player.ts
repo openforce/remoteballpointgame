@@ -27,6 +27,8 @@ class Player {
     id:string;
     socketId:string;
 
+    name:string;
+
     
     // UI
     ui:boolean;
@@ -65,30 +67,31 @@ class Player {
     // Multplayer
     syncToServer:boolean;
 
-    constructor(x:number, y:number, ui:boolean, color:string, gender:string, syncToServer:boolean){
+    constructor(x:number, y:number, ui:boolean, name:string, color:string, gender:string, syncToServer:boolean){
         this.ui = ui;
         this.syncToServer = syncToServer;
 
+        this.name = name;
         this.color = color;
         this.gender = gender;
-
+        
         var date = Date.now();
         this.id = date.toString() + getRandomNumber(1,100);
-
+        
         this.x = x;
         this.y = y;
         
         this.width = 70;
         this.height = 60;
-
+        
         this.middleX = this.x + this.width/2;
         this.middleY = this.y + this.height/2;
         
         this.radius = 30;
         this.rotation = 180;
-
+        
         this.actionCircleRadius = 40;
-
+        
         if(ui){
             var genderPicString:string;  
             if(this.gender == 'm') genderPicString = '';
@@ -135,7 +138,8 @@ class Player {
             moveRight: this.moveRight,
             lookX: this.lookX,
             lookY: this.lookY,
-            walkAnimationCount: this.walkAnimationCount
+            walkAnimationCount: this.walkAnimationCount,
+            name: this.name
         }
     }
     
@@ -165,6 +169,7 @@ class Player {
         this.lookX = player.lookX;
         this.lookY = player.lookY;
         this.walkAnimationCount = player.walkAnimationCount;
+        this.name = player.name;
 
         if(player.rightHand != null) {
             if(this.rightHand == null) this.rightHand = new Ball(this.x, this.y, true);
@@ -423,8 +428,16 @@ class Player {
         ctx.rotate(-this.rotation * Math.PI / 180);
         ctx.translate(-this.x - this.width / 2, -this.y -this.height / 2);
         
+        this.drawName();
+
         if(drawColliders) this.drawActionArea();
         
+    }
+
+    public drawName(){
+        ctx.fillStyle = "black";
+        ctx.font = "bold 12px Arial";
+        ctx.fillText(this.name, this.x + 15, this.y + this.height + 10);
     }
 
     public drawActionArea(){

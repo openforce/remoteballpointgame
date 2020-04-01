@@ -18,7 +18,7 @@ class MenuController {
 	
 	playerStartX:number = 120;
 	playerDistX:number = 100;
-	playerY:number = 270;
+	playerY:number = 320;
 
 	playerButtons:Button[];
 	
@@ -58,6 +58,15 @@ class MenuController {
 	
 	public init(){
 		//initMenuParameters();
+
+		input_name	= new CanvasInput({
+			canvas: canvas,
+			x: 375,
+			y: 278,
+			width: 100,
+			value: getRandomName()
+		  });
+
 	}
 	
 	
@@ -67,7 +76,7 @@ class MenuController {
 		
 		
 		// space to start
-		if (keys[32]) initGame(null, null);
+		//if (keys[32]) initGame(input_name.value(), null, null);
 		// restart on R
 		//if (keys[82]) setRandomValues();
 		// levels on L
@@ -96,8 +105,17 @@ class MenuController {
 
 		ctx.drawImage(this.sprites[2],
 			0, 0, 1974, 2400, // sprite cutout position and size
-			150, 350, 1974/4, 2400/4); 	 // draw position and size
+			200, 400, 1974/5, 2400/5); 	 // draw position and size
 			
+		// Name input
+		//drawMenuParameters();
+		
+		ctx.fillStyle = "black";
+		ctx.font = "bold 20px Arial";
+		
+		ctx.fillText("first name:", 265, 300);
+		input_name.render();
+
 		// Players
 		for(var i = 0; i < this.playerSprites.length; i++){
 			ctx.drawImage(this.playerSprites[i],
@@ -115,7 +133,7 @@ class MenuController {
 		// goto menu on m
 		if (keys[77]) this.gotoMenu();
 		// restart on r
-		if (keys[82]) initGame(null, null);
+		if (keys[82]) initGame(null, null, null);
 		// restart on L
 		if (keys[76]) gameEngine.levelMenuController.gotoLevelMenu();
 		
@@ -156,12 +174,12 @@ class MenuController {
 
 	public checkClick(mouseX:number, mouseY:number){
 
-		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame('blue', 'm');
-		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame('orange', 'm');
-		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame('white', 'm');
-		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame('blue', 'w');
-		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame('orange', 'w');
-		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame('white', 'w');
+		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'blue', 'm');
+		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'orange', 'm');
+		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'white', 'm');
+		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'blue', 'w');
+		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'orange', 'w');
+		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'white', 'w');
 
 	}
 
