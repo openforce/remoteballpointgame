@@ -60,7 +60,7 @@ class MenuController {
 		
 		
 		// space to start
-		if (keys[32]) initGame(null);
+		if (keys[32]) initGame(null, null);
 		// restart on R
 		//if (keys[82]) setRandomValues();
 		// levels on L
@@ -114,7 +114,7 @@ class MenuController {
 		// goto menu on m
 		if (keys[77]) this.gotoMenu();
 		// restart on r
-		if (keys[82]) initGame(null);
+		if (keys[82]) initGame(null, null);
 		// restart on L
 		if (keys[76]) gameEngine.levelMenuController.gotoLevelMenu();
 		
@@ -155,9 +155,9 @@ class MenuController {
 
 	public checkClick(mouseX:number, mouseY:number){
 		
-		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame('blue');
-		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame('orange');
-		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame('white');
+		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame('blue', 'm');
+		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame('orange', 'm');
+		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame('white', 'm');
 
 	}
 
