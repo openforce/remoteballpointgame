@@ -45,7 +45,9 @@ var gameSpeedMode:number;
 //GAME Objects
 var player:Player;
 var balls:Ball[];
-var ballBasket:BallBasket;
+
+var ballBaskets:BallBasket[];
+
 var meetingRoom:MeetingRoom;
 var flipchart:Flipchart;
 var timer:Timer;
@@ -94,7 +96,12 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 
 	player = new Player(620, 180, true, name, color, gender, true);
 
-	ballBasket = new BallBasket(400, 300, true);
+	ballBaskets = [];
+	ballBaskets.push(new BallBasket(170, 470, true, 'red'));
+	ballBaskets.push(new BallBasket(270, 470, true, 'blue'));
+	ballBaskets.push(new BallBasket(370, 470, true, 'orange'));
+	ballBaskets.push(new BallBasket(470, 470, true, null));
+
 	meetingRoom = new MeetingRoom(true);
 	flipchart = new Flipchart(40, 80, true);
 	timer = new Timer(170, 60, true);
@@ -102,21 +109,11 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 	gameDraw = new GameDraw();
 
 	balls = [];
-	//balls.push(new Ball(400, 400, true));
-
 	players = [];
-	//players.push(new Player(300,300));
 
 	//time
 	var now = new Date();
 	lastTime = now.getTime();
-	
-	//init game parameters
-	
-	//setParametersFromMenu();
-	
-	//initMissions();
-	
 	
 	// INIT Game Objects here
 	initButtons();
@@ -158,7 +155,12 @@ function updateGame() {
 	player.updateControls();
 	player.update(timeDiff);
 	
-	ballBasket.update(timeDiff);
+	for(var i = 0; i < ballBaskets.length; i++){
+		ballBaskets[i].update;
+	}
+
+	//ballBasket.update(timeDiff);
+
 	meetingRoom.update(timeDiff);
 	flipchart.update(timeDiff);
 	timer.update(timeDiff);
@@ -181,9 +183,7 @@ function updateGame() {
 # sync client with server states
 ***********************************/
 function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, resultTable:any) {
-	//console.log(players);
-	//console.log(balls);
-
+	
 	// SYNC TIMER
 	timer.targetTime = serverTimer.targetTime;
   	timer.startTime = serverTimer.startTime;
@@ -282,7 +282,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 			if(player.leftHand != null && player.leftHand.id == serverBall.id) break;
 			if(player.rightHand != null && player.rightHand.id == serverBall.id) break;
 
-			var newBall = new Ball(serverBall.x, serverBall.y, true);
+			var newBall = new Ball(serverBall.x, serverBall.y, true, null);
 			newBall.syncBallState(serverBall);
 			balls.push(newBall);
 		}

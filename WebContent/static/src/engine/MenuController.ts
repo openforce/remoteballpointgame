@@ -21,6 +21,9 @@ class MenuController {
 	playerY:number = 320;
 
 	playerButtons:Button[];
+
+	input_name:CanvasInput;
+
 	
 	constructor(){
 
@@ -59,7 +62,7 @@ class MenuController {
 	public init(){
 		//initMenuParameters();
 
-		input_name	= new CanvasInput({
+		this.input_name	= new CanvasInput({
 			canvas: canvas,
 			x: 375,
 			y: 278,
@@ -114,7 +117,7 @@ class MenuController {
 		ctx.font = "bold 20px Arial";
 		
 		ctx.fillText("first name:", 265, 300);
-		input_name.render();
+		this.input_name.render();
 
 		// Players
 		for(var i = 0; i < this.playerSprites.length; i++){
@@ -174,12 +177,12 @@ class MenuController {
 
 	public checkClick(mouseX:number, mouseY:number){
 
-		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'blue', 'm');
-		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'orange', 'm');
-		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'white', 'm');
-		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'blue', 'w');
-		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'orange', 'w');
-		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame(input_name.value(), 'white', 'w');
+		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'blue', 'm');
+		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'orange', 'm');
+		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'white', 'm');
+		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'blue', 'w');
+		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'orange', 'w');
+		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'white', 'w');
 
 	}
 

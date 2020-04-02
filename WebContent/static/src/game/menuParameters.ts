@@ -2,7 +2,6 @@
 ################# VARIABLES #####################
 ************************************************/
 
-var input_name:CanvasInput;
 
 
 /************************************************
@@ -14,14 +13,6 @@ var input_name:CanvasInput;
 ***********************************/
 function initMenuParameters(){
 	
-	// INIT game parameters
-	input_name	= new CanvasInput({
-	  canvas: canvas,
-	  x: 150,
-	  y: 150,
-	  width: 50,
-	  value: 1
-	});
 	
 
 }
@@ -37,7 +28,7 @@ function drawMenuParameters(x:number, y:number){
     ctx.font = "bold 20px Arial";
 	
 	ctx.fillText("Name", x, y);
-	input_name.render();
+	//input_name.render();
 	 
 	
 }
@@ -63,7 +54,7 @@ function drawAfterGameParams(){
 function setParametersFromMenu(){
 	
 	// SET game parameters
-	par_name = String(input_name.value());
+	//par_name = String(input_name.value());
 	
 }
 
@@ -73,7 +64,7 @@ function setParametersFromMenu(){
 function destroyInputs(){
 	
 	// DESTROY game parameters
-	input_name = null;
+	//input_name = null;
 	
 }
 

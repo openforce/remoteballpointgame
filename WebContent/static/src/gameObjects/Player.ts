@@ -110,7 +110,7 @@ class Player {
         }
 
         
-        if(this.syncToServer) socket.emit('new player', this.getSyncObject(), new MeetingRoom(false), new BallBasket(200, 130, false));  
+        if(this.syncToServer) socket.emit('new player', this.getSyncObject(), new MeetingRoom(false), new BallBasket(200, 130, false, null));  
     }
 
     public getSyncObject(){
@@ -172,12 +172,12 @@ class Player {
         this.name = player.name;
 
         if(player.rightHand != null) {
-            if(this.rightHand == null) this.rightHand = new Ball(this.x, this.y, true);
+            if(this.rightHand == null) this.rightHand = new Ball(this.x, this.y, true, null);
             this.rightHand.color = player.rightHand;
         }else this.rightHand = null;
 
         if(player.leftHand != null) {
-            if(this.leftHand == null) this.leftHand = new Ball(this.x, this.y, true);
+            if(this.leftHand == null) this.leftHand = new Ball(this.x, this.y, true, null);
             this.leftHand.color = player.leftHand;
         }else this.leftHand = null;
     }
@@ -235,29 +235,47 @@ class Player {
         this.middleX = this.x + this.width/2;
         this.middleY = this.y + this.height/2;
 
-        // COLLISIONS
+
+        // CHECK COLLISIONS
         var col = false;
+
         // Meeting Room
         if(this.middleX - this.radius <= meetingRoom.border) col = true; //left
         else if(this.middleY + this.radius >= CANVAS_HEIGHT - meetingRoom.border) col = true; //down
         else if(this.middleY - this.radius <= meetingRoom.border) col = true; //up
         else if(this.middleX + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
-        //Basket
-        else if(colCheckCirlces(this.middleX, this.middleY, this.radius, ballBasket.x, ballBasket.y, ballBasket.radius)) col = true;
+
         //Flipchart
         else if(colCheckCirlces(this.middleX, this.middleY, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        
         //Timer
         else if(colCheckCirlces(this.middleX, this.middleY, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
+        
+        //Baskets
+        for(var i = 0; i < ballBaskets.length; i++){
+            if(colCheckCirlces(this.middleX, this.middleY, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                col = true; 
+                break;
+            }  
+        }
+        
         //Balls
         for(var i = 0; i < balls.length; i++){
-            if(balls[i].state == BALL_STATE_INAIR)
-			    if(colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)) col = true;
-		}
+            if(balls[i].state == BALL_STATE_INAIR){
+                if(colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)){
+                    col = true;
+                    break;
+                }
+            }
+        }
+        
         //Players   
         for(var i = 0; i < players.length; i++){
 			//if(colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
 		}       
 
+
+        // HANDLE COLLISIONS
         if(col){ // reset to last save position
             this.x = this.lastX;
             this.y = this.lastY;
@@ -267,6 +285,7 @@ class Player {
             this.lastX = this.x;
             this.lastY = this.y;
         }
+        
 
         // OTHER STUFF
         this.rotation = -this.getShootAngle(this.lookX, this.lookY, this.x+this.width/2, this.y+this.height/2) - 90;
@@ -312,12 +331,14 @@ class Player {
         if(clickType == CLICK_LEFT && this.leftHand != null
             || clickType == CLICK_RIGHT && this.rightHand != null) {
             
-            //check BallBasket
-            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBasket.x, ballBasket.y, ballBasket.radius)){
-                if(clickType == CLICK_LEFT) this.leftHand = null;
-                if(clickType == CLICK_RIGHT) this.rightHand = null;
-                
-                return true;
+            //check BallBaskets
+            for(var i = 0; i < ballBaskets.length; i++){
+                if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                    if(clickType == CLICK_LEFT) this.leftHand = null;
+                    if(clickType == CLICK_RIGHT) this.rightHand = null;
+                    
+                    return true;
+                }
             }
             
             this.shootBall(clickType);
@@ -334,11 +355,15 @@ class Player {
                 }
             }
 
-            //check BallBasket
-            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBasket.x, ballBasket.y, ballBasket.radius)){
-                var newBall = new Ball(this.middleX, this.middleY, true);
-                this.takeBall(newBall, clickType);
-                return true;
+            //check BallBaskets
+            for(var i = 0; i < ballBaskets.length; i++){
+                if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                    var newBall = ballBaskets[i].getNewBall(this.ui);
+                    newBall.x = this.middleX;
+                    newBall.y = this.middleY;
+                    this.takeBall(newBall, clickType);
+                    return true;
+                } 
             }
 
             //check Flipchart
@@ -435,9 +460,11 @@ class Player {
     }
 
     public drawName(){
-        ctx.fillStyle = "black";
-        ctx.font = "bold 12px Arial";
-        ctx.fillText(this.name, this.x + 15, this.y + this.height + 10);
+        ctx.fillStyle = 'black';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.name, this.middleX, this.y + this.height + 10);
+        ctx.textAlign = 'left';
     }
 
     public drawActionArea(){

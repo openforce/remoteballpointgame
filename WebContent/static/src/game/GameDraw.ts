@@ -10,8 +10,6 @@ class GameDraw {
 	public draw(){
 		
 		ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-
 		
 		meetingRoom.draw();
 		
@@ -19,9 +17,11 @@ class GameDraw {
 			balls[i].draw();
 		}
 		
-		ballBasket.draw();
+		for(var i = 0; i < ballBaskets.length; i++){
+			ballBaskets[i].draw();
+		}
+
 		timer.draw();
-		
 		flipchart.draw();
 
 		

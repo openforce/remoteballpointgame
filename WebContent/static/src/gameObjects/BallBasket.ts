@@ -5,19 +5,25 @@ class BallBasket {
     radius:number = 30;
 
     ballRadius:number = 7;
-    ballColor:string = 'red';
+    ballColor:string;
 
     ui:boolean;
 
-    constructor(x:number, y:number, ui:boolean){
+    constructor(x:number, y:number, ui:boolean, ballColor:string){
         this.x = x;
         this.y = y;
 
         this.ui = ui;
+
+        this.ballColor = ballColor;
     }
 
     public update(timeDiff:number){
        
+    }
+
+    public getNewBall(ui:boolean){
+        return new Ball(0, 0, ui, this.ballColor);
     }
 
     public draw(){
@@ -33,7 +39,10 @@ class BallBasket {
         for(var i = -12; i <= 12; i+=12){
             for(var j = -12; j <= 12; j+=12){
                 drawCyrcle(this.x+i, this.y+j, this.ballRadius+1, 'black');
-                drawCyrcle(this.x+i, this.y+j, this.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
+                
+                if(this.ballColor == null) drawCyrcle(this.x+i, this.y+j, this.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
+                else drawCyrcle(this.x+i, this.y+j, this.ballRadius, this.ballColor);
+
                 ballColor++;
             }
 		}

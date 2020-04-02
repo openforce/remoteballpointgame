@@ -30,7 +30,7 @@ class Ball {
 
     lastHolderId:string;
 
-    constructor(x:number, y:number, ui:boolean){
+    constructor(x:number, y:number, ui:boolean, color:string){
         this.ui = ui;
 
         var date = Date.now();
@@ -40,7 +40,9 @@ class Ball {
         this.y = y;
 
         this.radius = 7;
-        this.color = getRandomEntryFromNumberedArray(Ball.colors);
+        
+        if(color == null) this.color = getRandomEntryFromNumberedArray(Ball.colors);
+        else this.color = color;
 
         this.speedX = 0;
         this.speedY = 0;
@@ -110,29 +112,45 @@ class Ball {
 
         }
 
-        // COLLISIONS
+        
+        // CHECK COLLISIONS
         var col = false;
+        
         // Meeting Room
         if(this.x - this.radius <= meetingRoom.border) col = true; //left
         else if(this.y + this.radius >= CANVAS_HEIGHT - meetingRoom.border) col = true; //down
         else if(this.y - this.radius <= meetingRoom.border) col = true; //up
         else if(this.x + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
-        //Basket
-        else if(colCheckCirlces(this.x, this.y, this.radius, ballBasket.x, ballBasket.y, ballBasket.radius)) col = true;
+
+        
         //Flipchart
         else if(colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        
         //Timer
         else if(colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
+        
+        //Baskets
+        for(var i = 0; i < ballBaskets.length; i++){
+            if(colCheckCirlces(this.x, this.y, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                col = true; 
+                break;
+            }  
+        }
+
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR && balls[i].x != this.x && balls[i].y != this.y)
 			    if(colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)) col = true;
 		}
+        
         //Players   
         if(this.lastHolderId != player.id && colCheckCirlces(this.x, this.y, this.radius, player.x, player.y, player.radius)) col = true;
         for(var i = 0; i < players.length; i++){
 			if(this.lastHolderId != players[i].id && colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
 		}  
+
+
+        // HANDLE COLLISIONS
 
         if(col){ // reset to last save position
             this.x = this.lastX;
