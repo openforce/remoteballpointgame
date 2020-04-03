@@ -23,8 +23,9 @@ class Player {
     leftHand:Ball;
     
     speed:number = 0.2;
+    shootSpeed:number = 0.5;
 
-    id:string;
+    id:number;
     socketId:string;
 
     name:string;
@@ -76,8 +77,9 @@ class Player {
         this.gender = gender;
         
         var date = Date.now();
-        this.id = date.toString() + getRandomNumber(1,100);
         
+        this.id = Number(date.toString() + getRandomNumber(1,100).toString());
+
         this.x = x;
         this.y = y;
         
@@ -396,8 +398,8 @@ class Player {
     public shootBall(clickType:number){
         var fAngle = this.degreeToRad(this.rotation + 90);
 
-        if(clickType == CLICK_RIGHT) this.rightHand.shoot(fAngle, 0.5);
-        if(clickType == CLICK_LEFT) this.leftHand.shoot(fAngle, 0.5);
+        if(clickType == CLICK_RIGHT) this.rightHand.shoot(fAngle, this.shootSpeed);
+        if(clickType == CLICK_LEFT) this.leftHand.shoot(fAngle, this.shootSpeed);
 
         if(this.syncToServer) {
             if(clickType == CLICK_RIGHT) socket.emit('throw ball', this.rightHand.getSyncObject());
@@ -464,6 +466,7 @@ class Player {
         ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(this.name, this.middleX, this.y + this.height + 10);
+        //ctx.fillText(this.id.toString(), this.middleX, this.y + this.height + 30);
         ctx.textAlign = 'left';
     }
 

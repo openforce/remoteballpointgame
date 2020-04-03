@@ -38,8 +38,12 @@ var timeDiff = 0;
 var timer = {
   targetTime: 120 * 1000, //2 Minuten
   startTime: null,
-  playTime: 0
+  playTime: 120
 };
+
+var gameState = {
+  points: 0
+}
 
 var flipchart = {
   active: false,
@@ -120,7 +124,8 @@ io.on('connection', function(socket) {
   // BALL action functions
   socket.on('throw ball', function(ball) {
     // add Ball to the world
-    log('throw ball: ' + ball.id);
+    log('throw ball:');
+    log(ball);
     balls[ball.id] = ball;
     
   });
@@ -146,8 +151,12 @@ io.on('connection', function(socket) {
 
   // TIMER
   socket.on('trigger timer', function() {
-    if(timer.startTime == null) timer.startTime = new Date().getTime();
-    else timer.startTime = null;
+    if(timer.startTime == null){
+      timer.startTime = new Date().getTime();
+    }else{
+      timer.startTime = null;
+      gameState.points = 0;
+    }
   });
 
   // Flipchart
@@ -172,6 +181,11 @@ io.on('connection', function(socket) {
     io.sockets.emit('new result table', resultTable);
   });
 
+  socket.on('add Point', function() {
+    if(timer.startTime != null) gameState.points++;
+    log('points: ' + gameState.points);
+  });
+
 });
 
 
@@ -184,7 +198,7 @@ setInterval(function() {
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls, timer, flipchart, resultTable);
+  io.sockets.emit('state', players, balls, timer, flipchart, resultTable, gameState);
 
 }, 1000/60); // / 60
 
@@ -205,6 +219,7 @@ function updateGameObjects(){
   else playedTime = now - timer.startTime;
 
   timer.playTime = Math.round((timer.targetTime - playedTime)/1000);
+  if(timer.playTime < 0) timer.playTime = 0;
 
 
   //Player

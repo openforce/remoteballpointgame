@@ -5,7 +5,7 @@ const BALL_STATE_TAKEN = 3;
 
 class Ball {
 
-    id:string;
+    id:number;
 
     x:number;
     y:number;
@@ -28,13 +28,14 @@ class Ball {
 
     ui:boolean;
 
-    lastHolderId:string;
+    lastHolderId:number;
+    touchedBy:number[];
 
     constructor(x:number, y:number, ui:boolean, color:string){
         this.ui = ui;
 
         var date = Date.now();
-        this.id = date.toString() + getRandomNumber(1,100);
+        this.id = Number(date.toString() + getRandomNumber(1,100).toString());
         
         this.x = x;
         this.y = y;
@@ -46,6 +47,8 @@ class Ball {
 
         this.speedX = 0;
         this.speedY = 0;
+
+        this.touchedBy = [];
     }
 
     public sendStateToServer(){
@@ -68,7 +71,8 @@ class Ball {
             speedY: this.speedY,
             state: this.state,
             lastState: this.lastState,
-            lastHolderId: this.lastHolderId
+            lastHolderId: this.lastHolderId,
+            touchedBy: this.touchedBy
         }
     }
 
@@ -84,6 +88,7 @@ class Ball {
         this.lastX = serverBall.x;
         this.lastY = serverBall.y;
         this.lastHolderId = serverBall.lastHolderId;
+        this.touchedBy = serverBall.touchedBy;
     }
     
     public init(){
@@ -168,15 +173,43 @@ class Ball {
     }
 
     public changeStateTo(newState:number){
+        //console.log('changeStateTo: ' + newState);
         this.lastState = this.state;
         this.state = newState;
+
+        if(newState == BALL_STATE_ONGROUND){
+            this.touchedBy = [];
+        }
     }
 
     public take(player:Player){
+        //console.log('take ball');
         this.changeStateTo(BALL_STATE_TAKEN);
         this.speedX = 0;
         this.speedY = 0;
+        
         this.lastHolderId = player.id;
+        this.touchedBy.push(player.id);
+
+        var touchedByEverybody = true;
+        for(var pi = 0; pi < players.length; pi++){
+            var touchedByPlayer = false;
+            for(var ti = 0; ti < this.touchedBy.length; ti++){
+                if(this.touchedBy[ti] == players[pi].id) {
+                    touchedByPlayer = true;
+                    break;
+                }
+            }
+            if(!touchedByPlayer){
+                touchedByEverybody = false;
+                break;
+            }
+        }
+        if(touchedByEverybody){
+            //console.log('touched by everybody');
+            socket.emit('add Point');
+            this.touchedBy = [];
+        }
     }
 
     public shoot(shootAngle:number, shootSpeed:number){

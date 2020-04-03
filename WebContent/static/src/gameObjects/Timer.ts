@@ -15,7 +15,7 @@ class Timer {
 
     targetTime:number = 120 * 1000; //2 Minuten
     startTime:number;
-    playTime:number;
+    playTime:number = 120;
 
     constructor(x:number, y:number, ui:boolean){
         this.x = x;
@@ -40,6 +40,8 @@ class Timer {
         else playedTime = now - this.startTime;
         
         this.playTime = Math.round((this.targetTime - playedTime)/1000);
+        if(this.playTime < 0) this.playTime = 0;
+
     }
 
     public triggerTimer(){
@@ -55,14 +57,20 @@ class Timer {
         //BG
 		ctx.drawImage(this.sprite,
 			0, 0, this.spriteWidth, this.spriteHeight-30, // sprite cutout position and size
-            this.x, this.y, this.spriteWidth, this.spriteHeight-30); 	 // draw position and size
+            this.x, this.y, this.spriteWidth, this.spriteHeight-10); 	 // draw position and size
 
         //playTime
 	    ctx.fillStyle = "black";
-	    ctx.font = "bold 16px Arial";
-        ctx.fillText("Timer ", this.x + 12, this.y + 20);
-        ctx.fillText(this.playTime.toString(), this.x + 24, this.y + 40);
-            
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = 'center';
+
+        ctx.fillText("Time ", this.x + 40, this.y + 20);
+        ctx.fillText(this.playTime.toString(), this.x + 40, this.y + 35);
+        
+        ctx.fillText("Points ", this.x + 40, this.y + 55);
+        ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+        
+
         if(drawColliders) this.drawColider();
     }
 

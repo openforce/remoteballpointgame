@@ -55,6 +55,8 @@ var timer:Timer;
 //Multiplayer Objects
 var players:Player[];
 
+var points:number;
+
 // GAME Object Controller
 var gameDraw:GameDraw;
 
@@ -110,6 +112,8 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 
 	balls = [];
 	players = [];
+
+	points = 0;
 
 	//time
 	var now = new Date();
@@ -182,8 +186,11 @@ function updateGame() {
 /***********************************
 # sync client with server states
 ***********************************/
-function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, resultTable:any) {
+function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, resultTable:any, gameState:any) {
 	
+	// SYNC GAME STATE
+	points = gameState.points;
+
 	// SYNC TIMER
 	timer.targetTime = serverTimer.targetTime;
   	timer.startTime = serverTimer.startTime;

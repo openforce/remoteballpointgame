@@ -9,7 +9,7 @@ class Flipchart {
     
     active:boolean;
     activeFlipchart:number = 0;
-    lastActivator:string;
+    lastActivator:number;
 
     resultTable = {
         round1: {
