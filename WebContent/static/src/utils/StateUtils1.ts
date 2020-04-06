@@ -21,6 +21,7 @@ class StateUtils {
              i = i+1;
              sum = sum + probabilityArray[i];
         }
+
         
         return i;
     }
