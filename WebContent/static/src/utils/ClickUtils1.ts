@@ -1,4 +1,5 @@
 class ClickUtils {
+	
 
 	static checkClickOnRectObject(mouseX:number, mouseY:number, object:ICollidable) : boolean { 
 			
