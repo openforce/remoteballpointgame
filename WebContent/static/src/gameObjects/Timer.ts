@@ -67,15 +67,17 @@ class Timer {
         ctx.fillText("Time ", this.x + 40, this.y + 20);
         ctx.fillText(this.playTime.toString(), this.x + 40, this.y + 35);
         
-        ctx.fillText("Points ", this.x + 40, this.y + 55);
-        ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+        if(showPoints){
+            ctx.fillText("Points ", this.x + 40, this.y + 55);
+            ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+        }
         
 
         if(drawColliders) this.drawColider();
     }
 
     public drawColider(){
-        drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
+        DrawUtils.drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
     }
 
     

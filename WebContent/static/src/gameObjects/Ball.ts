@@ -35,14 +35,14 @@ class Ball {
         this.ui = ui;
 
         var date = Date.now();
-        this.id = Number(date.toString() + getRandomNumber(1,100).toString());
+        this.id = Number(date.toString() + RandomUtils.getRandomNumber(1,100).toString());
         
         this.x = x;
         this.y = y;
 
         this.radius = 7;
         
-        if(color == null) this.color = getRandomEntryFromNumberedArray(Ball.colors);
+        if(color == null) this.color = RandomUtils.getRandomEntryFromNumberedArray(Ball.colors);
         else this.color = color;
 
         this.speedX = 0;
@@ -129,14 +129,14 @@ class Ball {
 
         
         //Flipchart
-        else if(colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
         
         //Timer
-        else if(colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
         
         //Baskets
         for(var i = 0; i < ballBaskets.length; i++){
-            if(colCheckCirlces(this.x, this.y, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+            if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
                 col = true; 
                 break;
             }  
@@ -145,13 +145,13 @@ class Ball {
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR && balls[i].x != this.x && balls[i].y != this.y)
-			    if(colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)) col = true;
+			    if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)) col = true;
 		}
         
         //Players   
-        if(this.lastHolderId != player.id && colCheckCirlces(this.x, this.y, this.radius, player.x, player.y, player.radius)) col = true;
+        if(this.lastHolderId != player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, player.x, player.y, player.radius)) col = true;
         for(var i = 0; i < players.length; i++){
-			if(this.lastHolderId != players[i].id && colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
+			if(this.lastHolderId != players[i].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
 		}  
 
 
@@ -226,8 +226,8 @@ class Ball {
         if(!this.ui) return;
 
         if(this.state != BALL_STATE_TAKEN) {
-            drawCyrcle(this.x, this.y, this.radius+1, 'black');
-            drawCyrcle(this.x, this.y, this.radius, this.color);
+            DrawUtils.drawCyrcle(this.x, this.y, this.radius+1, 'black');
+            DrawUtils.drawCyrcle(this.x, this.y, this.radius, this.color);
         }
     }
 

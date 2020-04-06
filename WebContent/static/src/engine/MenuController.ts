@@ -67,7 +67,7 @@ class MenuController {
 			x: 375,
 			y: 278,
 			width: 100,
-			value: getRandomName()
+			value: RandomUtils.getRandomName()
 		  });
 
 	}
@@ -137,8 +137,6 @@ class MenuController {
 		if (keys[77]) this.gotoMenu();
 		// restart on r
 		if (keys[82]) initGame(null, null, null);
-		// restart on L
-		if (keys[76]) gameEngine.levelMenuController.gotoLevelMenu();
 		
 		
 		// DRAW
@@ -148,20 +146,6 @@ class MenuController {
 		ctx.fillStyle = "red";
 		ctx.font = "bold 50px Arial";
 		
-		if(mission_done){
-			
-			ctx.fillText("YOU WON :)", 100, 100);
-			drawAfterGameParams();
-			
-		}else {
-			
-			ctx.fillText("YOU LOSE :(", 100, 100);
-			
-			// Loose String
-			ctx.fillStyle = "black";
-			ctx.font = "bold 20px Arial";
-			ctx.fillText(mission_loose_string, 20, 170);
-		}
 		
 		// Navigation
 		ctx.fillStyle = "black";
@@ -169,8 +153,6 @@ class MenuController {
 		
 		ctx.fillText("Press R to restart", 20, 300);
 		ctx.fillText("Press M to return to the menu", 20, 350);
-		ctx.fillText("Press L to go to the level menu", 20, 400);
-		ctx.fillText("Press S to go to the scene menu", 20, 450);
 		
 	}
 	

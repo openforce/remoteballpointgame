@@ -246,7 +246,7 @@ class Flipchart {
     }
 
     public drawColider(){
-        drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
+        DrawUtils.drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
     }
 
     

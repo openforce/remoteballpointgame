@@ -42,7 +42,9 @@ var timer = {
 };
 
 var gameState = {
-  points: 0
+  state: 0,
+  points: 0,
+  showPoints: false
 }
 
 var flipchart = {
@@ -184,6 +186,10 @@ io.on('connection', function(socket) {
   socket.on('add Point', function() {
     if(timer.startTime != null) gameState.points++;
     log('points: ' + gameState.points);
+  });
+
+  socket.on('show Points', function() {
+    gameState.showPoints = !gameState.showPoints;
   });
 
 });

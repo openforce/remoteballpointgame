@@ -78,7 +78,7 @@ class Player {
         
         var date = Date.now();
         
-        this.id = Number(date.toString() + getRandomNumber(1,100).toString());
+        this.id = Number(date.toString() + RandomUtils.getRandomNumber(1,100).toString());
 
         this.x = x;
         this.y = y;
@@ -248,14 +248,14 @@ class Player {
         else if(this.middleX + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
 
         //Flipchart
-        else if(colCheckCirlces(this.middleX, this.middleY, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
         
         //Timer
-        else if(colCheckCirlces(this.middleX, this.middleY, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
         
         //Baskets
         for(var i = 0; i < ballBaskets.length; i++){
-            if(colCheckCirlces(this.middleX, this.middleY, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+            if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
                 col = true; 
                 break;
             }  
@@ -264,7 +264,7 @@ class Player {
         //Balls
         for(var i = 0; i < balls.length; i++){
             if(balls[i].state == BALL_STATE_INAIR){
-                if(colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)){
+                if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)){
                     col = true;
                     break;
                 }
@@ -335,7 +335,7 @@ class Player {
             
             //check BallBaskets
             for(var i = 0; i < ballBaskets.length; i++){
-                if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
                     if(clickType == CLICK_LEFT) this.leftHand = null;
                     if(clickType == CLICK_RIGHT) this.rightHand = null;
                     
@@ -350,7 +350,7 @@ class Player {
 
             // check Balls
             for(var i = 0; i < balls.length; i++){
-                if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, balls[i].x, balls[i].y, balls[i].radius)){
+                if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, balls[i].x, balls[i].y, balls[i].radius)){
                     this.takeBall(balls[i], clickType);
                     balls.splice(i,1);
                     return true;
@@ -359,7 +359,7 @@ class Player {
 
             //check BallBaskets
             for(var i = 0; i < ballBaskets.length; i++){
-                if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+                if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
                     var newBall = ballBaskets[i].getNewBall(this.ui);
                     newBall.x = this.middleX;
                     newBall.y = this.middleY;
@@ -369,13 +369,13 @@ class Player {
             }
 
             //check Flipchart
-            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, flipchart.middleX, flipchart.middleY, flipchart.radius)){
+            if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, flipchart.middleX, flipchart.middleY, flipchart.radius)){
                 flipchart.triggerFlipchart();
                 return true;
             }
 
             //check Timer
-            if(colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, timer.middleX, timer.middleY, timer.radius)){
+            if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, timer.middleX, timer.middleY, timer.radius)){
                 timer.triggerTimer();
                 return true;
             }
@@ -439,16 +439,16 @@ class Player {
         if(this.leftHand != null){
             var myBall = this.leftHand;
             
-            drawCyrcle(13, 13, myBall.radius+1, 'black');
-            drawCyrcle(13, 13, myBall.radius, myBall.color);
+            DrawUtils.drawCyrcle(13, 13, myBall.radius+1, 'black');
+            DrawUtils.drawCyrcle(13, 13, myBall.radius, myBall.color);
 
         }
 
         if(this.rightHand != null){
             var myBall = this.rightHand;
 
-            drawCyrcle(-13, 15, myBall.radius+1, 'black');
-            drawCyrcle(-13, 15, myBall.radius, myBall.color);
+            DrawUtils.drawCyrcle(-13, 15, myBall.radius+1, 'black');
+            DrawUtils.drawCyrcle(-13, 15, myBall.radius, myBall.color);
         }
 
         
@@ -471,8 +471,8 @@ class Player {
     }
 
     public drawActionArea(){
-        drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
-        drawCyrcleOutline(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, 'green');
+        DrawUtils.drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
+        DrawUtils.drawCyrcleOutline(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, 'green');
     }
 
 

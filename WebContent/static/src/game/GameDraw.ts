@@ -33,9 +33,6 @@ class GameDraw {
 
 		flipchart.drawFlipchartScreen();
 
-		
-		drawButtons();
-		
 
 		// DRAW Frame and infos
 		
@@ -52,16 +49,6 @@ class GameDraw {
 		//drawPoints();
 		
 	}
-
-
-	
-	
 	
 
 }
-
-
-
-
-
-

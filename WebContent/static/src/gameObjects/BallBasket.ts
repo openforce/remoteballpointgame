@@ -31,17 +31,17 @@ class BallBasket {
 
         //Basket
         if(drawColliders) this.drawColider();
-        drawCyrcle(this.x, this.y, this.radius+1, 'black');
-        drawCyrcle(this.x, this.y, this.radius, 'chocolate');
+        DrawUtils.drawCyrcle(this.x, this.y, this.radius+1, 'black');
+        DrawUtils.drawCyrcle(this.x, this.y, this.radius, 'chocolate');
 
         //balls
         var ballColor = 0;
         for(var i = -12; i <= 12; i+=12){
             for(var j = -12; j <= 12; j+=12){
-                drawCyrcle(this.x+i, this.y+j, this.ballRadius+1, 'black');
+                DrawUtils.drawCyrcle(this.x+i, this.y+j, this.ballRadius+1, 'black');
                 
-                if(this.ballColor == null) drawCyrcle(this.x+i, this.y+j, this.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
-                else drawCyrcle(this.x+i, this.y+j, this.ballRadius, this.ballColor);
+                if(this.ballColor == null) DrawUtils.drawCyrcle(this.x+i, this.y+j, this.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
+                else DrawUtils.drawCyrcle(this.x+i, this.y+j, this.ballRadius, this.ballColor);
 
                 ballColor++;
             }
@@ -50,7 +50,7 @@ class BallBasket {
     }
 
     public drawColider(){
-        drawCyrcle(this.x, this.y, this.radius+1, 'blue');
+        DrawUtils.drawCyrcle(this.x, this.y, this.radius+1, 'blue');
     }
 
     

@@ -1,23 +1,16 @@
-//import * as express from "express";
-//import * as socketio from "socket.io";
-
-//import { Ball } from "../gameObjects/Ball";
-
-//let socketio = require("socket.io");
 let io:any;
 
 /************************************************
 ################# CONSTANTS #####################
 ************************************************/
 
-// game speed modes 
-const GAME_SPEED_PAUSE = 0;
-const GAME_SPEED_DAILY = 1;
-const GAME_SPEED_SPRINT = 10;
-const GAME_SPEED_PI = 50;
-
 const CLICK_LEFT = 0;
 const CLICK_RIGHT = 1;
+
+const GAME_STATE_WARMUP = 0;
+const GAME_STATE_PREP = 1;
+const GAME_STATE_PLAY = 2;
+const GAME_STATE_END = 3;
 
 
 /************************************************
@@ -56,6 +49,7 @@ var timer:Timer;
 var players:Player[];
 
 var points:number;
+var showPoints:boolean = false;
 
 // GAME Object Controller
 var gameDraw:GameDraw;
@@ -77,8 +71,6 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 	
 	gameEngine.navigation = nav_game;
 	
-	gameSpeedMode = GAME_SPEED_SPRINT;
-	
 	// open socket connection to server
 	// @ts-ignore
 	socket = window.io();
@@ -87,13 +79,13 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 
 	//init object controllers
 	var color = playerColor;
-	if(color == null) color = getRandomEntryFromNumberedArray(Player.colors);
+	if(color == null) color = RandomUtils.getRandomEntryFromNumberedArray(Player.colors);
 
 	var gender = playerGender;
-	if(gender == null) gender = getRandomEntryFromNumberedArray(Player.genders);
+	if(gender == null) gender = RandomUtils.getRandomEntryFromNumberedArray(Player.genders);
 	
 	var name = playerName;
-	if(name == null) name = getRandomName();
+	if(name == null) name = RandomUtils.getRandomName();
 
 
 	player = new Player(620, 180, true, name, color, gender, true);
@@ -120,8 +112,6 @@ function initGame(playerName:string, playerColor:string, playerGender:string){
 	lastTime = now.getTime();
 	
 	// INIT Game Objects here
-	initButtons();
-
 	player.init();
 
 	setInterval(function(){
@@ -154,7 +144,6 @@ function updateGame() {
 	lastTime = time;
 
 	// UPDATE Game Objects
-	updateButtons();
 
 	player.updateControls();
 	player.update(timeDiff);
@@ -162,8 +151,6 @@ function updateGame() {
 	for(var i = 0; i < ballBaskets.length; i++){
 		ballBaskets[i].update;
 	}
-
-	//ballBasket.update(timeDiff);
 
 	meetingRoom.update(timeDiff);
 	flipchart.update(timeDiff);
@@ -182,6 +169,10 @@ function updateGame() {
 	
 }
 
+function triggerShowPoints(){
+	socket.emit('show Points');  
+}
+
 
 /***********************************
 # sync client with server states
@@ -190,6 +181,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 	
 	// SYNC GAME STATE
 	points = gameState.points;
+	showPoints = gameState.showPoints;
 
 	// SYNC TIMER
 	timer.targetTime = serverTimer.targetTime;
@@ -329,7 +321,7 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 		balls = tempBalls;
 	}
 
-  }
+}
 
 
 /***********************************
@@ -338,7 +330,6 @@ function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, 
 ***********************************/
 function endGame(){
 	gameEngine.navigation = nav_after_game;
-	gameEngine.levelMenuController.wonLevel();
 }
 
 /***********************************
