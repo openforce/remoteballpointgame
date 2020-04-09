@@ -7,6 +7,9 @@ class Button implements ICollidable {
 
 	text:string;
 
+	textColor:string = 'black';
+	textFont:string = 'bold 10px Arial';
+
 	visible:boolean;
 	disabled:boolean;
 	
@@ -63,8 +66,8 @@ class Button implements ICollidable {
 			
 		    ctx.fillRect(this.x + 2, this.y + 2, this.width - 4, this.height - 4);
 			
-			ctx.fillStyle = "black";
-			ctx.font = "bold 10px Arial";
+			ctx.fillStyle = this.textColor;
+			ctx.font = this.textFont;
 		    ctx.fillText(this.text, this.x + 10, this.y + 15);
 		    ctx.stroke();
 		    ctx.closePath();

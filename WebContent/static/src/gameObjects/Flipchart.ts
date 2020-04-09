@@ -1,3 +1,10 @@
+const FLIPCHART_CONTROLES = 0;
+const FLIPCHART_WARMUP = 1;
+const FLIPCHART_RULES = 2;
+const FLIPCHART_RESULTS = 3;
+const FLIPCHART_END = 4;
+
+
 class Flipchart {
 
     x: number;
@@ -10,6 +17,9 @@ class Flipchart {
     active:boolean;
     activeFlipchart:number = 0;
     lastActivator:number;
+
+    rounds = 5;
+    activeRound = 1;
 
     resultTable = {
         round1: {
@@ -64,6 +74,10 @@ class Flipchart {
     infoBox_x:number = 200;
     infoBox_y:number = 25;
 
+    startButton:Button;
+    
+    input_estimation:CanvasInput;
+
     constructor(x:number, y:number, ui:boolean){
         this.x = x;
         this.y = y;
@@ -103,8 +117,12 @@ class Flipchart {
             this.flipchartSpritesSmall[3] = new Image();
             this.flipchartSpritesSmall[3].src = "/static/resources/flipchartResultsSmall.png";
 
+
+            this.startButton = new Button(this.infoBox_x + this.infoBoxWidth / 4, this.infoBox_y + this.infoBoxHeight - 150 , 60, 25, 'Got it!'); 
+            this.startButton.textFont = 'bold 12px Arial';    
             this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '     -->');               
             this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '<--');
+
         }
     }
 
@@ -113,16 +131,126 @@ class Flipchart {
     }
 
     public checkClick(mouseX:number, mouseY:number){
-        if(this.nextFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerNextFlipchart();
-        if(this.previousFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerPreviousFlipchart();
+
+        if(this.active){
+            
+            if(arcadeMode){
+                if(this.startButton.checkForClick(mouseX, mouseY)) this.triggerStartButton();
+            } else {
+                if(this.nextFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerNextFlipchart();
+                if(this.previousFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerPreviousFlipchart();
+            }
+
+        }
     }
+
 
     public triggerFlipchart(){
         this.active = !this.active;
-
         socket.emit('trigger flipchart', player.id);  
     }
 
+    public showFlipchart(){
+        this.active = true;
+        socket.emit('show flipchart');  
+    }
+
+    public hideFlipchart(){
+        this.active = false;
+        socket.emit('hide flipchart');  
+    }
+
+    
+    public triggerStartButton(){
+        
+        if(this.activeFlipchart == FLIPCHART_CONTROLES){ 
+            
+            // --> show Warm Up Flipchart
+            this.triggerSpecificFlipchart(FLIPCHART_WARMUP);
+
+        } else if(this.activeFlipchart == FLIPCHART_WARMUP){ 
+            
+            // --> start Warm Up
+            gameState = GAME_STATE_WARMUP;
+            socket.emit('set gameState', gameState);  
+
+            timer.startTimer();
+            this.hideFlipchart();
+        
+        } else if(this.activeFlipchart == FLIPCHART_RULES){ 
+            
+            // --> show result table
+            gameState = GAME_STATE_PREP;
+            socket.emit('set gameState', gameState); 
+
+            this.triggerSpecificFlipchart(FLIPCHART_RESULTS);
+        
+        } else if(this.activeFlipchart == FLIPCHART_RESULTS){ 
+
+            if(gameState == GAME_STATE_PREP) { 
+                
+                // --> start PREP Phase
+                timer.startTimer();
+                if(showPoints) triggerShowPoints();
+                this.hideFlipchart();
+
+            } else if(gameState == GAME_STATE_PLAY && this.activeRound <= this.rounds) { 
+                
+                // --> start Play Mode
+                // @ts-ignore
+                this.resultTable['round'+this.activeRound].estimation = this.input_estimation.value();
+                this.syncResultTable();
+
+                timer.startTimer();
+                if(!showPoints) triggerShowPoints();
+                this.hideFlipchart();
+
+            } else { // --> END
+
+            }
+        }
+    }
+
+    public triggerTimerEnded(){
+        //console.log('triggerTimerEnded');
+
+        if(!arcadeMode) return;
+
+        if(this.activeFlipchart == FLIPCHART_WARMUP){ 
+            
+            // --> End Warm Up
+            this.triggerSpecificFlipchart(FLIPCHART_RULES);
+            this.showFlipchart();
+
+        } else if(this.activeFlipchart == FLIPCHART_RESULTS){ 
+
+            if(gameState == GAME_STATE_PREP) { 
+                
+                // --> End PREP Phase
+                gameState = GAME_STATE_PLAY;
+                socket.emit('set gameState', gameState); 
+                this.input_estimation = null;
+
+                this.showFlipchart();
+
+            } else if(gameState == GAME_STATE_PLAY && this.activeRound < this.rounds) { 
+                
+                // --> End PLAY Phase
+                gameState = GAME_STATE_PREP;
+                socket.emit('set gameState', gameState); 
+
+                this.activeRound++;
+                this.showFlipchart();
+
+            } else { // --> END
+                gameState = GAME_STATE_END;
+                socket.emit('set gameState', gameState); 
+
+                this.showFlipchart();
+            }
+        }
+    }
+    
     public triggerNextFlipchart(){
         this.activeFlipchart++;
         if(this.activeFlipchart == this.flipchartSprites.length) this.activeFlipchart = 0; 
@@ -134,6 +262,12 @@ class Flipchart {
         if(this.activeFlipchart < 0) this.activeFlipchart = this.flipchartSprites.length-1; 
 
         socket.emit('trigger previous flipchart'); 
+    }
+
+    public triggerSpecificFlipchart(flipchart:number){
+        this.activeFlipchart = flipchart;
+        
+        socket.emit('trigger specific flipchart', flipchart); 
     }
 
     public syncResultTable(){
@@ -206,10 +340,70 @@ class Flipchart {
 
         if(this.activeFlipchart == 3) this.drawResultTable();
 
-        if(this.lastActivator == player.id){
-            this.nextFlipchartButton.draw();
-            this.previousFlipchartButton.draw();
+        if(arcadeMode){
+            if(this.activeFlipchart == FLIPCHART_CONTROLES) {
+
+                this.startButton.text = 'Got it';
+                this.startButton.x = this.infoBox_x + this.infoBoxWidth / 4;
+                this.startButton.y = this.infoBox_y + this.infoBoxHeight - 150;
+
+                this.startButton.draw(); 
+
+            } else if(this.activeFlipchart == FLIPCHART_WARMUP) {
+                
+                this.startButton.text = 'Start';
+                this.startButton.x = this.infoBox_x + this.infoBoxWidth / 4;
+                this.startButton.y = this.infoBox_y + this.infoBoxHeight - 150;
+                
+                this.startButton.draw(); 
+
+            } else if(this.activeFlipchart == FLIPCHART_RULES) {
+
+                this.startButton.text = 'Got it';
+                this.startButton.x = this.infoBox_x + this.infoBoxWidth / 4;
+                this.startButton.y = this.infoBox_y + this.infoBoxHeight - 150;
+                
+                this.startButton.draw(); 
+
+            } else if(this.activeFlipchart == FLIPCHART_RESULTS) {
+                var y = 145;
+                var yOffset = 50;
+
+                if(gameState == GAME_STATE_PREP) this.startButton.text = 'Prepare';
+                if(gameState == GAME_STATE_PLAY) this.startButton.text = 'Start';
+                
+                this.startButton.x = this.infoBox_x + this.infoBoxWidth - this.startButton.width - 75;
+                this.startButton.y = y + yOffset * (this.activeRound - 1);
+                
+                if(gameState != GAME_STATE_END) this.startButton.draw(); 
+
+                //estimation Input
+                if(gameState == GAME_STATE_PLAY){
+
+                    if(this.input_estimation == null) 
+                        this.input_estimation = new CanvasInput({
+                            canvas: canvas,
+                            x: 333,
+                            y: y + yOffset * (this.activeRound - 1),
+                            width: 30,
+                            value: '?'
+                        });
+
+                    this.input_estimation.render();
+                }
+
+            }
+            
+
+        } else {
+
+            if(this.lastActivator == player.id){
+                this.nextFlipchartButton.draw();
+                this.previousFlipchartButton.draw();
+            }
+
         }
+
             
     }
         

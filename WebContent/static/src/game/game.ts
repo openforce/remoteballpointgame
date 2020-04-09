@@ -7,10 +7,11 @@ let io:any;
 const CLICK_LEFT = 0;
 const CLICK_RIGHT = 1;
 
-const GAME_STATE_WARMUP = 0;
-const GAME_STATE_PREP = 1;
-const GAME_STATE_PLAY = 2;
-const GAME_STATE_END = 3;
+const GAME_STATE_STARTED = 0;
+const GAME_STATE_WARMUP = 1;
+const GAME_STATE_PREP = 2;
+const GAME_STATE_PLAY = 3;
+const GAME_STATE_END = 4;
 
 
 /************************************************
@@ -50,6 +51,9 @@ var players:Player[];
 
 var points:number;
 var showPoints:boolean = false;
+
+var arcadeMode:boolean;
+var gameState = GAME_STATE_STARTED;
 
 // GAME Object Controller
 var gameDraw:GameDraw;
@@ -154,7 +158,7 @@ function updateGame() {
 
 	meetingRoom.update(timeDiff);
 	flipchart.update(timeDiff);
-	timer.update(timeDiff);
+	//timer.update(timeDiff);
 
 	for(var i = 0; i < players.length; i++){
 		//players[i].update(timeDiff);
@@ -173,20 +177,26 @@ function triggerShowPoints(){
 	socket.emit('show Points');  
 }
 
+function triggerResetGame(arcadeMode:boolean){
+	socket.emit('reset gameState', arcadeMode);  
+}
+
 
 /***********************************
 # sync client with server states
 ***********************************/
-function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, resultTable:any, gameState:any) {
+function processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, serverGameState:any) {
 	
 	// SYNC GAME STATE
-	points = gameState.points;
-	showPoints = gameState.showPoints;
+	points = serverGameState.points;
+	showPoints = serverGameState.showPoints;
+	gameState = serverGameState.state;
+	arcadeMode = serverGameState.arcadeMode;
 
 	// SYNC TIMER
 	timer.targetTime = serverTimer.targetTime;
   	timer.startTime = serverTimer.startTime;
-	timer.playTime = serverTimer.playTimer;
+	timer.playTime = serverTimer.playTime;
 	
 	// SYNC FLIPCHART 
 	flipchart.active = serverFlipchart.active;

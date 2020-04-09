@@ -15,7 +15,7 @@ class Timer {
 
     targetTime:number = 120 * 1000; //2 Minuten
     startTime:number;
-    playTime:number = 120;
+    playTime:number = 5; //120;
 
     constructor(x:number, y:number, ui:boolean){
         this.x = x;
@@ -30,6 +30,10 @@ class Timer {
             this.sprite = new Image();
             this.sprite.src = "/static/resources/timer.png";
         }
+
+        socket.on('timer ended', function(){
+            flipchart.triggerTimerEnded();
+        });
     }
 
     public update(timeDiff:number){
@@ -40,11 +44,27 @@ class Timer {
         else playedTime = now - this.startTime;
         
         this.playTime = Math.round((this.targetTime - playedTime)/1000);
-        if(this.playTime < 0) this.playTime = 0;
+
+        if(this.playTime <= 0){
+            if(arcadeMode){
+                this.playTime = 0;
+                flipchart.triggerTimerEnded();
+            }else{
+                this.playTime = 0;
+            }
+
+        }
 
     }
 
     public triggerTimer(){
+
+        if(arcadeMode) return;
+        else this.startTimer();
+        
+    }
+
+    public startTimer(){
         if(this.startTime == null) this.startTime = new Date().getTime();
         else this.startTime = null;
 
@@ -67,9 +87,28 @@ class Timer {
         ctx.fillText("Time ", this.x + 40, this.y + 20);
         ctx.fillText(this.playTime.toString(), this.x + 40, this.y + 35);
         
-        if(showPoints){
+        if(!arcadeMode && showPoints){
             ctx.fillText("Points ", this.x + 40, this.y + 55);
             ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+        }
+
+        if(arcadeMode){
+            if(gameState == GAME_STATE_WARMUP){
+            
+                ctx.fillText('Warm', this.x + 40, this.y + 55);
+                ctx.fillText('Up', this.x + 40, this.y + 70);
+            
+            }else if(gameState == GAME_STATE_PREP){
+            
+                ctx.fillText('Prep.', this.x + 40, this.y + 55);
+                ctx.fillText('Phase', this.x + 40, this.y + 70);
+            
+            }else if(gameState == GAME_STATE_PLAY){
+            
+                ctx.fillText('Points', this.x + 40, this.y + 55);
+                ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+            
+            }
         }
         
 

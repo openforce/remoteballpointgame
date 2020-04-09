@@ -36,7 +36,7 @@ var lastTime = 0;
 var timeDiff = 0;
 
 var timer = {
-  targetTime: 120 * 1000, //2 Minuten
+  targetTime: 120 * 1000, //2 Minuten --> 120
   startTime: null,
   playTime: 120
 };
@@ -44,7 +44,8 @@ var timer = {
 var gameState = {
   state: 0,
   points: 0,
-  showPoints: false
+  showPoints: false,
+  arcadeMode: false
 }
 
 var flipchart = {
@@ -54,33 +55,38 @@ var flipchart = {
   length: 4
 };
 
-var resultTable = {
-  round1: {
-      estimation: '',
-      result: '',
-      bugs: ''
-  },
-  round2: {
-      estimation: '',
-      result: '',
-      bugs: ''
-  },
-  round3: {
-      estimation: '',
-      result: '',
-      bugs: ''
-  },
-  round4: {
-      estimation: '',
-      result: '',
-      bugs: ''
-  },
-  round5: {
-      estimation: '',
-      result: '',
-      bugs: ''
-  },
-};
+var resultTable;
+initResultTable();
+
+function initResultTable(){
+  resultTable = {
+    round1: {
+        estimation: '',
+        result: '',
+        bugs: ''
+    },
+    round2: {
+        estimation: '',
+        result: '',
+        bugs: ''
+    },
+    round3: {
+        estimation: '',
+        result: '',
+        bugs: ''
+    },
+    round4: {
+        estimation: '',
+        result: '',
+        bugs: ''
+    },
+    round5: {
+        estimation: '',
+        result: '',
+        bugs: ''
+    },
+  };
+}
 
 io.on('connection', function(socket) {
   log('New Socket Connection');
@@ -177,6 +183,17 @@ io.on('connection', function(socket) {
 
   });
 
+  socket.on('trigger specific flipchart', function(newFlipchart) {
+    flipchart.activeFlipchart = newFlipchart;
+  });
+
+  socket.on('show flipchart', function() {
+    flipchart.active = true;
+  });
+  socket.on('hide flipchart', function() {
+    flipchart.active = false;
+  });
+
   socket.on('sync result table', function(clientResultTable) {
     log('sync result table');
     resultTable = clientResultTable;
@@ -192,6 +209,25 @@ io.on('connection', function(socket) {
     gameState.showPoints = !gameState.showPoints;
   });
 
+  socket.on('set gameState', function(newState) {
+    gameState.state = newState;
+    log('set game state: ' + gameState.state);
+  });
+
+  socket.on('reset gameState', function(arcadeMode) {
+    gameState = {
+      state: 0,
+      points: 0,
+      showPoints: false,
+      arcadeMode: arcadeMode
+    };
+    flipchart.activeFlipchart = 0;
+    flipchart.active = false;
+
+    balls = [];
+    initResultTable();
+  });
+
 });
 
 
@@ -199,12 +235,12 @@ io.on('connection', function(socket) {
 setInterval(function() {
 
   // update game objects
-  //updateGameObjects();
+  updateGameObjects();
 
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls, timer, flipchart, resultTable, gameState);
+  io.sockets.emit('state', players, balls, timer, flipchart, gameState);
 
 }, 1000/60); // / 60
 
@@ -225,7 +261,13 @@ function updateGameObjects(){
   else playedTime = now - timer.startTime;
 
   timer.playTime = Math.round((timer.targetTime - playedTime)/1000);
-  if(timer.playTime < 0) timer.playTime = 0;
+  
+  if(timer.playTime <= 0){
+    timer.playTime = 0;
+    timer.startTime = null;
+    log('timer ended');
+    io.sockets.emit('timer ended');
+}
 
 
   //Player
