@@ -1,4 +1,12 @@
-class MenuController {
+import {GameEngine} from './GameEngine.js';
+
+import {RandomUtils} from '../utils/RandomUtils1.js';
+
+import {CanvasInput} from '../gameObjectLibrary/CanvasInput.js';
+import {Button} from '../gameObjects/Button.js';
+
+
+export class MenuController {
 	
 	startButtonX:number = 50;
 	startButtonY:number = 540;
@@ -24,8 +32,12 @@ class MenuController {
 
 	input_name:CanvasInput;
 
+	gameEngine:GameEngine;
+
 	
-	constructor(){
+	constructor(gameEngine:GameEngine){
+
+		this.gameEngine = gameEngine;
 
 		this.playerSprites = [];
 		this.playerSprites[0] = new Image();
@@ -43,7 +55,7 @@ class MenuController {
 
 		this.playerButtons = [];
 		for(var i = 0; i < this.playerSprites.length; i++){
-			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
+			this.playerButtons[i] = new Button(null, this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
 		}
 
 		this.sprites = [];
@@ -56,27 +68,24 @@ class MenuController {
 	}
 
 	public gotoMenu(){
-		gameEngine.navigation = nav_menu;
+		this.gameEngine.navigation = GameEngine.nav_menu;
 	}
 	
 	public init(){
-		//initMenuParameters();
 
 		this.input_name	= new CanvasInput({
-			canvas: canvas,
+			canvas: this.gameEngine.canvas,
 			x: 375,
 			y: 278,
 			width: 100,
 			value: RandomUtils.getRandomName()
 		  });
-
 	}
 	
 	
 	public menu(){
 		
 		// UPDATE 
-		
 		
 		// space to start
 		//if (keys[32]) initGame(input_name.value(), null, null);
@@ -88,15 +97,16 @@ class MenuController {
 		//if (keys[83]) gameEngine.sceneMenuController.gotoSceneMenu();
 		
 		
-		//DRAW
-		ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		
+		//DRAW
+		var ctx = this.gameEngine.ctx;
+		
+		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		
 		//ctx.fillText("Press R to set random values", 20, 530);
 		//ctx.fillText("Press L to go to the level screen", 20, 560);
 		//ctx.fillText("Press S to go to the scene menu", 20, 590);
-		
-
+	
 		// Title Screen
 		ctx.drawImage(this.sprites[0],
 			0, 0, 800, 600, // sprite cutout position and size
@@ -110,9 +120,7 @@ class MenuController {
 			0, 0, 1974, 2400, // sprite cutout position and size
 			200, 400, 1974/5, 2400/5); 	 // draw position and size
 			
-		// Name input
-		//drawMenuParameters();
-		
+		// Name input		
 		ctx.fillStyle = "black";
 		ctx.font = "bold 20px Arial";
 		
@@ -134,13 +142,15 @@ class MenuController {
 		// UPDATE 
 		
 		// goto menu on m
-		if (keys[77]) this.gotoMenu();
+		if (this.gameEngine.keys[77]) this.gotoMenu();
 		// restart on r
-		if (keys[82]) initGame(null, null, null);
+		if (this.gameEngine.keys[82]) this.gameEngine.game.initGame(null, null, null);
 		
 		
 		// DRAW
-		ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		var ctx = this.gameEngine.ctx;
+
+		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		
 		// Headline
 		ctx.fillStyle = "red";
@@ -159,12 +169,12 @@ class MenuController {
 
 	public checkClick(mouseX:number, mouseY:number){
 
-		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'blue', 'm');
-		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'orange', 'm');
-		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'white', 'm');
-		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'blue', 'w');
-		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'orange', 'w');
-		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) initGame(this.input_name.value(), 'white', 'w');
+		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'blue', 'm');
+		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'orange', 'm');
+		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'white', 'm');
+		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'blue', 'w');
+		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'orange', 'w');
+		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'white', 'w');
 
 	}
 

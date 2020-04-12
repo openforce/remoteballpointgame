@@ -1,4 +1,4 @@
-class CookieUtils{
+export class CookieUtils {
 
     /***************************************
     # write var to cookie

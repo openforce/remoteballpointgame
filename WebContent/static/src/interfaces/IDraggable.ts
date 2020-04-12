@@ -1,4 +1,6 @@
-interface IDraggable extends IClickable {
+import {IClickable} from './IClickable.js';
+
+export interface IDraggable extends IClickable {
     drag : boolean,
 	dragX : number,
 	dragY : number,

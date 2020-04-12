@@ -1,13 +1,13 @@
 // Dependencies
 
-// @ts-ignore
 import * as express from 'express';
 // @ts-ignore
 import * as http from 'http';
 // @ts-ignore
 import * as path from 'path';
-// @ts-ignore
 import * as socketIO from 'socket.io';
+
+//import {Flipchart} from './static/src/gameObjects/Flipchart';
 
 
 var app = express();
@@ -17,10 +17,12 @@ var io = socketIO(server);
 var logToConsole = false;
 
 app.set('port', 5000);
+// @ts-ignore
 app.use('/static', express.static(__dirname + '/static'));
 
 // Routing
 app.get('/', function(request:any, response:any) {
+  // @ts-ignore
   response.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -54,13 +56,15 @@ var gameState = {
   arcadeMode: false
 }
 
+//var flipchart:Flipchart = new Flipchart(null, 0, 0);
+
 var flipchart = {
   active: false,
   activeFlipchart: 0,
   // @ts-ignore
   lastActivator: null,
-  length: 4
-};
+  numberOfFlipcharts: 4
+}; 
 
 var resultTable:any;
 initResultTable();
@@ -99,9 +103,7 @@ io.on('connection', function(socket:any) {
   log('New Socket Connection');
   
   // Player functions
-  socket.on('new player', function(newPlayer:any, newMeetingRoom:any, newBallBasket:any) {
-    //if(meetingRoom == null) meetingRoom = newMeetingRoom;
-    //if(ballBasket == null) ballBasket = newBallBasket;
+  socket.on('new player', function(newPlayer:any) {
     
     newPlayer.socketId = socket.id;
     // @ts-ignore
@@ -187,12 +189,12 @@ io.on('connection', function(socket:any) {
   });
   socket.on('trigger next flipchart', function() {
     flipchart.activeFlipchart++;
-    if(flipchart.activeFlipchart == flipchart.length) flipchart.activeFlipchart = 0; 
+    if(flipchart.activeFlipchart == flipchart.numberOfFlipcharts) flipchart.activeFlipchart = 0; 
         
   });
   socket.on('trigger previous flipchart', function() {
     flipchart.activeFlipchart--;
-    if(flipchart.activeFlipchart < 0) flipchart.activeFlipchart = flipchart.length-1; 
+    if(flipchart.activeFlipchart < 0) flipchart.activeFlipchart = flipchart.numberOfFlipcharts-1; 
 
   });
 

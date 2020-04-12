@@ -1,4 +1,6 @@
-class CollisionUtils{
+import {ICollidable} from '../interfaces/ICollidable.js';
+
+export class CollisionUtils{
 
     /***************************************
     # Calculates collisions between 

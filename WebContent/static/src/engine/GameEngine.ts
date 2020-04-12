@@ -1,67 +1,84 @@
-// Navigation 
-const nav_menu = 1;
-const nav_game = 2;
-const nav_after_game = 3;
+import {Game} from '../game/Game.js';
+import {MenuController} from './MenuController.js';
 
 
-class GameEngine{
+export class GameEngine{
+	
+	// Navigation 
+	static nav_menu = 1;
+	static nav_game = 2;
+	static nav_after_game = 3;
+
+	static CANVAS_WIDTH = 800;
+    static CANVAS_HEIGHT = 600;
 
 	navigation:number;
 
+	keys:boolean[];
+	
+	mousePosX:number;
+	mousePosY:number;
+
 	menuController:MenuController;
+	game:Game;
+	
+	canvas:HTMLCanvasElement;
+	ctx:CanvasRenderingContext2D;
 
-	constructor(){
-		this.navigation = null;
+	constructor(canvas:HTMLCanvasElement){
+		
+		this.canvas = canvas;
+		this.ctx = canvas.getContext('2d');
+		
+		this.navigation = GameEngine.nav_menu;
+		this.keys = [];
 
-		this.menuController = new MenuController();
+		this.menuController = new MenuController(this);
+		this.game = new Game(this);
 	}
 	
 	public init(){
-		
 		this.menuController.init();
 		this.menuController.gotoMenu();
-		
-		this.mainLoop();
 	}
 
 
 	public mainLoop(){
 		
-		switch(gameEngine.navigation) {
+		switch(this.navigation) {
 		
-		case nav_menu:
-			gameEngine.menuController.menu();
+		case GameEngine.nav_menu:
+			this.menuController.menu();
 			break;
 		
-		case nav_game:
-			updateGame();
+		case GameEngine.nav_game:
+			this.game.updateGame();
 			break;
 		
-		case nav_after_game:
-			gameEngine.menuController.afterGame();
+		case GameEngine.nav_after_game:
+			this.menuController.afterGame();
 			break;
 		
 		default:
 			break;
 		}	 
-		
-		requestAnimationFrame(gameEngine.mainLoop);
+
 	}
 
 	
-	public checkClickEvents(mouseX:number, mouseY:number){
+	public checkClickEvents(){
 		
 		switch(this.navigation) {
 		
-		case nav_menu:
-			this.menuController.checkClick(mouseX, mouseY);
+		case GameEngine.nav_menu:
+			this.menuController.checkClick(this.mousePosX, this.mousePosY);
 			break;
 			
-		case nav_game:
-			checkGameClicks(mouseX, mouseY);
+		case GameEngine.nav_game:
+			this.game.checkGameClicks(this.mousePosX, this.mousePosY);
 			break;
 			
-		case nav_after_game:
+		case GameEngine.nav_after_game:
 			break;
 			
 		default:
@@ -69,18 +86,18 @@ class GameEngine{
 		}	 
 	}
 
-	public checkRightClickEvents(mouseX:number, mouseY:number){
+	public checkRightClickEvents(){
 		
 		switch(this.navigation) {
 		
-		case nav_menu:
+		case GameEngine.nav_menu:
 			break;
 			
-		case nav_game:
-			checkGameRightClicks(mouseX, mouseY);
+		case GameEngine.nav_game:
+			this.game.checkGameRightClicks(this.mousePosX, this.mousePosY);
 			break;
 			
-		case nav_after_game:
+		case GameEngine.nav_after_game:
 			break;
 			
 		default:
@@ -93,14 +110,14 @@ class GameEngine{
 		
 		switch(this.navigation) {
 		
-		case nav_menu:
+		case GameEngine.nav_menu:
 			break;
 			
-		case nav_game:
-			checkGameMouseUp();
+		case GameEngine.nav_game:
+			this.game.checkGameMouseUp();
 			break;
 			
-		case nav_after_game:
+		case GameEngine.nav_after_game:
 			break;
 			
 		default:
@@ -112,14 +129,14 @@ class GameEngine{
 		
 		switch(this.navigation) {
 		
-		case nav_menu:
+		case GameEngine.nav_menu:
 			break;
 			
-		case nav_game:
-			checkGameRightMouseUp();
+		case GameEngine.nav_game:
+			this.game.checkGameRightMouseUp();
 			break;
 			
-		case nav_after_game:
+		case GameEngine.nav_after_game:
 			break;
 			
 		default:

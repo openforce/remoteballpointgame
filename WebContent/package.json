@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Multiplayer BallPointGame",
   "main": "server.js",
-  "scripts": {
-    "test": "node server.js"
-  },
+  "type": "module",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^1.7.4"

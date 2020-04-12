@@ -1,4 +1,6 @@
-class StateUtils {
+import {RandomUtils} from './RandomUtils1.js';
+
+export class StateUtils {
 
     /***************************************
     # get entry from array depending on probabilities

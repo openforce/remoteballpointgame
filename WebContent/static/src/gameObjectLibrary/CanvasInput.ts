@@ -1,5 +1,5 @@
 //FAKE OBJECT!!!
-class CanvasInput{
+export class CanvasInput{
 
     constructor(object:object){
 

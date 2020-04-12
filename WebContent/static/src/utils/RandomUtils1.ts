@@ -1,4 +1,4 @@
-class RandomUtils {
+export class RandomUtils {
 
 	/***************************************
 	# get random number 2 numbers
