@@ -155,7 +155,7 @@ export class Ball {
         }
 
         //Players   
-        if(this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.x, this.game.player.y, this.game.player.radius)) col = true;
+        if(this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.middleY, this.game.player.middleX, this.game.player.radius)) col = true;
         for(var i = 0; i < this.game.players.length; i++){
 			if(this.lastHolderId != this.game.players[i].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.players[i].middleX, this.game.players[i].middleY, this.game.players[i].radius)) col = true;
 		}  

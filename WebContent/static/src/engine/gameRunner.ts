@@ -20,15 +20,10 @@ window.addEventListener("load", function () {
 	init();
 });
 
-
-
 /***********************************
 # Init main technical components
 ***********************************/
 function init(){
-
-	// @ts-ignore
-	window.gameEngine = gameEngine;
 
 	canvas = document.getElementById("canvas") as HTMLCanvasElement;
 	
@@ -37,7 +32,9 @@ function init(){
 	
 	gameEngine = new GameEngine(canvas);
 	
-	
+	// @ts-ignore
+	window.gameEngine = gameEngine;
+
 	// INIT input stuff
 	window.addEventListener('keydown', keyDown, true);
 	window.addEventListener('keyup', keyUp, true);
