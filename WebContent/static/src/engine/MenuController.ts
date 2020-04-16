@@ -2,7 +2,6 @@ import {GameEngine} from './GameEngine.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 
-import {CanvasInput} from '../gameObjectLibrary/CanvasInput.js';
 import {Button} from '../gameObjects/Button.js';
 
 
@@ -30,7 +29,8 @@ export class MenuController {
 
 	playerButtons:Button[];
 
-	input_name:CanvasInput;
+	canvas_input:any;
+	input_name:any;
 
 	gameEngine:GameEngine;
 
@@ -73,6 +73,7 @@ export class MenuController {
 	
 	public init(){
 
+		//@ts-ignore
 		this.input_name	= new CanvasInput({
 			canvas: this.gameEngine.canvas,
 			x: 375,
