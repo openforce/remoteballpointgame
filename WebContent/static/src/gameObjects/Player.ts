@@ -273,15 +273,6 @@ export class Player {
             }  
         }
         
-        //Balls
-        for(var i = 0; i < this.game.balls.length; i++){
-            if(this.game.balls[i].state == Ball.BALL_STATE_INAIR){
-                if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
-                    col = true;
-                    break;
-                }
-            }
-        }
         
         //Players   
         for(var i = 0; i < this.game.players.length; i++){
