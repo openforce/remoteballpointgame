@@ -154,12 +154,6 @@ export class Ball {
             }  
         }
 
-        //Balls
-        for(var i = 0; i < this.game.balls.length; i++){
-            if(this.game.balls[i].state == Ball.BALL_STATE_INAIR && this.game.balls[i].x != this.x && this.game.balls[i].y != this.y)
-			    if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)) col = true;
-		}
-        
         //Players   
         if(this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.x, this.game.player.y, this.game.player.radius)) col = true;
         for(var i = 0; i < this.game.players.length; i++){
