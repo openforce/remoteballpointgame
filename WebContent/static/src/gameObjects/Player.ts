@@ -275,8 +275,8 @@ export class Player {
         
         //Balls
         for(var i = 0; i < this.game.balls.length; i++){
-            if(this.game.balls[i].state == Ball.BALL_STATE_INAIR){
-                if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
+            if(this.id != this.game.balls[i].lastHolderId && this.game.balls[i].state == Ball.BALL_STATE_INAIR){
+                if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
                     col = true;
                     break;
                 }
