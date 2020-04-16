@@ -1,52 +1,54 @@
-class GameDraw {
+import {GameEngine} from '../engine/GameEngine.js';
+import {Game} from './Game.js';
 
+
+export class GameDraw {
 	
-	constructor(){
-		
+	game:Game;
+
+
+	constructor(game:Game){
+		this.game = game;
 	}
 
 	
-	
 	public draw(){
 		
-		ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		var ctx = this.game.gameEngine.ctx;
+
+		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		
-		meetingRoom.draw();
+		this.game.meetingRoom.draw();
 		
-		for(var i = 0; i < balls.length; i++){
-			balls[i].draw();
+		for(var i = 0; i < this.game.balls.length; i++){
+			this.game.balls[i].draw();
 		}
 		
-		for(var i = 0; i < ballBaskets.length; i++){
-			ballBaskets[i].draw();
+		for(var i = 0; i < this.game.ballBaskets.length; i++){
+			this.game.ballBaskets[i].draw();
 		}
 
-		timer.draw();
-		flipchart.draw();
+		this.game.timer.draw();
+		this.game.flipchart.draw();
 
 		
-		for(var i = 0; i < players.length; i++){
-			players[i].draw();
+		for(var i = 0; i < this.game.players.length; i++){
+			this.game.players[i].draw();
 		}
 		
-		player.draw();
+		this.game.player.draw();
 
-		flipchart.drawFlipchartScreen();
+		this.game.flipchart.drawFlipchartScreen();
 
-
-		// DRAW Frame and infos
 		
 		// Frame
 		ctx.beginPath();
 		ctx.strokeStyle = 'black';
 		ctx.fillStyle = 'white';
-		ctx.rect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		ctx.rect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		ctx.lineWidth = 5;
 		ctx.stroke();
 		ctx.closePath();
-		
-		//drawTime();
-		//drawPoints();
 		
 	}
 	

@@ -1,4 +1,4 @@
-class TempCollider {
+export class TempCollider {
     x: number;
     y: number;
     width: number;

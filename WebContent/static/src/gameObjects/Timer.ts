@@ -1,4 +1,9 @@
-class Timer {
+import {Game} from '../game/Game.js';
+
+import {DrawUtils} from '../utils/DrawUtils1.js';
+
+
+export class Timer {
 
     x: number;
     y: number;
@@ -11,28 +16,29 @@ class Timer {
 	spriteWidth:number = 72;
     spriteHeight:number = 85;
 
-    ui:boolean;
-
     targetTime:number = 120 * 1000; //2 Minuten
     startTime:number;
     playTime:number = 5; //120;
 
-    constructor(x:number, y:number, ui:boolean){
+    game:Game;
+
+    constructor(game:Game, x:number, y:number){
+        
+        this.game = game;
+        
         this.x = x;
         this.y = y;
 
         this.middleX = this.x + this.spriteWidth/2;
         this.middleY = this.y + this.spriteHeight/2-15;
 
-        this.ui = ui;
-
-        if(ui){
+        if(this.game.ui){
             this.sprite = new Image();
             this.sprite.src = "/static/resources/timer.png";
         }
 
-        socket.on('timer ended', function(){
-            flipchart.triggerTimerEnded();
+        this.game.socket.on('timer ended', function(){
+            this.game.flipchart.triggerTimerEnded();
         });
     }
 
@@ -46,9 +52,9 @@ class Timer {
         this.playTime = Math.round((this.targetTime - playedTime)/1000);
 
         if(this.playTime <= 0){
-            if(arcadeMode){
+            if(this.game.arcadeMode){
                 this.playTime = 0;
-                flipchart.triggerTimerEnded();
+                this.game.flipchart.triggerTimerEnded();
             }else{
                 this.playTime = 0;
             }
@@ -59,7 +65,7 @@ class Timer {
 
     public triggerTimer(){
 
-        if(arcadeMode) return;
+        if(this.game.arcadeMode) return;
         else this.startTimer();
         
     }
@@ -68,11 +74,13 @@ class Timer {
         if(this.startTime == null) this.startTime = new Date().getTime();
         else this.startTime = null;
 
-        socket.emit('trigger timer');  
+        this.game.socket.emit('trigger timer');  
     }
 
     public draw(){
-        if(!this.ui) return;
+        if(!this.game.ui) return;
+
+        var ctx = this.game.gameEngine.ctx;
 
         //BG
 		ctx.drawImage(this.sprite,
@@ -87,36 +95,36 @@ class Timer {
         ctx.fillText("Time ", this.x + 40, this.y + 20);
         ctx.fillText(this.playTime.toString(), this.x + 40, this.y + 35);
         
-        if(!arcadeMode && showPoints){
+        if(!this.game.arcadeMode && this.game.showPoints){
             ctx.fillText("Points ", this.x + 40, this.y + 55);
-            ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+            ctx.fillText(this.game.points.toString(), this.x + 40, this.y + 70);
         }
 
-        if(arcadeMode){
-            if(gameState == GAME_STATE_WARMUP){
+        if(this.game.arcadeMode){
+            if(this.game.gameState == Game.GAME_STATE_WARMUP){
             
                 ctx.fillText('Warm', this.x + 40, this.y + 55);
                 ctx.fillText('Up', this.x + 40, this.y + 70);
             
-            }else if(gameState == GAME_STATE_PREP){
+            }else if(this.game.gameState == Game.GAME_STATE_PREP){
             
                 ctx.fillText('Prep.', this.x + 40, this.y + 55);
                 ctx.fillText('Phase', this.x + 40, this.y + 70);
             
-            }else if(gameState == GAME_STATE_PLAY){
+            }else if(this.game.gameState == Game.GAME_STATE_PLAY){
             
                 ctx.fillText('Points', this.x + 40, this.y + 55);
-                ctx.fillText(points.toString(), this.x + 40, this.y + 70);
+                ctx.fillText(this.game.points.toString(), this.x + 40, this.y + 70);
             
             }
         }
         
 
-        if(drawColliders) this.drawColider();
+        if(this.game.drawColliders) this.drawColider();
     }
 
     public drawColider(){
-        DrawUtils.drawCyrcleOutline(this.middleX, this.middleY, this.radius, 'blue');
+        DrawUtils.drawCyrcleOutline(this.game.gameEngine.ctx, this.middleX, this.middleY, this.radius, 'blue');
     }
 
     

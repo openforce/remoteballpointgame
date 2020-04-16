@@ -1,4 +1,4 @@
-class CircleCollider {
+export class CircleCollider {
 
     x:number;
     y:number;

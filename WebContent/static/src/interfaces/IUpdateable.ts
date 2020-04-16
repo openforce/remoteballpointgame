@@ -1,4 +1,4 @@
-interface IUpdateable {
+export interface IUpdateable {
 
     update() : void
 

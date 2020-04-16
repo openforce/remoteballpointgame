@@ -1,4 +1,4 @@
-class DrawUtils{
+export class DrawUtils {
 
   /**
    * Draws a rounded rectangle using the current state of the canvas.
@@ -53,7 +53,7 @@ class DrawUtils{
   
   }
   
-  public static drawCyrcle(x:number, y:number, radius:number, farbe:string){
+  public static drawCyrcle(ctx:CanvasRenderingContext2D, x:number, y:number, radius:number, farbe:string){
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
@@ -66,7 +66,7 @@ class DrawUtils{
     ctx.closePath();
   }
   
-  public static drawCyrcleOutline(x:number, y:number, radius:number, farbe:string){
+  public static drawCyrcleOutline(ctx:CanvasRenderingContext2D, x:number, y:number, radius:number, farbe:string){
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;

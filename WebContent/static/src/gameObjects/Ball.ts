@@ -1,9 +1,20 @@
-const BALL_STATE_ONGROUND = 0;
-const BALL_STATE_INAIR = 1;
-const BALL_STATE_FALLING = 2;
-const BALL_STATE_TAKEN = 3;
+import {GameEngine} from '../engine/GameEngine.js';
+import {Game} from '../game/Game.js';
 
-class Ball {
+import {RandomUtils} from '../utils/RandomUtils1.js';
+import {CollisionUtils} from '../utils/CollisionUtils1.js';
+import {DrawUtils} from '../utils/DrawUtils1.js';
+import {GeometryUtils} from '../utils/GeometryUtils1.js';
+
+import {Player} from './Player.js';
+
+
+export class Ball {
+    
+    static BALL_STATE_ONGROUND = 0;
+    static BALL_STATE_INAIR = 1;
+    static BALL_STATE_FALLING = 2;
+    static BALL_STATE_TAKEN = 3;
 
     id:number;
 
@@ -26,13 +37,14 @@ class Ball {
 
     lastSyncState:number;
 
-    ui:boolean;
+    game:Game;
 
     lastHolderId:number;
     touchedBy:number[];
 
-    constructor(x:number, y:number, ui:boolean, color:string){
-        this.ui = ui;
+
+    constructor(game:Game, x:number, y:number, color:string){
+        this.game = game;
 
         var date = Date.now();
         this.id = Number(date.toString() + RandomUtils.getRandomNumber(1,100).toString());
@@ -52,10 +64,10 @@ class Ball {
     }
 
     public sendStateToServer(){
-        if(this.lastHolderId == player.id && this.state != BALL_STATE_TAKEN &&
-            (this.state != BALL_STATE_ONGROUND || this.lastSyncState != BALL_STATE_ONGROUND)){ 
+        if(this.lastHolderId == this.game.player.id && this.state != Ball.BALL_STATE_TAKEN &&
+            (this.state != Ball.BALL_STATE_ONGROUND || this.lastSyncState != Ball.BALL_STATE_ONGROUND)){ 
             
-            socket.emit('sync ball', this.getSyncObject());
+            this.game.socket.emit('sync ball', this.getSyncObject());
             this.lastSyncState = this.state;
 
         }
@@ -104,7 +116,7 @@ class Ball {
         this.x += this.speedX * timeDiff;
         this.y += this.speedY * timeDiff;
 
-        if(this.state == BALL_STATE_FALLING){
+        if(this.state == Ball.BALL_STATE_FALLING){
             this.speedX *= 0.9;
             this.speedY *= 0.9;
 
@@ -112,7 +124,7 @@ class Ball {
             if(Math.abs(this.speedY) < 0.01) this.speedY = 0;
 
             if(this.speedX == 0 && this.speedY == 0) {
-                this.changeStateTo(BALL_STATE_ONGROUND);
+                this.changeStateTo(Ball.BALL_STATE_ONGROUND);
             }
 
         }
@@ -122,36 +134,36 @@ class Ball {
         var col = false;
         
         // Meeting Room
-        if(this.x - this.radius <= meetingRoom.border) col = true; //left
-        else if(this.y + this.radius >= CANVAS_HEIGHT - meetingRoom.border) col = true; //down
-        else if(this.y - this.radius <= meetingRoom.border) col = true; //up
-        else if(this.x + this.radius >= CANVAS_WIDTH-meetingRoom.border) col = true; //right
+        if(this.x - this.radius <= this.game.meetingRoom.border) col = true; //left
+        else if(this.y + this.radius >= GameEngine.CANVAS_HEIGHT - this.game.meetingRoom.border) col = true; //down
+        else if(this.y - this.radius <= this.game.meetingRoom.border) col = true; //up
+        else if(this.x + this.radius >= GameEngine.CANVAS_WIDTH - this.game.meetingRoom.border) col = true; //right
 
         
         //Flipchart
-        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, flipchart.middleX, flipchart.middleY, flipchart.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) col = true;
         
         //Timer
-        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, timer.middleX, timer.middleY, timer.radius)) col = true;
+        else if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) col = true;
         
         //Baskets
-        for(var i = 0; i < ballBaskets.length; i++){
-            if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, ballBaskets[i].x, ballBaskets[i].y, ballBaskets[i].radius)){
+        for(var i = 0; i < this.game.ballBaskets.length; i++){
+            if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)){
                 col = true; 
                 break;
             }  
         }
 
         //Balls
-        for(var i = 0; i < balls.length; i++){
-            if(balls[i].state == BALL_STATE_INAIR && balls[i].x != this.x && balls[i].y != this.y)
-			    if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, balls[i].x, balls[i].y, balls[i].radius)) col = true;
+        for(var i = 0; i < this.game.balls.length; i++){
+            if(this.game.balls[i].state == Ball.BALL_STATE_INAIR && this.game.balls[i].x != this.x && this.game.balls[i].y != this.y)
+			    if(CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)) col = true;
 		}
         
         //Players   
-        if(this.lastHolderId != player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, player.x, player.y, player.radius)) col = true;
-        for(var i = 0; i < players.length; i++){
-			if(this.lastHolderId != players[i].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
+        if(this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.x, this.game.player.y, this.game.player.radius)) col = true;
+        for(var i = 0; i < this.game.players.length; i++){
+			if(this.lastHolderId != this.game.players[i].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.players[i].middleX, this.game.players[i].middleY, this.game.players[i].radius)) col = true;
 		}  
 
 
@@ -163,7 +175,7 @@ class Ball {
 
             this.speedX *= -0.6;
             this.speedY *= -0.6;
-            this.changeStateTo(BALL_STATE_FALLING);
+            this.changeStateTo(Ball.BALL_STATE_FALLING);
 
         }else{ // save position
             this.lastX = this.x;
@@ -177,14 +189,13 @@ class Ball {
         this.lastState = this.state;
         this.state = newState;
 
-        if(newState == BALL_STATE_ONGROUND){
+        if(newState == Ball.BALL_STATE_ONGROUND){
             this.touchedBy = [];
         }
     }
 
     public take(player:Player){
-        //console.log('take ball');
-        this.changeStateTo(BALL_STATE_TAKEN);
+        this.changeStateTo(Ball.BALL_STATE_TAKEN);
         this.speedX = 0;
         this.speedY = 0;
         
@@ -192,10 +203,10 @@ class Ball {
         this.touchedBy.push(player.id);
 
         var touchedByEverybody = true;
-        for(var pi = 0; pi < players.length; pi++){
+        for(var pi = 0; pi < this.game.players.length; pi++){
             var touchedByPlayer = false;
             for(var ti = 0; ti < this.touchedBy.length; ti++){
-                if(this.touchedBy[ti] == players[pi].id) {
+                if(this.touchedBy[ti] == this.game.players[pi].id) {
                     touchedByPlayer = true;
                     break;
                 }
@@ -207,7 +218,7 @@ class Ball {
         }
         if(touchedByEverybody){
             //console.log('touched by everybody');
-            socket.emit('add Point');
+            this.game.socket.emit('add Point');
             this.touchedBy = [];
         }
     }
@@ -216,59 +227,25 @@ class Ball {
         this.speedX = shootSpeed * (Math.cos(shootAngle));
         this.speedY = shootSpeed * (Math.sin(shootAngle));
 
-        this.changeStateTo(BALL_STATE_INAIR);
+        this.changeStateTo(Ball.BALL_STATE_INAIR);
     }
 
 
     // UI
 
     public draw(){
-        if(!this.ui) return;
+        if(!this.game.ui) return;
 
-        if(this.state != BALL_STATE_TAKEN) {
-            DrawUtils.drawCyrcle(this.x, this.y, this.radius+1, 'black');
-            DrawUtils.drawCyrcle(this.x, this.y, this.radius, this.color);
+        if(this.state != Ball.BALL_STATE_TAKEN) {
+            DrawUtils.drawCyrcle(this.game.gameEngine.ctx, this.x, this.y, this.radius+1, 'black');
+            DrawUtils.drawCyrcle(this.game.gameEngine.ctx, this.x, this.y, this.radius, this.color);
         }
     }
 
     // UTILS
 
     public getShootAngle(shootTargetX:number, shootTargetY:number, playerPosX:number, playerPosY:number){
-        var dx = shootTargetX - playerPosX;
-        // Minus to correct for coord re-mapping
-        var dy = (shootTargetY - playerPosY) * -1;
-
-        var inRads = Math.atan2(dy,dx);
-
-        // We need to map to coord system when 0 degree is at 3 O'clock, 270 at 12 O'clock
-        if (inRads < 0)
-            inRads = inRads + 2*Math.PI;
-            //inRads = Math.abs(inRads);
-        //else
-            //inRads = inRads + 2*Math.PI;
-            //inRads = 2*Math.PI - inRads;
-            
-        //if (inRads < 0) inRads -= 2 * Math.PI;
-
-        return this.radToDegree(inRads) ;
-    }
-
-    public radToDegree(radValue:number) {
-        var pi = Math.PI;
-        var ra_de = radValue * (180 / pi);
-        return ra_de;
-    }
-    public degreeToRad(degreeValue:number) {
-        var pi = Math.PI;
-        var de_ra = degreeValue * (pi / 180);
-        return de_ra;
-    }
-    
-    public getDistance(fromX:number, fromY:number, toX:number, toY:number){
-        var a = Math.abs(fromX - toX);
-        var b = Math.abs(fromY - toY);
-     
-        return Math.sqrt((a * a) + (b * b));
+        return GeometryUtils.getAngleBetweenToPoints(shootTargetX, shootTargetY, playerPosX, playerPosY);
     }
 
 }

@@ -1,4 +1,6 @@
-class ClickUtils {
+import {ICollidable} from '../interfaces/ICollidable.js';
+
+export class ClickUtils {
 	
 
 	static checkClickOnRectObject(mouseX:number, mouseY:number, object:ICollidable) : boolean { 
