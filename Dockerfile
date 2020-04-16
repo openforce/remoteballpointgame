@@ -5,6 +5,6 @@ COPY ./WebContent ./
 RUN npm ci
 RUN npx tsc -w false
 
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
 
 EXPOSE 5000
