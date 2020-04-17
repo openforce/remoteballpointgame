@@ -58,13 +58,14 @@ var gameState = {
 
 //var flipchart:Flipchart = new Flipchart(null, 0, 0);
 
+//*
 var flipchart = {
   active: false,
   activeFlipchart: 0,
   // @ts-ignore
   lastActivator: null,
   numberOfFlipcharts: 4
-}; 
+}; //*/
 
 var resultTable:any;
 initResultTable();

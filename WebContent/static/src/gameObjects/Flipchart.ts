@@ -3,7 +3,6 @@ import {Game} from '../game/Game.js';
 import {DrawUtils} from '../utils/DrawUtils1.js';
 
 import {Button} from './Button.js';
-import {CanvasInput} from '../gameObjectLibrary/CanvasInput.js';
 
 export class Flipchart {
     
@@ -85,7 +84,7 @@ export class Flipchart {
 
     startButton:Button;
     
-    input_estimation:CanvasInput;
+    input_estimation:any;
 
     constructor(game:Game, x:number, y:number){
         
@@ -401,6 +400,7 @@ export class Flipchart {
                 if(this.game.gameState == Game.GAME_STATE_PLAY){
 
                     if(this.input_estimation == null) 
+                        // @ts-ignore
                         this.input_estimation = new CanvasInput({
                             canvas: this.game.gameEngine.canvas,
                             x: 333,
