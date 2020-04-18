@@ -68,7 +68,7 @@ export class MenuController {
 	}
 
 	public gotoMenu(){
-		this.gameEngine.navigation = GameEngine.nav_menu;
+		this.gameEngine.state = GameEngine.STATE_MENU;
 	}
 	
 	public init(){

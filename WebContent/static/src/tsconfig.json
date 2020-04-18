@@ -1,14 +1,18 @@
 {
     
-    "compileOnSave": true,
+  "compileOnSave": true,
+  
 
-    "compilerOptions": {
-        "noImplicitAny" : true,
-        "target": "esnext",
-        "watch": true,
-        "outDir": "out",
-        "sourceMap": true,
-        "forceConsistentCasingInFileNames":true
-      }
+  "compilerOptions": {
+      "noImplicitAny" : true,
+      "target": "esnext",
+      "watch": true,
+      "outDir": "out",
+      "sourceMap": true,
+      "forceConsistentCasingInFileNames":true,
+
+      "module": "commonjs",
+      "moduleResolution": "node"
+    }
 
 }

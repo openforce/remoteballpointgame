@@ -6,6 +6,8 @@ import {CollisionUtils} from '../utils/CollisionUtils1.js';
 import {DrawUtils} from '../utils/DrawUtils1.js';
 
 import {Ball} from './Ball.js';
+import {PlayerControlesState} from './syncObjects/PlayerControlesState.js';
+
 
 export class Player {
 
@@ -198,6 +200,7 @@ export class Player {
 
     // CONTROLS
 
+    // used in MODE_CLIENT
     public updateControls(){
         // W
         if(this.game.gameEngine.keys[87]) this.moveUp = true; 
@@ -214,6 +217,20 @@ export class Player {
 
         this.lookX = this.game.gameEngine.mousePosX;
         this.lookY = this.game.gameEngine.mousePosY;
+    }
+
+    // used in MODE_SIMULATION
+    public setControles(controlesState:PlayerControlesState){
+        this.moveUp = controlesState.moveUp;
+        this.moveLeft = controlesState.moveLeft;
+        this.moveDown = controlesState.moveDown;
+        this.moveRight = controlesState.moveRight;
+
+        this.lookX = controlesState.lookX;
+        this.lookY = controlesState.lookY;
+
+        this.clickedLeft = controlesState.clickedLeft;
+        this.clickedRight = controlesState.clickedRight;
     }
 
     public checkClick(mouseX:number, mouseY:number, clickType:number){

@@ -81,54 +81,38 @@ export class Game {
 
 	
 	/***********************************
-	# Method to init all game objects 
+	# init in MODE_CLIENT
 	***********************************/
 	public initGame(playerName:string, playerColor:string, playerGender:string){
 		
 		this.ui = true;
-
-		this.gameEngine.navigation = GameEngine.nav_game;
+		this.gameEngine.state = GameEngine.STATE_GAME;
 		
-		// open socket connection to server
-		// @ts-ignore
-		this.socket = window.io();
-	
-		// player
-		var color = playerColor;
-		if(color == null) color = RandomUtils.getRandomEntryFromNumberedArray(Player.colors);
-		var gender = playerGender;
-		if(gender == null) gender = RandomUtils.getRandomEntryFromNumberedArray(Player.genders);
-		var name = playerName;
-		if(name == null) name = RandomUtils.getRandomName();
 		
-		this.player = new Player(this, 620, 180, name, color, gender, true);
-
-		// ball baskets
-		this.ballBaskets = [];
-		this.ballBaskets.push(new BallBasket(this, 170, 470, 'red'));
-		this.ballBaskets.push(new BallBasket(this, 270, 470, 'blue'));
-		this.ballBaskets.push(new BallBasket(this, 370, 470, 'orange'));
-		this.ballBaskets.push(new BallBasket(this, 470, 470, null));
+		this.initSocketIO();
 		
-		// others
-		this.meetingRoom = new MeetingRoom(this);
-		this.flipchart = new Flipchart(this, 40, 80);
-		this.timer = new Timer(this, 170, 60);
-		
-		this.gameDraw = new GameDraw(this);
-		
-		this.balls = [];
-		this.players = [];
-		
-		this.points = 0;
-		
-		//time
-		var now = new Date();
-		this.lastTime = now.getTime();
+		this.initPlayer(playerName, playerColor, playerGender);
+		this.initGameWorld();
 		
 		// INIT Game Objects here
 		this.player.init();
-		
+	
+	}
+
+	/***********************************
+	# init in MODE_SIMULATION
+	***********************************/
+	public initGameSimulation(){
+		this.ui = false;
+		this.gameEngine.state = GameEngine.STATE_GAME;
+
+		this.initGameWorld();
+	}
+
+	public initSocketIO(){
+		// open socket connection to server
+		// @ts-ignore
+		this.socket = window.io();
 
 		// SYNCS with server
 		
@@ -147,7 +131,44 @@ export class Game {
 				}
 			})(this), 
 		1000/60);
-	
+	}
+
+	public initGameWorld(){
+		// ball baskets
+		this.ballBaskets = [];
+		this.ballBaskets.push(new BallBasket(this, 170, 470, 'red'));
+		this.ballBaskets.push(new BallBasket(this, 270, 470, 'blue'));
+		this.ballBaskets.push(new BallBasket(this, 370, 470, 'orange'));
+		this.ballBaskets.push(new BallBasket(this, 470, 470, null));
+
+		// others
+		this.meetingRoom = new MeetingRoom(this);
+		this.flipchart = new Flipchart(this, 40, 80);
+		this.timer = new Timer(this, 170, 60);
+
+		this.gameDraw = new GameDraw(this);
+
+		this.balls = [];
+		this.players = [];
+
+		this.points = 0;
+
+		//time
+		var now = new Date();
+		this.lastTime = now.getTime();
+	}
+
+	public initPlayer(playerName:string, playerColor:string, playerGender:string){
+
+		var color = playerColor;
+		if(color == null) color = RandomUtils.getRandomEntryFromNumberedArray(Player.colors);
+		var gender = playerGender;
+		if(gender == null) gender = RandomUtils.getRandomEntryFromNumberedArray(Player.genders);
+		var name = playerName;
+		if(name == null) name = RandomUtils.getRandomName();
+
+		this.player = new Player(this, 620, 180, name, color, gender, true);
+
 	}
 
 	public sendBallStates(game:Game){		
@@ -175,8 +196,10 @@ export class Game {
 
 		// UPDATE Game Objects
 	
-		this.player.updateControls();
-		this.player.update(this.timeDiff);
+		if(this.player != null){
+			this.player.updateControls();
+			this.player.update(this.timeDiff);
+		}
 		
 		for(var i = 0; i < this.ballBaskets.length; i++){
 			this.ballBaskets[i].update;
@@ -196,7 +219,7 @@ export class Game {
 		
 
 		// DRAW Game Objects
-		this.gameDraw.draw();
+		if(this.ui) this.gameDraw.draw();
 		
 	}
 	
@@ -361,7 +384,7 @@ export class Game {
 	
 	
 	public endGame(){
-		this.gameEngine.navigation = GameEngine.nav_after_game;
+		this.gameEngine.state = GameEngine.STATE_AFTER_GAME;
 	}
 	
 	

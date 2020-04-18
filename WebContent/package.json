@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "ts-node server.ts",
+    "build": "npx webpack --config webpack.config.js",
     "start": "ts-node server.ts"
   },
   "dependencies": {
@@ -14,6 +15,8 @@
   "devDependencies": {
     "@types/node": "^13.11.1",
     "ts-node": "^8.8.2",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   }
 }

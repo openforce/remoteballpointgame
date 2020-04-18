@@ -7,7 +7,9 @@ import * as http from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-//import {Flipchart} from './static/src/gameObjects/Flipchart';
+import {GameEngine} from './static/src/out/engine/GameEngine';
+//import {Flipchart} from './static/src/out/gameObjects/Flipchart';
+
 
 
 var app = express();
@@ -56,6 +58,7 @@ var gameState = {
   arcadeMode: false
 }
 
+var gameEngine = new GameEngine(null);
 //var flipchart:Flipchart = new Flipchart(null, 0, 0);
 
 //*
