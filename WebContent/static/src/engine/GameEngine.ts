@@ -1,4 +1,6 @@
 import {Game} from '../game/Game.js';
+import {GameDrawer} from '../game/GameDrawer.js';
+
 import {MenuController} from './MenuController.js';
 
 
@@ -23,13 +25,14 @@ export class GameEngine {
 	mousePosX:number;
 	mousePosY:number;
 
-	testvar:string = 'test v2';
-
-	menuController:MenuController;
-	game:Game;
-	
 	canvas:HTMLCanvasElement;
 	ctx:CanvasRenderingContext2D;
+	
+	menuController:MenuController;
+
+	game:Game;
+	gameDrawer:GameDrawer;
+	
 
 	constructor(canvas:HTMLCanvasElement){
 
@@ -38,20 +41,22 @@ export class GameEngine {
 		if(this.canvas != null) this.mode = GameEngine.MODE_CLIENT;
 		else this.mode = GameEngine.MODE_SIMULATION;
 	
-	
+		
 		if(this.mode == GameEngine.MODE_CLIENT){
-
+			
 			this.ctx = canvas.getContext('2d');
+			this.gameDrawer = new GameDrawer(this.ctx);
+			
 			this.menuController = new MenuController(this);
 			this.state = GameEngine.STATE_MENU;
-
+			
 		}else{
 			this.state = GameEngine.STATE_GAME;
 		}
-
-		this.keys = [];
-
+		
 		this.game = new Game(this);
+		
+		this.keys = [];
 
 		console.log('GameEngine ready');
 
@@ -73,6 +78,7 @@ export class GameEngine {
 		
 		case GameEngine.STATE_GAME:
 			this.game.updateGame();
+			if(this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.game);
 			break;
 		
 		case GameEngine.STATE_AFTER_GAME:

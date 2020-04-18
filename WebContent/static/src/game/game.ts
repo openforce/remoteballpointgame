@@ -1,5 +1,4 @@
 import {GameEngine} from '../engine/GameEngine.js';
-import {GameDraw} from './GameDraw.js';
 
 import {Flipchart} from '../gameObjects/Flipchart.js';
 import {MeetingRoom} from '../gameObjects/MeetingRoom.js';
@@ -63,7 +62,6 @@ export class Game {
 	gameState = Game.GAME_STATE_STARTED;
 	
 	// GAME Object Controller
-	gameDraw:GameDraw;
 	
 	drawColliders = false;
 	
@@ -146,8 +144,6 @@ export class Game {
 		this.flipchart = new Flipchart(this, 40, 80);
 		this.timer = new Timer(this, 170, 60);
 
-		this.gameDraw = new GameDraw(this);
-
 		this.balls = [];
 		this.players = [];
 
@@ -217,9 +213,6 @@ export class Game {
 			this.balls[i].update(this.timeDiff);
 		}
 		
-
-		// DRAW Game Objects
-		if(this.ui) this.gameDraw.draw();
 		
 	}
 	

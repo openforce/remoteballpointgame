@@ -1,7 +1,5 @@
 import {ICollidable} from '../interfaces/ICollidable.js';
 import {ClickUtils} from '../utils/ClickUtils1.js';
-import { Game } from '../game/Game.js';
-
 
 export class Button implements ICollidable {
 

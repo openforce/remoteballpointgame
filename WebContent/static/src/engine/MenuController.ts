@@ -2,7 +2,7 @@ import {GameEngine} from './GameEngine.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 
-import {Button} from '../gameObjects/Button.js';
+import {Button} from '../gameObjectLibrary/Button.js';
 
 
 export class MenuController {
@@ -41,11 +41,11 @@ export class MenuController {
 
 		this.playerSprites = [];
 		this.playerSprites[0] = new Image();
-		this.playerSprites[0].src = '/static/resources/person_blue_stand.png';
+		this.playerSprites[0].src = '/static/resources/person_m_blue_stand.png';
 		this.playerSprites[1] = new Image();
-		this.playerSprites[1].src = '/static/resources/person_orange_stand.png';
+		this.playerSprites[1].src = '/static/resources/person_m_orange_stand.png';
 		this.playerSprites[2] = new Image();
-		this.playerSprites[2].src = '/static/resources/person_white_stand.png';
+		this.playerSprites[2].src = '/static/resources/person_m_white_stand.png';
 		this.playerSprites[3] = new Image();
 		this.playerSprites[3].src = '/static/resources/person_w_blue_stand.png';
 		this.playerSprites[4] = new Image();

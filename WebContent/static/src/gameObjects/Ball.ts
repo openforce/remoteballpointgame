@@ -3,7 +3,6 @@ import {Game} from '../game/Game.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 import {CollisionUtils} from '../utils/CollisionUtils1.js';
-import {DrawUtils} from '../utils/DrawUtils1.js';
 import {GeometryUtils} from '../utils/GeometryUtils1.js';
 
 import {Player} from './Player.js';
@@ -223,20 +222,6 @@ export class Ball {
 
         this.changeStateTo(Ball.BALL_STATE_INAIR);
     }
-
-
-    // UI
-
-    public draw(){
-        if(!this.game.ui) return;
-
-        if(this.state != Ball.BALL_STATE_TAKEN) {
-            DrawUtils.drawCyrcle(this.game.gameEngine.ctx, this.x, this.y, this.radius+1, 'black');
-            DrawUtils.drawCyrcle(this.game.gameEngine.ctx, this.x, this.y, this.radius, this.color);
-        }
-    }
-
-    // UTILS
 
     public getShootAngle(shootTargetX:number, shootTargetY:number, playerPosX:number, playerPosY:number){
         return GeometryUtils.getAngleBetweenToPoints(shootTargetX, shootTargetY, playerPosX, playerPosY);

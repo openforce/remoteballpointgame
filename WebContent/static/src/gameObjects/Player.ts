@@ -3,7 +3,7 @@ import {Game} from '../game/Game.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 import {CollisionUtils} from '../utils/CollisionUtils1.js';
-import {DrawUtils} from '../utils/DrawUtils1.js';
+import {GeometryUtils} from '../utils/GeometryUtils1.js';
 
 import {Ball} from './Ball.js';
 import {PlayerControlesState} from './syncObjects/PlayerControlesState.js';
@@ -42,13 +42,6 @@ export class Player {
     name:string;
 
     game:Game;
-    
-    // UI
-
-    //sprite:CanvasImageSource;
-    sprites:CanvasImageSource[];
-	spriteWidth:number;
-    spriteHeight:number;
 
     static colors = ['blue', 'white', 'orange'];
     color:string;
@@ -104,23 +97,6 @@ export class Player {
         this.rotation = 180;
         
         this.actionCircleRadius = 40;
-        
-        if(this.game.ui){
-            var genderPicString:string;  
-            if(this.gender == 'm') genderPicString = '';
-            else genderPicString = this.gender + '_'; 
-
-            this.sprites = [];
-            this.sprites[0] = new Image();
-            this.sprites[0].src = '/static/resources/person_' + genderPicString + color + '_stand.png';
-            this.sprites[1] = new Image();
-            this.sprites[1].src = '/static/resources/person_' + genderPicString + color + '_walk1.png';
-            this.sprites[2] = new Image();
-            this.sprites[2].src = '/static/resources/person_' + genderPicString + color + '_walk2.png';
-            
-            this.spriteWidth = 218;
-            this.spriteHeight = 170;
-        }
 
         
         if(this.syncToServer) this.game.socket.emit('new player', this.getSyncObject());  
@@ -347,7 +323,7 @@ export class Player {
     }
 
     public setActionAreaCircle(){
-        var fAngle = this.degreeToRad(-this.rotation + 90);
+        var fAngle = GeometryUtils.degreeToRad(-this.rotation + 90);
 
         var diagonalDistX = (this.radius + this.actionCircleRadius) * (Math.cos(fAngle));
 	    var diagonalDistY = -(this.radius + this.actionCircleRadius) * (Math.sin(fAngle));
@@ -425,7 +401,7 @@ export class Player {
     }
 
     public shootBall(clickType:number){
-        var fAngle = this.degreeToRad(this.rotation + 90);
+        var fAngle = GeometryUtils.degreeToRad(this.rotation + 90);
 
         if(clickType == Game.CLICK_RIGHT) this.rightHand.shoot(fAngle, this.shootSpeed);
         if(clickType == Game.CLICK_LEFT) this.leftHand.shoot(fAngle, this.shootSpeed);
@@ -443,103 +419,9 @@ export class Player {
 
     }
 
-
-    // UI STUFF
-
-    public draw(){
-        if(!this.game.ui) return;
-
-        var ctx = this.game.gameEngine.ctx;
-
-        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-        ctx.rotate(this.rotation * Math.PI / 180);
-
-        //Sprite
-        if(this.moveDown || this.moveLeft || this.moveRight || this.moveUp){
-            if(this.walkAnimationTimeDif > this.walkAnimationTime){
-                this.walkAnimationCount++;
-                if(this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
-                this.walkAnimationTimeDif = 0;
-            }
-        }else this.walkAnimationCount = 0;
-
-        ctx.drawImage(this.sprites[this.walkAnimationCount],
-			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
-            -this.width / 2, -this.height / 2, this.width, this.height); 	 // draw position and size
-
-        if(this.leftHand != null){
-            var myBall = this.leftHand;
-            
-            DrawUtils.drawCyrcle(ctx, 13, 13, myBall.radius+1, 'black');
-            DrawUtils.drawCyrcle(ctx, 13, 13, myBall.radius, myBall.color);
-
-        }
-
-        if(this.rightHand != null){
-            var myBall = this.rightHand;
-
-            DrawUtils.drawCyrcle(ctx, -13, 15, myBall.radius+1, 'black');
-            DrawUtils.drawCyrcle(ctx, -13, 15, myBall.radius, myBall.color);
-        }
-
-        
-        ctx.rotate(-this.rotation * Math.PI / 180);
-        ctx.translate(-this.x - this.width / 2, -this.y -this.height / 2);
-        
-        this.drawName();
-
-        if(this.game.drawColliders) this.drawActionArea();
-        
-    }
-
-    public drawName(){
-
-        var ctx = this.game.gameEngine.ctx;
-
-        ctx.fillStyle = 'black';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.name, this.middleX, this.y + this.height + 10);
-        //ctx.fillText(this.id.toString(), this.middleX, this.y + this.height + 30);
-        ctx.textAlign = 'left';
-    }
-
-    public drawActionArea(){
-        var ctx = this.game.gameEngine.ctx;
-        DrawUtils.drawCyrcleOutline(ctx, this.middleX, this.middleY, this.radius, 'blue');
-        DrawUtils.drawCyrcleOutline(ctx, this.actionCircleX, this.actionCircleY, this.actionCircleRadius, 'green');
-    }
-
-
-    // UTIL STUFF
-
     public getShootAngle(shootTargetX:number, shootTargetY:number, playerPosX:number, playerPosY:number){
-        var dx = shootTargetX - playerPosX;
-        var dy = (shootTargetY - playerPosY) * -1;
-
-        var inRads = Math.atan2(dy,dx);
-
-        if (inRads < 0) inRads = inRads + 2*Math.PI;
-
-        return this.radToDegree(inRads) ;
+        return GeometryUtils.getAngleBetweenToPoints(shootTargetX, shootTargetY, playerPosX, playerPosY);
     }
 
-    public radToDegree(radValue:number) {
-        var pi = Math.PI;
-        var ra_de = radValue * (180 / pi);
-        return ra_de;
-    }
-    public degreeToRad(degreeValue:number) {
-        var pi = Math.PI;
-        var de_ra = degreeValue * (pi / 180);
-        return de_ra;
-    }
-    
-    public getDistance(fromX:number, fromY:number, toX:number, toY:number){
-        var a = Math.abs(fromX - toX);
-        var b = Math.abs(fromY - toY);
-     
-        return Math.sqrt((a * a) + (b * b));
-    }
-
+   
 }
