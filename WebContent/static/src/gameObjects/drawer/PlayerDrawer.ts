@@ -26,7 +26,6 @@ export class PlayerDrawer {
                 for(var k = 0; k < Player.colors.length; k++){
                     
                     var pngPath = '/static/resources/person_' + Player.genders[i] + '_' + Player.colors[j] + '_' + animationSteps[k] + '.png';
-                    console.log('[' + Player.genders[i] + Player.colors[j] + ']' + pngPath);
 
                     //@ts-ignore
                     this.sprites[Player.genders[i] + Player.colors[j]][k] = new Image();

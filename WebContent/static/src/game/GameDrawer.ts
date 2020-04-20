@@ -6,14 +6,11 @@ import {BallDrawer} from '../gameObjects/drawer/BallDrawer.js';
 import {BallBasketDrawer} from '../gameObjects/drawer/BallBasketDrawer.js';
 import {FlipchartDrawer} from '../gameObjects/drawer/FlipchartDrawer.js';
 import {MeetingRoomDrawer} from '../gameObjects/drawer/MeetingRoomDrawer.js';
-import { PlayerDrawer } from '../gameObjects/drawer/PlayerDrawer.js';
-import { Player } from '../gameObjects/Player.js';
+import {PlayerDrawer} from '../gameObjects/drawer/PlayerDrawer.js';
 
 
 export class GameDrawer {
 	
-	ctx:CanvasRenderingContext2D;
-
 	timerDrawer:TimerDrawer;
 	ballDrawer:BallDrawer;
 	ballBasketDrawer:BallBasketDrawer;
@@ -21,7 +18,7 @@ export class GameDrawer {
 	meetingRoomDrawer:MeetingRoomDrawer;
 	playerDrawer:PlayerDrawer;
 
-	constructor(canvasContext:CanvasRenderingContext2D){
+	constructor(){
 
 		this.timerDrawer = new TimerDrawer();
 		this.ballDrawer = new BallDrawer();
@@ -29,13 +26,12 @@ export class GameDrawer {
 		this.flipchartDrawer = new FlipchartDrawer();
 		this.meetingRoomDrawer = new MeetingRoomDrawer();
 		this.playerDrawer = new PlayerDrawer();
+
 	}
 
 	
-	public draw(game:Game){
+	public draw(ctx:CanvasRenderingContext2D, game:Game){
 		
-		var ctx = game.gameEngine.ctx;
-
 		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		
 		this.meetingRoomDrawer.draw(ctx, game.meetingRoom);

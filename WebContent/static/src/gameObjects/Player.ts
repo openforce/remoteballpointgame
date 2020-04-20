@@ -1,5 +1,6 @@
 import {GameEngine} from '../engine/GameEngine.js';
 import {Game} from '../game/Game.js';
+import {Inputs} from '../game/Inputs.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 import {CollisionUtils} from '../utils/CollisionUtils1.js';
@@ -58,8 +59,8 @@ export class Player {
     clickedLeft:boolean = false;
     clickedRight:boolean = false;
 
-    clickedX:number;
-    clickedY:number;
+    clickedLeftTimeStemp = 0;
+    clickedRightTimeStemp = 0;
 
     moveUp:boolean;
     moveDown:boolean;
@@ -177,22 +178,37 @@ export class Player {
     // CONTROLS
 
     // used in MODE_CLIENT
-    public updateControls(){
+    public updateInputs(inputs:Inputs){
         // W
-        if(this.game.gameEngine.keys[87]) this.moveUp = true; 
+        if(inputs.keys[87]) this.moveUp = true; 
         else this.moveUp = false;
         // A
-        if(this.game.gameEngine.keys[65]) this.moveLeft = true; 
+        if(inputs.keys[65]) this.moveLeft = true; 
         else this.moveLeft = false;
         // S
-        if(this.game.gameEngine.keys[83]) this.moveDown = true; 
+        if(inputs.keys[83]) this.moveDown = true; 
         else this.moveDown = false;
         // D
-        if(this.game.gameEngine.keys[68]) this.moveRight = true; 
+        if(inputs.keys[68]) this.moveRight = true; 
         else this.moveRight = false;
 
-        this.lookX = this.game.gameEngine.mousePosX;
-        this.lookY = this.game.gameEngine.mousePosY;
+        this.lookX = inputs.mousePosX;
+        this.lookY = inputs.mousePosY;
+
+        if(inputs.clickedLeft && inputs.clickedLeftTimeStemp > this.clickedLeftTimeStemp){
+            this.clickedLeft = true;
+            this.clickedLeftTimeStemp = inputs.clickedLeftTimeStemp;
+        }else if(!inputs.clickedLeft){
+            this.clickedLeft = false;
+        }
+
+        if(inputs.clickedRight && inputs.clickedRightTimeStemp > this.clickedRightTimeStemp){
+            this.clickedRight = true;
+            this.clickedRightTimeStemp = inputs.clickedRightTimeStemp;
+        }else if(!inputs.clickedRight){
+            this.clickedRight = false;
+        }
+   
     }
 
     // used in MODE_SIMULATION
@@ -209,23 +225,6 @@ export class Player {
         this.clickedRight = controlesState.clickedRight;
     }
 
-    public checkClick(mouseX:number, mouseY:number, clickType:number){
-        //console.log("clicked");
-        
-        if(clickType == Game.CLICK_LEFT) this.clickedLeft = true;
-        if(clickType == Game.CLICK_RIGHT) this.clickedRight = true;
-
-        this.clickedX = mouseX;
-        this.clickedY = mouseY;
-
-    }
-
-    public checkMouseUp(clickType:number){
-        //console.log("mouse up");
-
-        if(clickType == Game.CLICK_LEFT) this.clickedLeft = false;
-        if(clickType == Game.CLICK_RIGHT) this.clickedRight = false;
-    }
 
     // LOGIC
 

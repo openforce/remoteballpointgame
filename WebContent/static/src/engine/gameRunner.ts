@@ -30,10 +30,11 @@ function init(){
 	canvas.width = GameEngine.CANVAS_WIDTH;
 	canvas.height = GameEngine.CANVAS_HEIGHT;
 	
-	gameEngine = new GameEngine(canvas);
+	gameEngine = new GameEngine();
 	
 	// @ts-ignore
 	window.gameEngine = gameEngine;
+
 
 	// INIT input stuff
 	window.addEventListener('keydown', keyDown, true);
@@ -49,8 +50,8 @@ function init(){
 		return false;
 	}, false);
 	
-
-	gameEngine.init();
+	// INIT client game
+	gameEngine.initMenu(canvas);
 
 	mainLoop();
 }
@@ -64,11 +65,11 @@ function mainLoop(){
 # Input Stuff
 ***********************************/
 function keyDown(evt:KeyboardEvent) {
-	gameEngine.keys[evt.keyCode] = true;
+	gameEngine.inputs.keys[evt.keyCode] = true;
 }
 
 function keyUp(evt:KeyboardEvent) {
-	gameEngine.keys[evt.keyCode] = false;
+	gameEngine.inputs.keys[evt.keyCode] = false;
 }
 
 /***********************************
@@ -103,6 +104,6 @@ function updateMousePos(evt:MouseEvent) {
 	}
 
 	// save relative mouse position
-	gameEngine.mousePosX = evt.clientX - left + window.pageXOffset;
-	gameEngine.mousePosY = evt.clientY - top + window.pageYOffset;
+	gameEngine.inputs.mousePosX = evt.clientX - left + window.pageXOffset;
+	gameEngine.inputs.mousePosY = evt.clientY - top + window.pageYOffset;
 }

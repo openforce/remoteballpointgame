@@ -1,4 +1,6 @@
 import {Game} from '../game/Game.js';
+import {Inputs} from '../game/Inputs.js';
+
 import {Button} from '../gameObjectLibrary/Button.js';
 
 
@@ -59,6 +61,14 @@ export class Flipchart {
         },
     }
 
+    mousePosX:number;
+    mousePosY:number;
+
+    clickedLeft:boolean = false;
+    clickedRight:boolean = false;
+
+    clickedLeftTimeStemp = 0;
+    clickedRightTimeStemp = 0;
     
     nextFlipchartButton:Button;
     previousFlipchartButton:Button;
@@ -98,15 +108,33 @@ export class Flipchart {
 
         if(this.game.ui){
 
-            this.startButton = new Button(this.game.gameEngine.ctx, this.infoBox_x + this.infoBoxWidth / 4, this.infoBox_y + this.infoBoxHeight - 150 , 60, 25, 'Got it!'); 
+            this.startButton = new Button(this.infoBox_x + this.infoBoxWidth / 4, this.infoBox_y + this.infoBoxHeight - 150 , 60, 25, 'Got it!'); 
             this.startButton.textFont = 'bold 12px Arial';    
-            this.nextFlipchartButton = new Button(this.game.gameEngine.ctx, this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '     -->');               
-            this.previousFlipchartButton = new Button(this.game.gameEngine.ctx, this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '<--');
+            this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '     -->');               
+            this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30 , 50, 20, '<--');
 
         }
     }
 
+    public updateInputs(inputs:Inputs){
+
+        this.mousePosX = inputs.mousePosX;
+        this.mousePosY = inputs.mousePosX;
+
+        if(inputs.clickedLeft && inputs.clickedLeftTimeStemp > this.clickedLeftTimeStemp){
+            this.clickedLeft = true;
+            this.clickedLeftTimeStemp = inputs.clickedLeftTimeStemp;
+        }else if(!inputs.clickedLeft){
+            this.clickedLeft = false;
+        }
+    }
+
     public update(timeDiff:number){
+
+       if(this.clickedLeft) {
+           this.checkClick(this.mousePosX, this.mousePosY);
+           this.clickedLeft = false;
+       }
        
     }
 

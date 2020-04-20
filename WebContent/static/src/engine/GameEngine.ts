@@ -2,6 +2,7 @@ import {Game} from '../game/Game.js';
 import {GameDrawer} from '../game/GameDrawer.js';
 
 import {MenuController} from './MenuController.js';
+import { Inputs } from '../game/Inputs.js';
 
 
 export class GameEngine {
@@ -20,51 +21,67 @@ export class GameEngine {
 	mode:number;
 	state:number;
 
-	keys:boolean[];
-	
-	mousePosX:number;
-	mousePosY:number;
-
 	canvas:HTMLCanvasElement;
 	ctx:CanvasRenderingContext2D;
 	
+
 	menuController:MenuController;
 
 	game:Game;
 	gameDrawer:GameDrawer;
 	
+	inputs:Inputs;
 
-	constructor(canvas:HTMLCanvasElement){
 
-		this.canvas = canvas;
-
-		if(this.canvas != null) this.mode = GameEngine.MODE_CLIENT;
-		else this.mode = GameEngine.MODE_SIMULATION;
+	// TIME Parameters
+	lastTime = 0;
+	timeDiff = 0;
 	
-		
-		if(this.mode == GameEngine.MODE_CLIENT){
-			
-			this.ctx = canvas.getContext('2d');
-			this.gameDrawer = new GameDrawer(this.ctx);
-			
-			this.menuController = new MenuController(this);
-			this.state = GameEngine.STATE_MENU;
-			
-		}else{
-			this.state = GameEngine.STATE_GAME;
-		}
-		
-		this.game = new Game(this);
-		
-		this.keys = [];
+	maxTimeDiff = 0;
+	averageTimeDiff = 0;
 
-		console.log('GameEngine ready');
+	
 
+	constructor(){
+
+		this.inputs = new Inputs();
+		
 	}
 	
-	public init(){
+	public initMenu(canvas:HTMLCanvasElement){
+		this.canvas = canvas;
+		this.ctx = canvas.getContext('2d');
+
+		this.mode = GameEngine.MODE_CLIENT
+		this.state = GameEngine.STATE_MENU;
+
+		this.menuController = new MenuController(this);
+
 		this.menuController.init();
 		this.menuController.gotoMenu();
+	}
+
+	public initGame(playerName:string, playerColor:string, playerGender:string){
+		
+		this.mode = GameEngine.MODE_CLIENT;
+		this.state = GameEngine.STATE_GAME;
+
+		this.gameDrawer = new GameDrawer();
+		this.game = new Game();
+
+		this.game.initGame(playerName, playerColor, playerGender);
+		
+		//time
+		var now = new Date();
+		this.lastTime = now.getTime();
+	}
+
+	public initGameSimulation(){
+
+		this.mode = GameEngine.MODE_SIMULATION;
+		this.state = GameEngine.STATE_GAME;
+
+		this.game.initGameSimulation();
 	}
 
 
@@ -77,8 +94,10 @@ export class GameEngine {
 			break;
 		
 		case GameEngine.STATE_GAME:
-			this.game.updateGame();
-			if(this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.game);
+			
+			if(this.game.gameState == Game.GAME_STATE_END) this.state = GameEngine.STATE_AFTER_GAME;
+			else this.mainLoopGame();
+		
 			break;
 		
 		case GameEngine.STATE_AFTER_GAME:
@@ -91,17 +110,41 @@ export class GameEngine {
 
 	}
 
+	public mainLoopGame(){
+		//time
+		var now = new Date();
+		var time = now.getTime();
+
+		this.timeDiff = time - this.lastTime;
+
+		if(this.timeDiff > this.maxTimeDiff) {
+			this.maxTimeDiff = this.timeDiff;
+		}
+		//if(timeDiff > 20) console.log(timeDiff);
+
+		this.lastTime = time;
+
+		// update game
+		if(this.mode == GameEngine.MODE_CLIENT) this.game.updateInputs(this.inputs);
+		this.game.updateGame(this.timeDiff);
+		if(this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.ctx, this.game);
+	}
+
 	
 	public checkClickEvents(){
-		
+		var now = new Date();
+		var time = now.getTime();
+
+		this.inputs.clickedLeft = true;
+		this.inputs.clickedLeftTimeStemp = time;
+
 		switch(this.state) {
 		
 		case GameEngine.STATE_MENU:
-			this.menuController.checkClick(this.mousePosX, this.mousePosY);
+			this.menuController.checkClick(this.inputs.mousePosX, this.inputs.mousePosY);
 			break;
 			
 		case GameEngine.STATE_GAME:
-			this.game.checkGameClicks(this.mousePosX, this.mousePosY);
 			break;
 			
 		case GameEngine.STATE_AFTER_GAME:
@@ -113,6 +156,11 @@ export class GameEngine {
 	}
 
 	public checkRightClickEvents(){
+		var now = new Date();
+		var time = now.getTime();
+
+		this.inputs.clickedRight = true;
+		this.inputs.clickedRightTimeStemp = time;
 		
 		switch(this.state) {
 		
@@ -120,7 +168,6 @@ export class GameEngine {
 			break;
 			
 		case GameEngine.STATE_GAME:
-			this.game.checkGameRightClicks(this.mousePosX, this.mousePosY);
 			break;
 			
 		case GameEngine.STATE_AFTER_GAME:
@@ -133,6 +180,8 @@ export class GameEngine {
 	
 
 	public checkMouseUpEvents(){
+
+		this.inputs.clickedLeft = false;
 		
 		switch(this.state) {
 		
@@ -140,7 +189,6 @@ export class GameEngine {
 			break;
 			
 		case GameEngine.STATE_GAME:
-			this.game.checkGameMouseUp();
 			break;
 			
 		case GameEngine.STATE_AFTER_GAME:
@@ -153,13 +201,14 @@ export class GameEngine {
 
 	public checkMouseRightUpEvents(){
 		
+		this.inputs.clickedRight = false;;
+
 		switch(this.state) {
 		
 		case GameEngine.STATE_MENU:
 			break;
 			
 		case GameEngine.STATE_GAME:
-			this.game.checkGameRightMouseUp();
 			break;
 			
 		case GameEngine.STATE_AFTER_GAME:

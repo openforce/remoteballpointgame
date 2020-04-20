@@ -1,4 +1,5 @@
 import {GameEngine} from '../engine/GameEngine.js';
+import {Inputs} from './Inputs.js';
 
 import {Flipchart} from '../gameObjects/Flipchart.js';
 import {MeetingRoom} from '../gameObjects/MeetingRoom.js';
@@ -22,15 +23,7 @@ export class Game {
 	static GAME_STATE_END = 4;
 
 
-	io:any;
-
-	// TIME Parameters
-	lastTime = 0;
-	timeDiff = 0;
-	
-	maxTimeDiff = 0;
-	averageTimeDiff = 0;
-	
+	io:any;	
 	
 	gameName = "Ball Point Game";
 	
@@ -70,11 +63,9 @@ export class Game {
 
 	ui:boolean = false;
 
-	gameEngine:GameEngine;
-
 	
-	constructor(gameEngine:GameEngine){
-		this.gameEngine = gameEngine;
+	constructor(){
+
 	}
 
 	
@@ -83,9 +74,7 @@ export class Game {
 	***********************************/
 	public initGame(playerName:string, playerColor:string, playerGender:string){
 		
-		this.ui = true;
-		this.gameEngine.state = GameEngine.STATE_GAME;
-		
+		this.ui = true;		
 		
 		this.initSocketIO();
 		
@@ -102,8 +91,6 @@ export class Game {
 	***********************************/
 	public initGameSimulation(){
 		this.ui = false;
-		this.gameEngine.state = GameEngine.STATE_GAME;
-
 		this.initGameWorld();
 	}
 
@@ -149,9 +136,6 @@ export class Game {
 
 		this.points = 0;
 
-		//time
-		var now = new Date();
-		this.lastTime = now.getTime();
 	}
 
 	public initPlayer(playerName:string, playerColor:string, playerGender:string){
@@ -172,37 +156,27 @@ export class Game {
 			game.balls[i].sendStateToServer();
 		}
 	}
+
+	public updateInputs(inputs:Inputs){
+		this.player.updateInputs(inputs);
+		this.flipchart.updateInputs(inputs);
+	}
 	
 
-	public updateGame() {
+	public updateGame(timeDiff:number) {
 	
-		//time
-		var now = new Date();
-		var time = now.getTime();
-		
-		this.timeDiff = time - this.lastTime;
-	
-		if(this.timeDiff > this.maxTimeDiff) {
-			this.maxTimeDiff = this.timeDiff;
-		}
-		//if(timeDiff > 20) console.log(timeDiff);
-		
-		this.lastTime = time;
-	
-
 		// UPDATE Game Objects
 	
 		if(this.player != null){
-			this.player.updateControls();
-			this.player.update(this.timeDiff);
+			this.player.update(timeDiff);
 		}
 		
 		for(var i = 0; i < this.ballBaskets.length; i++){
 			this.ballBaskets[i].update;
 		}
 	
-		this.meetingRoom.update(this.timeDiff);
-		this.flipchart.update(this.timeDiff);
+		this.meetingRoom.update(timeDiff);
+		this.flipchart.update(timeDiff);
 		//timer.update(timeDiff);
 	
 		for(var i = 0; i < this.players.length; i++){
@@ -210,7 +184,7 @@ export class Game {
 		}
 	
 		for(var i = 0; i < this.balls.length; i++){
-			this.balls[i].update(this.timeDiff);
+			this.balls[i].update(timeDiff);
 		}
 		
 		
@@ -377,30 +351,9 @@ export class Game {
 	
 	
 	public endGame(){
-		this.gameEngine.state = GameEngine.STATE_AFTER_GAME;
+		this.gameState = Game.GAME_STATE_END;
 	}
 	
-	
-	public checkGameClicks(mouseX:number, mouseY:number){
-		this.player.checkClick(mouseX, mouseY, Game.CLICK_LEFT);
-		this.flipchart.checkClick(mouseX, mouseY);
-		
-	}
-	
-	public checkGameRightClicks(mouseX:number, mouseY:number){
-		this.player.checkClick(mouseX, mouseY, Game.CLICK_RIGHT);
-		
-	}
-	
-
-	public checkGameMouseUp(){
-		this.player.checkMouseUp(Game.CLICK_LEFT);
-	}
-	
-	
-	public checkGameRightMouseUp(){
-		this.player.checkMouseUp(Game.CLICK_RIGHT);
-	}
 	
 
 }	

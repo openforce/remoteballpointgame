@@ -1,6 +1,6 @@
-import { Game } from "../../game/Game";
-import { Flipchart } from "../Flipchart";
-import { DrawUtils } from "../../utils/DrawUtils1";
+import {Game} from "../../game/Game";
+import {DrawUtils} from "../../utils/DrawUtils1";
+import {Flipchart} from "../Flipchart";
 
 
 export class FlipchartDrawer {
@@ -87,7 +87,7 @@ export class FlipchartDrawer {
                 flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
                 flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
 
-                flipchart.startButton.draw(); 
+                flipchart.startButton.draw(ctx); 
 
             } else if(flipchart.activeFlipchart == Flipchart.FLIPCHART_WARMUP) {
                 
@@ -95,7 +95,7 @@ export class FlipchartDrawer {
                 flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
                 flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
                 
-                flipchart.startButton.draw(); 
+                flipchart.startButton.draw(ctx); 
 
             } else if(flipchart.activeFlipchart == Flipchart.FLIPCHART_RULES) {
 
@@ -103,7 +103,7 @@ export class FlipchartDrawer {
                 flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
                 flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
                 
-                flipchart.startButton.draw(); 
+                flipchart.startButton.draw(ctx); 
 
             } else if(flipchart.activeFlipchart == Flipchart.FLIPCHART_RESULTS) {
                 var y = 145;
@@ -115,7 +115,7 @@ export class FlipchartDrawer {
                 flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth - flipchart.startButton.width - 75;
                 flipchart.startButton.y = y + yOffset * (flipchart.activeRound - 1);
                 
-                if(flipchart.game.gameState != Game.GAME_STATE_END) flipchart.startButton.draw(); 
+                if(flipchart.game.gameState != Game.GAME_STATE_END) flipchart.startButton.draw(ctx); 
 
                 //estimation Input
                 if(flipchart.game.gameState == Game.GAME_STATE_PLAY){
@@ -123,7 +123,7 @@ export class FlipchartDrawer {
                     if(flipchart.input_estimation == null) 
                         // @ts-ignore
                         this.input_estimation = new CanvasInput({
-                            canvas: flipchart.game.gameEngine.canvas,
+                            canvas: ctx.canvas,
                             x: 333,
                             y: y + yOffset * (flipchart.activeRound - 1),
                             width: 30,
@@ -139,8 +139,8 @@ export class FlipchartDrawer {
         } else {
 
             if(flipchart.lastActivator == flipchart.game.player.id){
-                flipchart.nextFlipchartButton.draw();
-                flipchart.previousFlipchartButton.draw();
+                flipchart.nextFlipchartButton.draw(ctx);
+                flipchart.previousFlipchartButton.draw(ctx);
             }
 
         }
@@ -182,7 +182,7 @@ export class FlipchartDrawer {
     }
 
     public drawColider(ctx:CanvasRenderingContext2D, flipchart:Flipchart){
-        DrawUtils.drawCyrcleOutline(flipchart.game.gameEngine.ctx, flipchart.middleX, flipchart.middleY, flipchart.radius, 'blue');
+        DrawUtils.drawCyrcleOutline(ctx, flipchart.middleX, flipchart.middleY, flipchart.radius, 'blue');
     }
 
     

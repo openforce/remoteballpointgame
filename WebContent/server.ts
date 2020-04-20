@@ -59,7 +59,6 @@ var gameState = {
 }
 
 var gameEngine = new GameEngine(null);
-//var flipchart:Flipchart = new Flipchart(null, 0, 0);
 
 //*
 var flipchart = {
@@ -117,6 +116,17 @@ io.on('connection', function(socket:any) {
 
     log('New Player: ' + newPlayer.id);
   });
+
+
+
+
+
+
+
+
+
+
+  // OLD SYNC STUFF
 
   socket.on('player sync', function(player:any) {
     // update Player state 
@@ -254,7 +264,7 @@ io.on('connection', function(socket:any) {
 setInterval(function() {
 
   // update game objects
-  updateGameObjects();
+  updateGame();
 
   //console.log('sync with clients');
   // send state to clients
@@ -264,7 +274,7 @@ setInterval(function() {
 }, 1000/60); // / 60
 
 
-function updateGameObjects(){
+function updateGame(){
   //time
 	var now = new Date();
 	var time = now.getTime();

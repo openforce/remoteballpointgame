@@ -15,13 +15,9 @@ export class Button implements ICollidable {
 
 	visible:boolean;
 	disabled:boolean;
-
-	ctx:CanvasRenderingContext2D;
 	
-	constructor(ctx:CanvasRenderingContext2D, x:number, y:number, width:number, height:number, text:string) {
+	constructor(x:number, y:number, width:number, height:number, text:string) {
 	
-		this.ctx = ctx;
-
 		this.text = text;
 		
 		this.x = x;
@@ -62,23 +58,23 @@ export class Button implements ICollidable {
 		
 	};
 	
-	draw(){
+	draw(ctx:CanvasRenderingContext2D){
 		if(this.visible){
 			
-			this.ctx.beginPath();
-			this.ctx.fillStyle = "black";
-		    this.ctx.fillRect(this.x, this.y, this.width, this.height);
+			ctx.beginPath();
+			ctx.fillStyle = "black";
+		    ctx.fillRect(this.x, this.y, this.width, this.height);
 			
-		    if(this.disabled) this.ctx.fillStyle = "grey";
-			else this.ctx.fillStyle = "lightgrey";
+		    if(this.disabled) ctx.fillStyle = "grey";
+			else ctx.fillStyle = "lightgrey";
 			
-		    this.ctx.fillRect(this.x + 2, this.y + 2, this.width - 4, this.height - 4);
+		    ctx.fillRect(this.x + 2, this.y + 2, this.width - 4, this.height - 4);
 			
-			this.ctx.fillStyle = this.textColor;
-			this.ctx.font = this.textFont;
-		    this.ctx.fillText(this.text, this.x + 10, this.y + 15);
-		    this.ctx.stroke();
-		    this.ctx.closePath();
+			ctx.fillStyle = this.textColor;
+			ctx.font = this.textFont;
+		    ctx.fillText(this.text, this.x + 10, this.y + 15);
+		    ctx.stroke();
+		    ctx.closePath();
 		}
 	}
      

@@ -55,7 +55,7 @@ export class MenuController {
 
 		this.playerButtons = [];
 		for(var i = 0; i < this.playerSprites.length; i++){
-			this.playerButtons[i] = new Button(null, this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
+			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
 		}
 
 		this.sprites = [];
@@ -143,9 +143,9 @@ export class MenuController {
 		// UPDATE 
 		
 		// goto menu on m
-		if (this.gameEngine.keys[77]) this.gotoMenu();
+		if (this.gameEngine.inputs.keys[77]) this.gotoMenu();
 		// restart on r
-		if (this.gameEngine.keys[82]) this.gameEngine.game.initGame(null, null, null);
+		if (this.gameEngine.inputs.keys[82]) this.gameEngine.initGame(null, null, null);
 		
 		
 		// DRAW
@@ -170,12 +170,12 @@ export class MenuController {
 
 	public checkClick(mouseX:number, mouseY:number){
 
-		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'blue', 'm');
-		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'orange', 'm');
-		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'white', 'm');
-		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'blue', 'w');
-		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'orange', 'w');
-		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.game.initGame(this.input_name.value(), 'white', 'w');
+		if(this.playerButtons[0].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'm');
+		else if(this.playerButtons[1].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'm');
+		else if(this.playerButtons[2].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'm');
+		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'w');
+		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'w');
+		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'w');
 
 	}
 
