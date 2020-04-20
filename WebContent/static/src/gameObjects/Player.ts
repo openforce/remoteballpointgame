@@ -99,7 +99,7 @@ export class Player {
         this.radius = 30;
         this.rotation = 180;
         
-        this.actionCircleRadius = 40;
+        this.actionCircleRadius = 20;
 
         
         if(this.gameSyncer != null) this.gameSyncer.socket.emit('new player', this.getSyncState());  
@@ -320,16 +320,18 @@ export class Player {
         }
 
         if(this.clickedLeft){
-            if(this.performAction(Game.CLICK_LEFT)) {
+            if(this.performAction(Game.HAND_LEFT)) {
                 this.clickedLeft = false;
             }
         }
 
         if(this.clickedRight){
-            if(this.performAction(Game.CLICK_RIGHT)) {
+            if(this.performAction(Game.HAND_RIGHT)) {
                 this.clickedRight = false;
             }
         }
+
+        this.automaticCatch();
     }
 
     public setActionAreaCircle(){
@@ -343,22 +345,22 @@ export class Player {
     }
     
 
-    public performAction(clickType:number) : boolean{
+    public performAction(hand:number) : boolean{
 
-        if(clickType == Game.CLICK_LEFT && this.leftHand != null
-            || clickType == Game.CLICK_RIGHT && this.rightHand != null) {
+        if(hand == Game.HAND_LEFT && this.leftHand != null
+            || hand == Game.HAND_RIGHT && this.rightHand != null) {
             
             //check BallBaskets
             for(var i = 0; i < this.game.ballBaskets.length; i++){
                 if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)){
-                    if(clickType == Game.CLICK_LEFT) this.leftHand = null;
-                    if(clickType == Game.CLICK_RIGHT) this.rightHand = null;
+                    if(hand == Game.HAND_LEFT) this.leftHand = null;
+                    if(hand == Game.HAND_RIGHT) this.rightHand = null;
                     
                     return true;
                 }
             }
             
-            this.shootBall(clickType);
+            this.shootBall(hand);
             return true;
 
         } else { // nothing in Hand
@@ -366,7 +368,7 @@ export class Player {
             // check Balls
             for(var i = 0; i < this.game.balls.length; i++){
                 if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
-                    this.takeBall(this.game.balls[i], clickType);
+                    this.takeBall(this.game.balls[i], hand);
                     this.game.balls.splice(i,1);
                     return true;
                 }
@@ -378,7 +380,7 @@ export class Player {
                     var newBall = this.game.ballBaskets[i].getNewBall();
                     newBall.x = this.middleX;
                     newBall.y = this.middleY;
-                    this.takeBall(newBall, clickType);
+                    this.takeBall(newBall, hand);
                     return true;
                 } 
             }
@@ -400,32 +402,46 @@ export class Player {
         return false;
     }
 
-    public takeBall(ball:Ball, clickType:number){
+    public takeBall(ball:Ball, hand:number){
  
-        if(clickType == Game.CLICK_RIGHT) this.rightHand = ball;
-        if(clickType == Game.CLICK_LEFT) this.leftHand = ball;
+        if(hand == Game.HAND_RIGHT) this.rightHand = ball;
+        if(hand == Game.HAND_LEFT) this.leftHand = ball;
 
         ball.take(this);
 
         if(this.gameSyncer != null) this.gameSyncer.socket.emit('take ball', ball.getSyncState());
     }
 
-    public shootBall(clickType:number){
+    public automaticCatch() {
+        for(var i = 0; i < this.game.balls.length; i++){
+            if(this.id != this.game.balls[i].lastHolderId && this.game.balls[i].state == Ball.BALL_STATE_INAIR && (this.rightHand == null || this.leftHand == null) && CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius,this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
+                if(this.rightHand == null) {
+                    this.takeBall(this.game.balls[i], Game.HAND_RIGHT);
+                    this.game.balls.splice(i,1);
+                } else if (this.leftHand == null) {
+                    this.takeBall(this.game.balls[i], Game.HAND_LEFT);
+                    this.game.balls.splice(i,1);
+                }
+            }
+        }
+    }
+
+    public shootBall(hand:number){
         var fAngle = GeometryUtils.degreeToRad(this.rotation + 90);
 
-        if(clickType == Game.CLICK_RIGHT) this.rightHand.shoot(fAngle, this.shootSpeed);
-        if(clickType == Game.CLICK_LEFT) this.leftHand.shoot(fAngle, this.shootSpeed);
+        if(hand == Game.HAND_RIGHT) this.rightHand.shoot(fAngle, this.shootSpeed);
+        if(hand == Game.HAND_LEFT) this.leftHand.shoot(fAngle, this.shootSpeed);
 
         if(this.gameSyncer != null){
-            if(clickType == Game.CLICK_RIGHT) this.gameSyncer.socket.emit('throw ball', this.rightHand.getSyncState());
-            if(clickType == Game.CLICK_LEFT) this.gameSyncer.socket.emit('throw ball', this.leftHand.getSyncState());
+            if(hand == Game.HAND_RIGHT) this.gameSyncer.socket.emit('throw ball', this.rightHand.getSyncState());
+            if(hand == Game.HAND_LEFT) this.gameSyncer.socket.emit('throw ball', this.leftHand.getSyncState());
         }
 
-        if(clickType == Game.CLICK_RIGHT) this.game.balls.push(this.rightHand);
-        if(clickType == Game.CLICK_LEFT) this.game.balls.push(this.leftHand);
+        if(hand == Game.HAND_RIGHT) this.game.balls.push(this.rightHand);
+        if(hand == Game.HAND_LEFT) this.game.balls.push(this.leftHand);
 
-        if(clickType == Game.CLICK_RIGHT) this.rightHand = null;
-        if(clickType == Game.CLICK_LEFT) this.leftHand = null;
+        if(hand == Game.HAND_RIGHT) this.rightHand = null;
+        if(hand == Game.HAND_LEFT) this.leftHand = null;
 
     }
 

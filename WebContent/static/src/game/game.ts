@@ -15,8 +15,8 @@ import {RandomUtils} from '../utils/RandomUtils1.js';
 
 export class Game {
 
-	static CLICK_LEFT = 0;
-	static CLICK_RIGHT = 1;
+	static HAND_LEFT = 0;
+	static HAND_RIGHT = 1;
 	
 	static GAME_STATE_STARTED = 0;
 	static GAME_STATE_WARMUP = 1;
