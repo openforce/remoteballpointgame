@@ -2,6 +2,7 @@ import {Game} from '../game/Game.js';
 import {Inputs} from '../game/Inputs.js';
 
 import {Button} from '../gameObjectLibrary/Button.js';
+import { FlipchartState } from './syncObjects/FlipchartState.js';
 
 
 export class Flipchart {
@@ -26,40 +27,14 @@ export class Flipchart {
     
     active:boolean;
     activeFlipchart:number = 0;
-    lastActivator:number;
+    lastActivator:number = 0;
 
     numberOfFlipcharts = 4;
 
     rounds = 5;
     activeRound = 1;
 
-    resultTable = {
-        round1: {
-            estimation: '',
-            result: '',
-            bugs: ''
-        },
-        round2: {
-            estimation: '',
-            result: '',
-            bugs: ''
-        },
-        round3: {
-            estimation: '',
-            result: '',
-            bugs: ''
-        },
-        round4: {
-            estimation: '',
-            result: '',
-            bugs: ''
-        },
-        round5: {
-            estimation: '',
-            result: '',
-            bugs: ''
-        },
-    }
+    resultTable:any;
 
     mousePosX:number;
     mousePosY:number;
@@ -95,10 +70,12 @@ export class Flipchart {
 
         this.active = false;
 
-        if(this.game.socket != null){
+        this.resetResultTable();
+
+        if(this.game.gameSyncer != null){
 
             //server --> client
-            this.game.socket.on('new result table', (function(self) { //Self-executing func which takes 'this' as self
+            this.game.gameSyncer.socket.on('new result table', (function(self) { //Self-executing func which takes 'this' as self
                 return function(serverResultTable:any) {
                     self.game.flipchart.resultTable = serverResultTable;
                 }
@@ -116,10 +93,26 @@ export class Flipchart {
         }
     }
 
+    public getSyncState(){
+        var syncObject = new FlipchartState();
+
+        syncObject.active = this.active;
+        syncObject.activeFlipchart = this.activeFlipchart;
+        syncObject.lastActivator = this.lastActivator;
+
+        return syncObject;
+    }
+
+    public syncState(syncObject:FlipchartState){
+        this.active = syncObject.active;
+        this.activeFlipchart = syncObject.activeFlipchart;
+        this.lastActivator = syncObject.lastActivator;
+    }
+
     public updateInputs(inputs:Inputs){
 
         this.mousePosX = inputs.mousePosX;
-        this.mousePosY = inputs.mousePosX;
+        this.mousePosY = inputs.mousePosY;
 
         if(inputs.clickedLeft && inputs.clickedLeftTimeStemp > this.clickedLeftTimeStemp){
             this.clickedLeft = true;
@@ -155,17 +148,17 @@ export class Flipchart {
 
     public triggerFlipchart(){
         this.active = !this.active;
-        this.game.socket.emit('trigger flipchart', this.game.player.id);  
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('trigger flipchart', this.game.player.id);  
     }
 
     public showFlipchart(){
         this.active = true;
-        this.game.socket.emit('show flipchart');  
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('show flipchart');  
     }
 
     public hideFlipchart(){
         this.active = false;
-        this.game.socket.emit('hide flipchart');  
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('hide flipchart');  
     }
 
     
@@ -180,7 +173,7 @@ export class Flipchart {
             
             // --> start Warm Up
             this.game.gameState = Game.GAME_STATE_WARMUP;
-            this.game.socket.emit('set gameState', this.game.gameState);  
+            if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('set gameState', this.game.gameState);  
 
             this.game.timer.startTimer();
             this.hideFlipchart();
@@ -189,7 +182,7 @@ export class Flipchart {
             
             // --> show result table
             this.game.gameState = Game.GAME_STATE_PREP;
-            this.game.socket.emit('set gameState', this.game.gameState); 
+            if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('set gameState', this.game.gameState); 
 
             this.triggerSpecificFlipchart(Flipchart.FLIPCHART_RESULTS);
         
@@ -235,7 +228,7 @@ export class Flipchart {
                 
                 // --> End PREP Phase
                 this.game.gameState = Game.GAME_STATE_PLAY;
-                this.game.socket.emit('set gameState', this.game.gameState); 
+                if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('set gameState', this.game.gameState); 
                 this.input_estimation = null;
 
                 this.showFlipchart();
@@ -244,14 +237,14 @@ export class Flipchart {
                 
                 // --> End PLAY Phase
                 this.game.gameState = Game.GAME_STATE_PREP;
-                this.game.socket.emit('set gameState', this.game.gameState); 
+                if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('set gameState', this.game.gameState); 
 
                 this.activeRound++;
                 this.showFlipchart();
 
             } else { // --> END
                 this.game.gameState = Game.GAME_STATE_END;
-                this.game.socket.emit('set gameState', this.game.gameState); 
+                if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('set gameState', this.game.gameState); 
 
                 this.showFlipchart();
             }
@@ -262,23 +255,23 @@ export class Flipchart {
         this.activeFlipchart++;
         if(this.activeFlipchart == this.numberOfFlipcharts) this.activeFlipchart = 0; 
         
-        this.game.socket.emit('trigger next flipchart'); 
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('trigger next flipchart'); 
     }
     public triggerPreviousFlipchart(){
         this.activeFlipchart--;
         if(this.activeFlipchart < 0) this.activeFlipchart = this.numberOfFlipcharts-1; 
 
-        this.game.socket.emit('trigger previous flipchart'); 
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('trigger previous flipchart'); 
     }
 
     public triggerSpecificFlipchart(flipchart:number){
         this.activeFlipchart = flipchart;
         
-        this.game.socket.emit('trigger specific flipchart', flipchart); 
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('trigger specific flipchart', flipchart); 
     }
 
     public syncResultTable(){
-        this.game.socket.emit('sync result table', this.resultTable);
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('sync result table', this.resultTable);
     }
 
     public resetResultTable(){

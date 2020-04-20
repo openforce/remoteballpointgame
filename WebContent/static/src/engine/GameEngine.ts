@@ -1,8 +1,9 @@
 import {Game} from '../game/Game.js';
 import {GameDrawer} from '../game/GameDrawer.js';
+import {GameSyncer} from '../game/GameSyncer.js';
+import {Inputs} from '../game/Inputs.js';
 
 import {MenuController} from './MenuController.js';
-import { Inputs } from '../game/Inputs.js';
 
 
 export class GameEngine {
@@ -29,6 +30,7 @@ export class GameEngine {
 
 	game:Game;
 	gameDrawer:GameDrawer;
+	gameSyncer:GameSyncer;
 	
 	inputs:Inputs;
 
@@ -67,9 +69,12 @@ export class GameEngine {
 		this.state = GameEngine.STATE_GAME;
 
 		this.gameDrawer = new GameDrawer();
+		this.gameSyncer = new GameSyncer();
 		this.game = new Game();
 
+		this.game.initSocketIO(this.gameSyncer);
 		this.game.initGame(playerName, playerColor, playerGender);
+
 		
 		//time
 		var now = new Date();

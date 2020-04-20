@@ -6,6 +6,7 @@ import {CollisionUtils} from '../utils/CollisionUtils1.js';
 import {GeometryUtils} from '../utils/GeometryUtils1.js';
 
 import {Player} from './Player.js';
+import {BallState} from './syncObjects/BallState.js';
 
 
 export class Ball {
@@ -15,6 +16,8 @@ export class Ball {
     static BALL_STATE_FALLING = 2;
     static BALL_STATE_TAKEN = 3;
 
+    static colors = ['blue', 'white', 'orange', 'red', 'yellow'];
+    
     id:number;
 
     x:number;
@@ -25,7 +28,6 @@ export class Ball {
 
     radius:number;
 
-    static colors = ['blue', 'white', 'orange', 'red', 'yellow'];
     color:string;
 
     speedX:number;
@@ -62,35 +64,42 @@ export class Ball {
         this.touchedBy = [];
     }
 
+
     public sendStateToServer(){
         if(this.lastHolderId == this.game.player.id && this.state != Ball.BALL_STATE_TAKEN &&
             (this.state != Ball.BALL_STATE_ONGROUND || this.lastSyncState != Ball.BALL_STATE_ONGROUND)){ 
             
-            this.game.socket.emit('sync ball', this.getSyncObject());
+            if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('sync ball', this.getSyncState());
             this.lastSyncState = this.state;
 
         }
     }
 
-    public getSyncObject(){
-        return {
-            id: this.id,
-            x: this.x,
-            y: this.y,
-            color: this.color,
-            speedX: this.speedX,
-            speedY: this.speedY,
-            state: this.state,
-            lastState: this.lastState,
-            lastHolderId: this.lastHolderId,
-            touchedBy: this.touchedBy
-        }
+    public getSyncState(){
+        var syncObject = new BallState();
+       
+        syncObject.id = this.id;
+        syncObject.x = this.x;
+        syncObject.y = this.y;
+        syncObject.lastX = this.lastX;
+        syncObject.lastY = this.lastY;
+        syncObject.color = this.color;
+        syncObject.speedX = this.speedX;
+        syncObject.speedY = this.speedY;
+        syncObject.state = this.state;
+        syncObject.lastState = this.lastState;
+        syncObject.lastHolderId = this.lastHolderId;
+        syncObject.touchedBy = this.touchedBy;
+        
+        return syncObject;
     }
 
-    public syncBallState(serverBall:any){
+    public syncBallState(serverBall:BallState){
         this.id = serverBall.id;
         this.x = serverBall.x;
         this.y = serverBall.y;
+        this.lastX = serverBall.lastX;
+        this.lastY = serverBall.lastY;
         this.color = serverBall.color;
         this.speedX = serverBall.speedX;
         this.speedY = serverBall.speedY;
@@ -211,7 +220,7 @@ export class Ball {
         }
         if(touchedByEverybody){
             //console.log('touched by everybody');
-            this.game.socket.emit('add Point');
+            if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('add Point');
             this.touchedBy = [];
         }
     }

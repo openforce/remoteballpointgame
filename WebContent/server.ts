@@ -7,9 +7,7 @@ import * as http from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-import {GameEngine} from './static/src/out/engine/GameEngine';
-//import {Flipchart} from './static/src/out/gameObjects/Flipchart';
-
+import {Game} from './static/src/out/game/Game.js';
 
 
 var app = express();
@@ -33,74 +31,24 @@ server.listen(5000, function() {
 });
 
 
-// Setup game
-//var meetingRoom = null;
-//var ballBasket = null;
+
+// Setup game (old) --> refactore into the game object!!
 
 var players = {};
 var balls = {};
+
+
+// init game (new)
+var game = new Game();
+game.initGameSimulation();
+
 
 // TIME Parameters
 var lastTime = 0;
 var timeDiff = 0;
 
-var timer = {
-  targetTime: 120 * 1000, //2 Minuten --> 120
-  // @ts-ignore
-  startTime : null,
-  playTime: 120
-};
 
-var gameState = {
-  state: 0,
-  points: 0,
-  showPoints: false,
-  arcadeMode: false
-}
-
-var gameEngine = new GameEngine(null);
-
-//*
-var flipchart = {
-  active: false,
-  activeFlipchart: 0,
-  // @ts-ignore
-  lastActivator: null,
-  numberOfFlipcharts: 4
-}; //*/
-
-var resultTable:any;
-initResultTable();
-
-function initResultTable(){
-  resultTable = {
-    round1: {
-        estimation: '',
-        result: '',
-        bugs: ''
-    },
-    round2: {
-        estimation: '',
-        result: '',
-        bugs: ''
-    },
-    round3: {
-        estimation: '',
-        result: '',
-        bugs: ''
-    },
-    round4: {
-        estimation: '',
-        result: '',
-        bugs: ''
-    },
-    round5: {
-        estimation: '',
-        result: '',
-        bugs: ''
-    },
-  };
-}
+// socket.io stuff
 
 io.on('connection', function(socket:any) {
   log('New Socket Connection');
@@ -112,7 +60,7 @@ io.on('connection', function(socket:any) {
     // @ts-ignore
     players[newPlayer.id] = newPlayer;
 
-    io.sockets.emit('new result table', resultTable);
+    io.sockets.emit('new result table', game.flipchart.resultTable);
 
     log('New Player: ' + newPlayer.id);
   });
@@ -188,73 +136,67 @@ io.on('connection', function(socket:any) {
 
   // TIMER
   socket.on('trigger timer', function() {
-    if(timer.startTime == null){
-      timer.startTime = new Date().getTime();
+
+    if(game.timer.startTime == null){
+      game.timer.startTime = new Date().getTime();
+      log('--> start timer');
     }else{
-      timer.startTime = null;
-      gameState.points = 0;
+      game.timer.startTime = null;
+      game.points = 0;
+      log('--> End timer');
     }
   });
 
   // Flipchart
   socket.on('trigger flipchart', function(clientLastActivator:number) {
-    flipchart.active = !flipchart.active;
-    flipchart.lastActivator = clientLastActivator;
+    game.flipchart.active = !game.flipchart.active;
+    game.flipchart.lastActivator = clientLastActivator;
   });
   socket.on('trigger next flipchart', function() {
-    flipchart.activeFlipchart++;
-    if(flipchart.activeFlipchart == flipchart.numberOfFlipcharts) flipchart.activeFlipchart = 0; 
+    game.flipchart.activeFlipchart++;
+    if(game.flipchart.activeFlipchart == game.flipchart.numberOfFlipcharts) game.flipchart.activeFlipchart = 0; 
         
   });
   socket.on('trigger previous flipchart', function() {
-    flipchart.activeFlipchart--;
-    if(flipchart.activeFlipchart < 0) flipchart.activeFlipchart = flipchart.numberOfFlipcharts-1; 
+    game.flipchart.activeFlipchart--;
+    if(game.flipchart.activeFlipchart < 0) game.flipchart.activeFlipchart = game.flipchart.numberOfFlipcharts-1; 
 
   });
 
   socket.on('trigger specific flipchart', function(newFlipchart:any) {
-    flipchart.activeFlipchart = newFlipchart;
+    game.flipchart.activeFlipchart = newFlipchart;
   });
 
   socket.on('show flipchart', function() {
-    flipchart.active = true;
+    game.flipchart.active = true;
   });
   socket.on('hide flipchart', function() {
-    flipchart.active = false;
+    game.flipchart.active = false;
   });
 
   socket.on('sync result table', function(clientResultTable:any) {
     log('sync result table');
-    resultTable = clientResultTable;
-    io.sockets.emit('new result table', resultTable);
+    game.flipchart.resultTable = clientResultTable;
+    io.sockets.emit('new result table', game.flipchart.resultTable);
   });
 
   socket.on('add Point', function() {
-    if(timer.startTime != null) gameState.points++;
-    log('points: ' + gameState.points);
+    if(game.timer.startTime != null) game.points++;
+    log('points: ' + game.points);
   });
 
   socket.on('show Points', function() {
-    gameState.showPoints = !gameState.showPoints;
+    game.showPoints = !game.showPoints;
   });
 
   socket.on('set gameState', function(newState:number) {
-    gameState.state = newState;
-    log('set game state: ' + gameState.state);
+    game.gameState = newState;
+    log('set game state: ' + game.gameState);
   });
 
   socket.on('reset gameState', function(arcadeMode:boolean) {
-    gameState = {
-      state: 0,
-      points: 0,
-      showPoints: false,
-      arcadeMode: arcadeMode
-    };
-    flipchart.activeFlipchart = 0;
-    flipchart.active = false;
-
-    balls = [];
-    initResultTable();
+    game = new Game();
+    game.arcadeMode = arcadeMode;
   });
 
 });
@@ -269,12 +211,13 @@ setInterval(function() {
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls, timer, flipchart, gameState);
+  io.sockets.emit('state', players, balls, game.timer.getSyncState(), game.flipchart.getSyncState(), game.getSyncState());
 
 }, 1000/60); // / 60
 
 
 function updateGame(){
+
   //time
 	var now = new Date();
 	var time = now.getTime();
@@ -282,19 +225,19 @@ function updateGame(){
 	timeDiff = time - lastTime;
   lastTime = time;
 
-  
+  //game.updateGame(timeDiff);
+
   // Timer
   var playedTime; 
 
-  if(timer.startTime == null) playedTime = 0;
-  else playedTime = time - timer.startTime;
+  if(game.timer.startTime == null) playedTime = 0;
+  else playedTime = time - game.timer.startTime;
 
-  timer.playTime = Math.round((timer.targetTime - playedTime)/1000);
+  game.timer.playTime = Math.round((game.timer.targetTime - playedTime)/1000);
   
-  if(timer.playTime <= 0){
-    timer.playTime = 0;
-    timer.startTime = null;
-    log('timer ended');
+  if(game.timer.playTime <= 0){
+    game.timer.playTime = 0;
+    game.timer.startTime = null;
     io.sockets.emit('timer ended');
 }
 

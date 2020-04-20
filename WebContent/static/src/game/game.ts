@@ -1,4 +1,4 @@
-import {GameEngine} from '../engine/GameEngine.js';
+import {GameSyncer} from './GameSyncer.js';
 import {Inputs} from './Inputs.js';
 
 import {Flipchart} from '../gameObjects/Flipchart.js';
@@ -7,6 +7,8 @@ import {Timer} from '../gameObjects/Timer.js';
 import {BallBasket} from '../gameObjects/BallBasket.js';
 import {Ball} from '../gameObjects/Ball.js';
 import {Player} from '../gameObjects/Player.js';
+import {FlipchartState} from '../gameObjects/syncObjects/FlipchartState.js';
+import {GameState} from './GameState.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
 
@@ -22,8 +24,6 @@ export class Game {
 	static GAME_STATE_PLAY = 3;
 	static GAME_STATE_END = 4;
 
-
-	io:any;	
 	
 	gameName = "Ball Point Game";
 	
@@ -58,11 +58,9 @@ export class Game {
 	
 	drawColliders = false;
 	
-	//Multiplayer
-	socket:any;
-
 	ui:boolean = false;
 
+	gameSyncer:GameSyncer;
 	
 	constructor(){
 
@@ -75,8 +73,6 @@ export class Game {
 	public initGame(playerName:string, playerColor:string, playerGender:string){
 		
 		this.ui = true;		
-		
-		this.initSocketIO();
 		
 		this.initPlayer(playerName, playerColor, playerGender);
 		this.initGameWorld();
@@ -94,15 +90,14 @@ export class Game {
 		this.initGameWorld();
 	}
 
-	public initSocketIO(){
-		// open socket connection to server
-		// @ts-ignore
-		this.socket = window.io();
+	public initSocketIO(gameSyncer:GameSyncer){
+		
+		this.gameSyncer = gameSyncer;
 
 		// SYNCS with server
 		
 		//server --> client
-		this.socket.on('state', (function(self) { //Self-executing func which takes 'this' as self
+		gameSyncer.socket.on('state', (function(self) { //Self-executing func which takes 'this' as self
 			return function(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, serverGameState:any) { //Return a function in the context of 'self'
 				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState); //Thing you wanted to run as non-window 'this'
 			}
@@ -147,7 +142,8 @@ export class Game {
 		var name = playerName;
 		if(name == null) name = RandomUtils.getRandomName();
 
-		this.player = new Player(this, 620, 180, name, color, gender, true);
+		this.player = new Player(this, 620, 180, name, color, gender, this.gameSyncer);
+
 
 	}
 
@@ -191,38 +187,47 @@ export class Game {
 	}
 	
 	public triggerShowPoints(){
-		this.socket.emit('show Points');  
+		if(this.gameSyncer.socket != null) this.gameSyncer.socket.emit('show Points');  
 	}
 	
 	public triggerResetGame(arcadeMode:boolean){
-		this.socket.emit('reset gameState', arcadeMode);  
+		if(this.gameSyncer.socket != null) this.gameSyncer.socket.emit('reset gameState', arcadeMode);  
 	}
+
+
+	public getSyncState(){
+        var syncObject = new GameState();
+
+        syncObject.points = this.points;
+		syncObject.showPoints = this.showPoints;
+		syncObject.gameState = this.gameState;
+		syncObject.arcadeMode = this.arcadeMode;
+
+        return syncObject;
+    }
+
+    public syncState(syncObject:GameState){
+        this.points = syncObject.points;
+		this.showPoints = syncObject.showPoints;
+		this.gameState = syncObject.gameState;
+		this.arcadeMode = syncObject.arcadeMode;
+    }
 	
 	
 	/***********************************
 	# sync client with server states
 	***********************************/
-	public processServerSync(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, serverGameState:any) {
+	public processServerSync(playerStates:any, ballStates:any, timerState:any, flipchartState:FlipchartState, gameState:any) {
 
-		// SYNC GAME STATE
-		this.points = serverGameState.points;
-		this.showPoints = serverGameState.showPoints;
-		this.gameState = serverGameState.state;
-		this.arcadeMode = serverGameState.arcadeMode;
-	
-		// SYNC TIMER
-		this.timer.targetTime = serverTimer.targetTime;
-		this.timer.startTime = serverTimer.startTime;
-		this.timer.playTime = serverTimer.playTime;
 		
-		// SYNC FLIPCHART 
-		this.flipchart.active = serverFlipchart.active;
-		this.flipchart.activeFlipchart = serverFlipchart.activeFlipchart;
-		this.flipchart.lastActivator = serverFlipchart.lastActivator;
+		this.syncState(gameState);
 	
+		this.timer.syncState(timerState);
+		this.flipchart.syncState(flipchartState);
+		
 		// SYNC PLAYERS
-		for (var id in serverPlayers) {
-		  var serverPlayer = serverPlayers[id];
+		for (var id in playerStates) {
+		  var serverPlayer = playerStates[id];
 		  
 		  // if its not the main Player, sync it
 		  if(serverPlayer.id != this.player.id) {
@@ -232,15 +237,15 @@ export class Game {
 			for(var i = 0; i < this.players.length; i++){
 				var clientPlayer = this.players[i];
 				if(clientPlayer.id == serverPlayer.id){
-					clientPlayer.syncPlayerState(serverPlayer);
+					clientPlayer.syncState(serverPlayer);
 					foundPlayer = true;
 				}
 			}
 			
 			if(!foundPlayer){
 				//console.log('Add new Player to client');
-				var newPlayer = new Player(this, serverPlayer.x, serverPlayer.y, serverPlayer.name, serverPlayer.color, serverPlayer.gender, false);
-				newPlayer.syncPlayerState(serverPlayer);
+				var newPlayer = new Player(this, serverPlayer.x, serverPlayer.y, serverPlayer.name, serverPlayer.color, serverPlayer.gender, null);
+				newPlayer.syncState(serverPlayer);
 				this.players.push(newPlayer);
 			}
 	
@@ -255,8 +260,8 @@ export class Game {
 			var clientPlayer = this.players[i];
 			var foundPlayer = false;
 	
-			for(var id in serverPlayers){
-				var serverPlayer = serverPlayers[id];
+			for(var id in playerStates){
+				var serverPlayer = playerStates[id];
 	
 				if(clientPlayer.id == serverPlayer.id){
 					foundPlayer = true;
@@ -284,8 +289,8 @@ export class Game {
 		// SYNC BALLS
 	
 		// loop server balls and refresh / add existing balls
-		for (var id in serverBalls) {
-			var serverBall = serverBalls[id];
+		for (var id in ballStates) {
+			var serverBall = ballStates[id];
 	
 			var foundBall= false;
 	
@@ -322,8 +327,8 @@ export class Game {
 			var clientBall = this.balls[i];
 			var foundBall = false;
 	
-			for(var id in serverBalls){
-				var serverBall = serverBalls[id];
+			for(var id in ballStates){
+				var serverBall = ballStates[id];
 	
 				if(clientBall.id == serverBall.id){
 					foundBall = true;
@@ -348,6 +353,8 @@ export class Game {
 		}
 	
 	}
+
+
 	
 	
 	public endGame(){

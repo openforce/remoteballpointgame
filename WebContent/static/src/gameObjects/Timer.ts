@@ -1,4 +1,5 @@
 import {Game} from '../game/Game.js';
+import {TimerState} from './syncObjects/TimerState.js';
 
 
 export class Timer {
@@ -14,9 +15,9 @@ export class Timer {
 	width:number = 72;
     height:number = 85;
 
-    targetTime:number = 120 * 1000; //2 Minuten
-    startTime:number;
-    playTime:number = 5; //120;
+    targetTime:number = 5 * 1000; //2 Minuten
+    startTime:number = null;
+    playTime:number = this.targetTime;
 
     game:Game;
 
@@ -30,9 +31,29 @@ export class Timer {
         this.middleX = this.x + this.width/2;
         this.middleY = this.y + this.height/2-15;
 
-        this.game.socket.on('timer ended', function(){
-            this.game.flipchart.triggerTimerEnded();
-        });
+        if(this.game.gameSyncer != null){
+            this.game.gameSyncer.socket.on('timer ended',(function(self) { //Self-executing func which takes 'this' as self
+                return function() {                                        //Return a function in the context of 'self'
+                    self.game.flipchart.triggerTimerEnded();               //Thing you wanted to run as non-window 'this'
+                }
+            })(this));
+        }
+    }
+
+    public getSyncState(){
+        var syncObject = new TimerState();
+
+        syncObject.targetTime = this.targetTime;
+        syncObject.startTime = this.startTime;
+        syncObject.playTime = this.playTime;
+
+        return syncObject;
+    }
+
+    public syncState(syncObject:TimerState){
+        this.targetTime = syncObject.targetTime;
+        this.startTime = syncObject.startTime;
+        this.playTime = syncObject.playTime;
     }
 
     public update(timeDiff:number){
@@ -67,7 +88,7 @@ export class Timer {
         if(this.startTime == null) this.startTime = new Date().getTime();
         else this.startTime = null;
 
-        this.game.socket.emit('trigger timer');  
+        if(this.game.gameSyncer != null) this.game.gameSyncer.socket.emit('trigger timer');  
     }
 
     

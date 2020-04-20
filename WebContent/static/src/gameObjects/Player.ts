@@ -1,5 +1,6 @@
 import {GameEngine} from '../engine/GameEngine.js';
 import {Game} from '../game/Game.js';
+import {GameSyncer} from '../game/GameSyncer.js';
 import {Inputs} from '../game/Inputs.js';
 
 import {RandomUtils} from '../utils/RandomUtils1.js';
@@ -8,10 +9,17 @@ import {GeometryUtils} from '../utils/GeometryUtils1.js';
 
 import {Ball} from './Ball.js';
 import {PlayerControlesState} from './syncObjects/PlayerControlesState.js';
+import {PlayerState} from './syncObjects/PlayerState.js';
 
 
 export class Player {
-
+    
+    static colors = ['blue', 'white', 'orange'];
+    static genders = ['m', 'w'];
+    
+    
+    id:number;
+    
     x:number;
     y:number;
 
@@ -37,18 +45,13 @@ export class Player {
     speed:number = 0.2;
     shootSpeed:number = 0.5;
 
-    id:number;
     socketId:string;
 
     name:string;
+    color:string;
+    gender:string;
 
     game:Game;
-
-    static colors = ['blue', 'white', 'orange'];
-    color:string;
-
-    static genders = ['m', 'w'];
-    gender:string;
 
     walkAnimationFrames:number = 2;
     walkAnimationCount:number = 0;
@@ -70,12 +73,11 @@ export class Player {
     lookX:number;
     lookY:number;
 
-    // Multplayer
-    syncToServer:boolean;
+    gameSyncer:GameSyncer;
 
-    constructor(game:Game, x:number, y:number, name:string, color:string, gender:string, syncToServer:boolean){
+    constructor(game:Game, x:number, y:number, name:string, color:string, gender:string, gameSyncer:GameSyncer){
         this.game = game;
-        this.syncToServer = syncToServer;
+        this.gameSyncer = gameSyncer;
 
         this.name = name;
         this.color = color;
@@ -100,52 +102,54 @@ export class Player {
         this.actionCircleRadius = 40;
 
         
-        if(this.syncToServer) this.game.socket.emit('new player', this.getSyncObject());  
+        if(this.gameSyncer != null) this.gameSyncer.socket.emit('new player', this.getSyncState());  
     }
 
-    public getSyncObject(){
-        var rightHandColor = null;
-        var leftHandColor = null;
 
-        if(this.rightHand != null) rightHandColor = this.rightHand.color;
-        if(this.leftHand != null) leftHandColor = this.leftHand.color;
-
-        return {
-            id: this.id,
-            socketId: this.socketId, 
-            x: this.x,
-            y: this.y,
-            middleX: this.middleX,
-            middleY: this.middleY,
-            rotation: this.rotation,
-            color: this.color,
-            gender:this.gender,
-            rightHand: rightHandColor,
-            leftHand: leftHandColor,
-            moveUp: this.moveUp,
-            moveDown: this.moveDown,
-            moveLeft: this.moveLeft,
-            moveRight: this.moveRight,
-            lookX: this.lookX,
-            lookY: this.lookY,
-            walkAnimationCount: this.walkAnimationCount,
-            name: this.name
-        }
-    }
-    
     public init(){
         //setInterval(this.sendStateToServer, 1000/60);
 
-        setInterval(
-            (function(self) {         //Self-executing func which takes 'this' as self
-                return function() {   //Return a function in the context of 'self'
-                    //console.log(self);
-                    self.game.socket.emit('player sync', self.getSyncObject()); //Thing you wanted to run as non-window 'this'
-                }
-            })(this), 1000/60);
-    }
+        if(this.gameSyncer != null){
+            setInterval(
+                (function(self) {         //Self-executing func which takes 'this' as self
+                    return function() {   //Return a function in the context of 'self'
+                        //console.log(self);
+                        self.gameSyncer.socket.emit('player sync', self.getSyncState()); //Thing you wanted to run as non-window 'this'
+                    }
+                })(this), 1000/60);
+        }
 
-    public syncPlayerState(player:any){
+    }
+    
+    public getSyncState(){
+        var syncObject = new PlayerState();
+        
+        syncObject.id = this.id;
+        syncObject.x = this.x;
+        syncObject.y = this.y;
+        syncObject.socketId = this.socketId;
+        syncObject.middleX = this.middleX;
+        syncObject.middleY = this.middleY;
+        syncObject.rotation = this.rotation;
+        syncObject.color = this.color;
+        syncObject.gender = this.gender;
+        syncObject.moveUp = this.moveUp;
+        syncObject.moveDown = this.moveDown;
+        syncObject.moveLeft = this.moveLeft;
+        syncObject.moveRight = this.moveRight;
+        syncObject.lookX = this.lookX;
+        syncObject.lookY = this.lookY;
+        syncObject.walkAnimationCount = this.walkAnimationCount;
+        syncObject.name = this.name;
+        
+        if(this.rightHand != null) syncObject.rightHand = this.rightHand.color;
+        if(this.leftHand != null) syncObject.leftHand = this.leftHand.color;
+
+        return syncObject;
+    }
+    
+
+    public syncState(player:PlayerState){
         this.id = player.id;
         this.x = player.x;
         this.y = player.y;
@@ -165,13 +169,11 @@ export class Player {
         this.name = player.name;
 
         if(player.rightHand != null) {
-            if(this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, null);
-            this.rightHand.color = player.rightHand;
+            if(this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, player.rightHand);
         }else this.rightHand = null;
 
         if(player.leftHand != null) {
-            if(this.leftHand == null) this.leftHand = new Ball(this.game, this.x, this.y, null);
-            this.leftHand.color = player.leftHand;
+            if(this.leftHand == null) this.leftHand = new Ball(this.game, this.x, this.y, player.leftHand);
         }else this.leftHand = null;
     }
 
@@ -405,7 +407,7 @@ export class Player {
 
         ball.take(this);
 
-        if(this.syncToServer) this.game.socket.emit('take ball', ball.getSyncObject());
+        if(this.gameSyncer != null) this.gameSyncer.socket.emit('take ball', ball.getSyncState());
     }
 
     public shootBall(clickType:number){
@@ -414,9 +416,9 @@ export class Player {
         if(clickType == Game.CLICK_RIGHT) this.rightHand.shoot(fAngle, this.shootSpeed);
         if(clickType == Game.CLICK_LEFT) this.leftHand.shoot(fAngle, this.shootSpeed);
 
-        if(this.syncToServer) {
-            if(clickType == Game.CLICK_RIGHT) this.game.socket.emit('throw ball', this.rightHand.getSyncObject());
-            if(clickType == Game.CLICK_LEFT) this.game.socket.emit('throw ball', this.leftHand.getSyncObject());
+        if(this.gameSyncer != null){
+            if(clickType == Game.CLICK_RIGHT) this.gameSyncer.socket.emit('throw ball', this.rightHand.getSyncState());
+            if(clickType == Game.CLICK_LEFT) this.gameSyncer.socket.emit('throw ball', this.leftHand.getSyncState());
         }
 
         if(clickType == Game.CLICK_RIGHT) this.game.balls.push(this.rightHand);
