@@ -242,6 +242,15 @@ export class Player {
         this.middleX = this.x + this.width/2;
         this.middleY = this.y + this.height/2;
 
+         // animation
+         if(this.moveDown || this.moveLeft || this.moveRight || this.moveUp){
+            if(this.walkAnimationTimeDif > this.walkAnimationTime){
+                this.walkAnimationCount++;
+                if(this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
+                this.walkAnimationTimeDif = 0;
+            }
+        }else this.walkAnimationCount = 0;
+
 
         // CHECK COLLISIONS
         var col = false;

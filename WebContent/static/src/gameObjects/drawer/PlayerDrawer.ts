@@ -46,20 +46,10 @@ export class PlayerDrawer {
         ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
         ctx.rotate(player.rotation * Math.PI / 180);
 
-        
-        // TODO: Sprite Animation Logik --> Player!!!!
-        if(player.moveDown || player.moveLeft || player.moveRight || player.moveUp){
-            if(player.walkAnimationTimeDif > player.walkAnimationTime){
-                player.walkAnimationCount++;
-                if(player.walkAnimationCount > player.walkAnimationFrames) player.walkAnimationCount = 1;
-                player.walkAnimationTimeDif = 0;
-            }
-        }else player.walkAnimationCount = 0;
-
         // @ts-ignore
         ctx.drawImage(this.sprites[player.gender + player.color][player.walkAnimationCount],
 			0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
-            -player.width / 2, -player.height / 2, player.width, player.height); 	 // draw position and size
+            -player.width / 2, -player.height / 2, player.width, player.height); // draw position and size
 
         if(player.leftHand != null){
             var myBall = player.leftHand;
