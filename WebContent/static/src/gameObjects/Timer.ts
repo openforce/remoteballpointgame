@@ -15,7 +15,7 @@ export class Timer {
 	width:number = 72;
     height:number = 85;
 
-    targetTime:number = 5 * 1000; //2 Minuten
+    targetTime:number = 120 * 1000; //2 Minuten
     startTime:number = null;
     playTime:number = this.targetTime;
 
