@@ -1,5 +1,5 @@
-import {GameEngine} from "../../engine/GameEngine";
-import {MeetingRoom} from "../MeetingRoom";
+import { GameEngine } from "../../engine/GameEngine";
+import { MeetingRoom } from "../MeetingRoom";
 
 export class MeetingRoomDrawer {
 

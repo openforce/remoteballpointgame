@@ -1,8 +1,8 @@
-import {Game} from '../game/Game.js';
-import {Inputs} from '../game/Inputs.js';
+import { Game } from '../game/Game';
+import { Inputs } from '../game/Inputs';
 
-import {Button} from '../gameObjectLibrary/Button.js';
-import { FlipchartState } from './syncObjects/FlipchartState.js';
+import { Button } from '../gameObjectLibrary/Button';
+import { FlipchartState } from './syncObjects/FlipchartState';
 
 
 export class Flipchart {

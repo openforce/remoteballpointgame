@@ -1,5 +1,5 @@
-import {Game} from '../game/Game.js';
-import {TimerState} from './syncObjects/TimerState.js';
+import { Game } from '../game/Game';
+import { TimerState } from './syncObjects/TimerState';
 
 
 export class Timer {

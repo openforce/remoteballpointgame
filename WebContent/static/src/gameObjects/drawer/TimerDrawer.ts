@@ -1,6 +1,6 @@
-import {Game} from '../../game/Game.js';
-import {Timer} from '../Timer.js';
-import {DrawUtils} from '../../utils/DrawUtils1.js';
+import { Game } from '../../game/Game';
+import { Timer } from '../Timer';
+import { DrawUtils } from '../../utils/DrawUtils1';
 
 
 export class TimerDrawer {

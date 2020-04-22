@@ -1,15 +1,15 @@
-import {GameEngine} from '../engine/GameEngine.js';
-import {Game} from '../game/Game.js';
-import {GameSyncer} from '../game/GameSyncer.js';
-import {Inputs} from '../game/Inputs.js';
+import { GameEngine } from '../engine/GameEngine';
+import { Game } from '../game/Game';
+import { GameSyncer } from '../game/GameSyncer';
+import { Inputs } from '../game/Inputs';
 
-import {RandomUtils} from '../utils/RandomUtils1.js';
-import {CollisionUtils} from '../utils/CollisionUtils1.js';
-import {GeometryUtils} from '../utils/GeometryUtils1.js';
+import { RandomUtils } from '../utils/RandomUtils1';
+import { CollisionUtils } from '../utils/CollisionUtils1';
+import { GeometryUtils } from '../utils/GeometryUtils1';
 
-import {Ball} from './Ball.js';
-import {PlayerControlesState} from './syncObjects/PlayerControlesState.js';
-import {PlayerState} from './syncObjects/PlayerState.js';
+import { Ball } from './Ball';
+import { PlayerControlesState } from './syncObjects/PlayerControlesState';
+import { PlayerState } from './syncObjects/PlayerState';
 
 
 export class Player {
@@ -35,7 +35,7 @@ export class Player {
     radius:number;
     rotation:number;
 
-    actionCircleRadius:number;
+    actionCircleRadius:number = 25;
     actionCircleX:number;
     actionCircleY:number;
 
@@ -99,7 +99,6 @@ export class Player {
         this.radius = 30;
         this.rotation = 180;
         
-        this.actionCircleRadius = 20;
 
         
         if(this.gameSyncer != null) this.gameSyncer.socket.emit('new player', this.getSyncState());  
@@ -277,9 +276,9 @@ export class Player {
         }
         
         //Balls
-        for(var i = 0; i < this.game.balls.length; i++){
-            if(this.id != this.game.balls[i].lastHolderId && this.game.balls[i].state == Ball.BALL_STATE_INAIR){
-                if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
+        for(var id in this.game.balls) {
+            if(this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR){
+                if(CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)){
                     col = true;
                     break;
                 }
@@ -287,8 +286,8 @@ export class Player {
         }
         
         //Players   
-        for(var i = 0; i < this.game.players.length; i++){
-			//if(colCheckCirlces(this.x, this.y, this.radius, players[i].middleX, players[i].middleY, players[i].radius)) col = true;
+        for(var id in this.game.players){
+			//if(colCheckCirlces(this.x, this.y, this.radius, players[id].middleX, players[id].middleY, players[id].radius)) col = true;
 		}       
 
 
@@ -334,6 +333,24 @@ export class Player {
         this.automaticCatch();
     }
 
+    public automaticCatch() {
+        for(var id in this.game.balls) {
+            if(this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR 
+                && (this.rightHand == null || this.leftHand == null) 
+                && CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius,this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)){
+                
+                if(this.leftHand == null) {
+                    this.takeBall(this.game.balls[id], Game.HAND_LEFT);
+                    delete this.game.balls[id];
+                } else if (this.rightHand == null) {
+                    this.takeBall(this.game.balls[id], Game.HAND_RIGHT);
+                    delete this.game.balls[id];
+                }
+
+            }
+        }
+    }
+
     public setActionAreaCircle(){
         var fAngle = GeometryUtils.degreeToRad(-this.rotation + 90);
 
@@ -366,10 +383,10 @@ export class Player {
         } else { // nothing in Hand
 
             // check Balls
-            for(var i = 0; i < this.game.balls.length; i++){
-                if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
-                    this.takeBall(this.game.balls[i], hand);
-                    this.game.balls.splice(i,1);
+            for(var id in this.game.balls) {
+                if(CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)){
+                    this.takeBall(this.game.balls[id], hand);
+                    delete this.game.balls[id];
                     return true;
                 }
             }
@@ -412,19 +429,7 @@ export class Player {
         if(this.gameSyncer != null) this.gameSyncer.socket.emit('take ball', ball.getSyncState());
     }
 
-    public automaticCatch() {
-        for(var i = 0; i < this.game.balls.length; i++){
-            if(this.id != this.game.balls[i].lastHolderId && this.game.balls[i].state == Ball.BALL_STATE_INAIR && (this.rightHand == null || this.leftHand == null) && CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius,this.game.balls[i].x, this.game.balls[i].y, this.game.balls[i].radius)){
-                if(this.rightHand == null) {
-                    this.takeBall(this.game.balls[i], Game.HAND_RIGHT);
-                    this.game.balls.splice(i,1);
-                } else if (this.leftHand == null) {
-                    this.takeBall(this.game.balls[i], Game.HAND_LEFT);
-                    this.game.balls.splice(i,1);
-                }
-            }
-        }
-    }
+    
 
     public shootBall(hand:number){
         var fAngle = GeometryUtils.degreeToRad(this.rotation + 90);
@@ -437,8 +442,8 @@ export class Player {
             if(hand == Game.HAND_LEFT) this.gameSyncer.socket.emit('throw ball', this.leftHand.getSyncState());
         }
 
-        if(hand == Game.HAND_RIGHT) this.game.balls.push(this.rightHand);
-        if(hand == Game.HAND_LEFT) this.game.balls.push(this.leftHand);
+        if(hand == Game.HAND_RIGHT) this.game.balls[this.rightHand.id] = this.rightHand;
+        if(hand == Game.HAND_LEFT) this.game.balls[this.leftHand.id] = this.leftHand; 
 
         if(hand == Game.HAND_RIGHT) this.rightHand = null;
         if(hand == Game.HAND_LEFT) this.leftHand = null;

@@ -1,4 +1,4 @@
-import {RandomUtils} from './RandomUtils1.js';
+import { RandomUtils } from './RandomUtils1';
 
 export class StateUtils {
 

@@ -1,4 +1,4 @@
-import {ICollidable} from '../interfaces/ICollidable.js';
+import { ICollidable } from '../interfaces/ICollidable';
 
 export class CollisionUtils{
 

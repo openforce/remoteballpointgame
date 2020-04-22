@@ -1,6 +1,5 @@
-import {Game} from '../../game/Game.js';
-import {Ball} from '../Ball.js';
-import {DrawUtils} from '../../utils/DrawUtils1.js';
+import { Ball } from '../Ball';
+import { DrawUtils } from '../../utils/DrawUtils1';
 
 
 export class BallDrawer {

@@ -1,4 +1,4 @@
-import {ICollidable} from './ICollidable.js';
+import { ICollidable } from './ICollidable';
 
 export interface IClickable extends ICollidable {
 

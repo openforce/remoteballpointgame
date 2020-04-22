@@ -1,5 +1,5 @@
-import {Player} from "../Player";
-import {DrawUtils} from "../../utils/DrawUtils1";
+import { Player } from "../Player";
+import { DrawUtils } from "../../utils/DrawUtils1";
 
 
 export class PlayerDrawer {

@@ -1,12 +1,12 @@
-import {GameEngine} from '../engine/GameEngine.js';
-import {Game} from './Game.js';
+import { GameEngine } from '../engine/GameEngine';
+import { Game } from './Game';
 
-import {TimerDrawer} from '../gameObjects/drawer/TimerDrawer.js';
-import {BallDrawer} from '../gameObjects/drawer/BallDrawer.js';
-import {BallBasketDrawer} from '../gameObjects/drawer/BallBasketDrawer.js';
-import {FlipchartDrawer} from '../gameObjects/drawer/FlipchartDrawer.js';
-import {MeetingRoomDrawer} from '../gameObjects/drawer/MeetingRoomDrawer.js';
-import {PlayerDrawer} from '../gameObjects/drawer/PlayerDrawer.js';
+import { TimerDrawer } from '../gameObjects/drawer/TimerDrawer';
+import { BallDrawer } from '../gameObjects/drawer/BallDrawer';
+import { BallBasketDrawer } from '../gameObjects/drawer/BallBasketDrawer';
+import { FlipchartDrawer } from '../gameObjects/drawer/FlipchartDrawer';
+import { MeetingRoomDrawer } from '../gameObjects/drawer/MeetingRoomDrawer';
+import { PlayerDrawer } from '../gameObjects/drawer/PlayerDrawer';
 
 
 export class GameDrawer {
@@ -36,8 +36,8 @@ export class GameDrawer {
 		
 		this.meetingRoomDrawer.draw(ctx, game.meetingRoom);
 		
-		for(var i = 0; i < game.balls.length; i++){
-			this.ballDrawer.draw(ctx, game.balls[i]);
+		for(var id in game.balls) {
+			this.ballDrawer.draw(ctx, game.balls[id]);
 		}
 		
 		for(var i = 0; i < game.ballBaskets.length; i++){
@@ -47,8 +47,8 @@ export class GameDrawer {
 		this.timerDrawer.draw(ctx, game.timer);
 		this.flipchartDrawer.draw(ctx, game.flipchart);
 		
-		for(var i = 0; i < game.players.length; i++){
-			this.playerDrawer.draw(ctx, game.players[i]);
+		for(var id in game.players){
+			this.playerDrawer.draw(ctx, game.players[id]);
 		}
 		
 		this.playerDrawer.draw(ctx, game.player);

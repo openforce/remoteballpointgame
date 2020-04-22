@@ -1,12 +1,12 @@
-import {GameEngine} from '../engine/GameEngine.js';
-import {Game} from '../game/Game.js';
+import { GameEngine } from '../engine/GameEngine';
+import { Game } from '../game/Game';
 
-import {RandomUtils} from '../utils/RandomUtils1.js';
-import {CollisionUtils} from '../utils/CollisionUtils1.js';
-import {GeometryUtils} from '../utils/GeometryUtils1.js';
+import { RandomUtils } from '../utils/RandomUtils1';
+import { CollisionUtils } from '../utils/CollisionUtils1';
+import { GeometryUtils } from '../utils/GeometryUtils1';
 
-import {Player} from './Player.js';
-import {BallState} from './syncObjects/BallState.js';
+import { Player } from './Player';
+import { BallState } from './syncObjects/BallState';
 
 
 export class Ball {
@@ -136,9 +136,28 @@ export class Ball {
             }
 
         }
-
         
         // CHECK COLLISIONS
+        var col = false;
+        if(this.game != null) col = this.checkCollisions();
+
+        // HANDLE COLLISIONS
+        if(col){ // reset to last save position
+            this.x = this.lastX;
+            this.y = this.lastY;
+
+            this.speedX *= -0.6;
+            this.speedY *= -0.6;
+            this.changeStateTo(Ball.BALL_STATE_FALLING);
+
+        }else{ // save position
+            this.lastX = this.x;
+            this.lastY = this.y;
+        }
+
+    }
+
+    public checkCollisions(){
         var col = false;
         
         // Meeting Room
@@ -163,28 +182,14 @@ export class Ball {
         }
 
         //Players   
-        if(this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.middleY, this.game.player.middleX, this.game.player.radius)) col = true;
-        for(var i = 0; i < this.game.players.length; i++){
-			if(this.lastHolderId != this.game.players[i].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.players[i].middleX, this.game.players[i].middleY, this.game.players[i].radius)) col = true;
-		}  
-
-
-        // HANDLE COLLISIONS
-
-        if(col){ // reset to last save position
-            this.x = this.lastX;
-            this.y = this.lastY;
-
-            this.speedX *= -0.6;
-            this.speedY *= -0.6;
-            this.changeStateTo(Ball.BALL_STATE_FALLING);
-
-        }else{ // save position
-            this.lastX = this.x;
-            this.lastY = this.y;
-        }
-
+        if(this.game.player != null && this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.middleY, this.game.player.middleX, this.game.player.radius)) col = true;
+        for(var id in this.game.players){
+			if(this.lastHolderId != this.game.players[id].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.players[id].middleX, this.game.players[id].middleY, this.game.players[id].radius)) col = true;
+        }  
+        
+        return col;
     }
+
 
     public changeStateTo(newState:number){
         //console.log('changeStateTo: ' + newState);
@@ -205,10 +210,10 @@ export class Ball {
         this.touchedBy.push(player.id);
 
         var touchedByEverybody = true;
-        for(var pi = 0; pi < this.game.players.length; pi++){
+        for(var id in this.game.players){
             var touchedByPlayer = false;
             for(var ti = 0; ti < this.touchedBy.length; ti++){
-                if(this.touchedBy[ti] == this.game.players[pi].id) {
+                if(this.touchedBy[ti] == this.game.players[id].id) {
                     touchedByPlayer = true;
                     break;
                 }

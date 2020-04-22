@@ -1,7 +1,7 @@
-import {BallBasket} from "../BallBasket";
-import {Ball} from "../Ball";
+import { BallBasket } from "../BallBasket";
+import { Ball } from "../Ball";
 
-import {DrawUtils} from "../../utils/DrawUtils1";
+import { DrawUtils } from "../../utils/DrawUtils1";
 
 
 

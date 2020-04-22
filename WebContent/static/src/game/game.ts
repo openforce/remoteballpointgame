@@ -1,16 +1,18 @@
-import {GameSyncer} from './GameSyncer.js';
-import {Inputs} from './Inputs.js';
+import { GameSyncer } from './GameSyncer';
+import { Inputs } from './Inputs';
 
-import {Flipchart} from '../gameObjects/Flipchart.js';
-import {MeetingRoom} from '../gameObjects/MeetingRoom.js';
-import {Timer} from '../gameObjects/Timer.js';
-import {BallBasket} from '../gameObjects/BallBasket.js';
-import {Ball} from '../gameObjects/Ball.js';
-import {Player} from '../gameObjects/Player.js';
-import {FlipchartState} from '../gameObjects/syncObjects/FlipchartState.js';
-import {GameState} from './GameState.js';
+import { Flipchart } from '../gameObjects/Flipchart';
+import { MeetingRoom } from '../gameObjects/MeetingRoom';
+import { Timer } from '../gameObjects/Timer';
+import { BallBasket } from '../gameObjects/BallBasket';
+import { Ball } from '../gameObjects/Ball';
+import { Player } from '../gameObjects/Player';
+import { FlipchartState } from '../gameObjects/syncObjects/FlipchartState';
+import { GameState } from './GameState';
 
-import {RandomUtils} from '../utils/RandomUtils1.js';
+import { RandomUtils } from '../utils/RandomUtils1';
+import { IBallList, IBallStateList } from '../interfaces/IBallLists';
+import { IPlayerList, IPlayerStateList } from '../interfaces/IPlayerLists';
 
 
 export class Game {
@@ -25,7 +27,7 @@ export class Game {
 	static GAME_STATE_END = 4;
 
 	
-	gameName = "Ball Point Game";
+	gameName = "Remote Ball Point Game";
 	
 	// GAME Parameters
 	par_name:string;
@@ -37,7 +39,8 @@ export class Game {
 	
 	//GAME Objects
 	player:Player;
-	balls:Ball[];
+
+	balls:IBallList;
 	
 	ballBaskets:BallBasket[];
 	
@@ -46,7 +49,7 @@ export class Game {
 	timer:Timer;
 	
 	//Multiplayer Objects
-	players:Player[];
+	players:IPlayerList;
 	
 	points:number;
 	showPoints:boolean = false;
@@ -88,6 +91,8 @@ export class Game {
 	public initGameSimulation(){
 		this.ui = false;
 		this.initGameWorld();
+
+		this.player = null;
 	}
 
 	public initSocketIO(gameSyncer:GameSyncer){
@@ -126,8 +131,8 @@ export class Game {
 		this.flipchart = new Flipchart(this, 40, 80);
 		this.timer = new Timer(this, 170, 60);
 
-		this.balls = [];
-		this.players = [];
+		this.balls = {};
+		this.players = {};
 
 		this.points = 0;
 
@@ -147,10 +152,12 @@ export class Game {
 
 	}
 
-	public sendBallStates(game:Game){		
-		for(var i = 0; i < game.balls.length; i++){
-			game.balls[i].sendStateToServer();
-		}
+	public sendBallStates(game:Game){	
+		for(var id in game.balls){
+			if(game.balls[id] == null) continue;
+
+			game.balls[id].sendStateToServer();
+		}	
 	}
 
 	public updateInputs(inputs:Inputs){
@@ -175,12 +182,12 @@ export class Game {
 		this.flipchart.update(timeDiff);
 		//timer.update(timeDiff);
 	
-		for(var i = 0; i < this.players.length; i++){
-			//players[i].update(timeDiff);
+		for(var id in this.players){
+			//players[id].update(timeDiff);
 		}
 	
-		for(var i = 0; i < this.balls.length; i++){
-			this.balls[i].update(timeDiff);
+		for(var id in this.balls){
+			this.balls[id].update(timeDiff);
 		}
 		
 		
@@ -217,145 +224,104 @@ export class Game {
 	/***********************************
 	# sync client with server states
 	***********************************/
-	public processServerSync(playerStates:any, ballStates:any, timerState:any, flipchartState:FlipchartState, gameState:any) {
+	public processServerSync(playerStates:any, ballStates:IBallStateList, timerState:any, flipchartState:FlipchartState, gameState:any) {
 
-		
 		this.syncState(gameState);
 	
 		this.timer.syncState(timerState);
 		this.flipchart.syncState(flipchartState);
 		
-		// SYNC PLAYERS
+		this.syncPlayerStates(playerStates);
+		this.syncBallStates(ballStates);
+		
+	}
+	
+	public syncPlayerStates(playerStates:any){
+		
 		for (var id in playerStates) {
-		  var serverPlayer = playerStates[id];
 		  
+		  var serverPlayerId = Number(id);
+
 		  // if its not the main Player, sync it
-		  if(serverPlayer.id != this.player.id) {
-			var foundPlayer = false;
-	
-			// find client Player Object
-			for(var i = 0; i < this.players.length; i++){
-				var clientPlayer = this.players[i];
-				if(clientPlayer.id == serverPlayer.id){
-					clientPlayer.syncState(serverPlayer);
-					foundPlayer = true;
-				}
-			}
+		  if(serverPlayerId != this.player.id) {
 			
-			if(!foundPlayer){
-				//console.log('Add new Player to client');
-				var newPlayer = new Player(this, serverPlayer.x, serverPlayer.y, serverPlayer.name, serverPlayer.color, serverPlayer.gender, null);
-				newPlayer.syncState(serverPlayer);
-				this.players.push(newPlayer);
+			if(this.players[serverPlayerId] != null){
+			
+				this.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
+			
+			}else{
+				// if the player is null add it
+				this.players[serverPlayerId] = new Player(this, 0, 0, null, null, null, null);
+				this.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
+			
 			}
-	
+		
 		  }
-	
+
 		}
-	
+
 		// loop client players and remove not existing ones
-		var playersToRemove = [];
-	
-		for(var i = 0; i < this.players.length; i++){
-			var clientPlayer = this.players[i];
-			var foundPlayer = false;
-	
-			for(var id in playerStates){
-				var serverPlayer = playerStates[id];
-	
-				if(clientPlayer.id == serverPlayer.id){
-					foundPlayer = true;
-					break;
-				}
-	
-			}
-	
-			if(!foundPlayer){
-				playersToRemove.push(clientPlayer);
-			}
-		}
-	
-		for(id in playersToRemove){
-			var playerToRemove = playersToRemove[id];
+		for(var id in this.players){
 			
-			var tempPlayer = [];
-			for(var i = 0; i < this.players.length; i++){
-				if(this.players[i].id != playerToRemove.id) tempPlayer.push(this.players[i]);
-			}
-			this.players = tempPlayer;
+			if(playerStates[id] == null) delete this.players[id];
+
 		}
-	
-	
-		// SYNC BALLS
-	
+
+	}
+
+	public syncBallStates(ballStates:IBallStateList){
+
 		// loop server balls and refresh / add existing balls
-		for (var id in ballStates) {
-			var serverBall = ballStates[id];
-	
-			var foundBall= false;
-	
-			for(var i = 0; i < this.balls.length; i++){
-				var clientBall = this.balls[i];
-	
-				if(clientBall.id == serverBall.id){
-					if(serverBall.lastHolderId != this.player.id && clientBall.state != serverBall.state) {
-						clientBall.syncBallState(serverBall);
-					}
-					foundBall = true;
-					break;
+		for(var id in ballStates) {
+			
+			var ballId = Number(id);
+
+			if(this.balls[ballId] != null) {
+				if(ballStates[ballId].lastHolderId != this.player.id && this.balls[ballId].state != ballStates[ballId].state) {
+					this.balls[ballId].syncBallState(ballStates[ballId]);
 				}
-	
-			}
-	
-			if(!foundBall){
+			}else{
+
 				//check if the ball is in one hand
-				if(this.player.leftHand != null && this.player.leftHand.id == serverBall.id) break;
-				if(this.player.rightHand != null && this.player.rightHand.id == serverBall.id) break;
-	
-				var newBall = new Ball(this, serverBall.x, serverBall.y, null);
-				newBall.syncBallState(serverBall);
-				this.balls.push(newBall);
-			}
-			
-		}
-	
-	
-		// loop client balls and remove not existing balls
-		var ballsToRemove = [];
-	
-		for(var i = 0; i < this.balls.length; i++){
-			var clientBall = this.balls[i];
-			var foundBall = false;
-	
-			for(var id in ballStates){
-				var serverBall = ballStates[id];
-	
-				if(clientBall.id == serverBall.id){
-					foundBall = true;
-					break;
+				if((this.player.leftHand == null || this.player.leftHand.id != ballId) && (this.player.rightHand == null || this.player.rightHand.id != ballId)) {
+					
+					var newBall = new Ball(this, ballStates[ballId].x, ballStates[ballId].y, null);
+					newBall.syncBallState(ballStates[ballId]);
+					this.balls[ballId] = newBall;
+
 				}
-	
-			}
-	
-			if(!foundBall){
-				ballsToRemove.push(clientBall);
 			}
 		}
-	
-		for(id in ballsToRemove){
-			var ballToRemove = ballsToRemove[id];
-			
-			var tempBalls = [];
-			for(var i = 0; i < this.balls.length; i++){
-				if(this.balls[i].id != ballToRemove.id) tempBalls.push(this.balls[i]);
-			}
-			this.balls = tempBalls;
+
+		// loop client balls and remove not existing balls
+		for(var id in this.balls) {
+			if(ballStates[id] == null) delete this.balls[id];
 		}
-	
+
 	}
 
 
-	
+	public getBallStateList(){
+		var ballStates:IBallStateList;
+		ballStates = {};
+
+		for(var id in this.balls) {
+			ballStates[id] = this.balls[id].getSyncState();
+		}
+
+		return ballStates;
+	}
+
+	public getPlayerStateList(){
+		var playerStates:IPlayerStateList;
+		playerStates = {};
+
+		for(var id in this.players) {
+			playerStates[id] = this.players[id].getSyncState();
+		}
+
+		return playerStates;
+	}
 	
 	public endGame(){
 		this.gameState = Game.GAME_STATE_END;

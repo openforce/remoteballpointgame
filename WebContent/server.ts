@@ -7,7 +7,11 @@ import * as http from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-import {Game} from './static/src/out/game/Game.js';
+import { Game } from './static/src/out/game/Game';
+import { Ball } from './static/src/out/gameObjects/Ball';
+import { BallState } from './static/src/out/gameObjects/syncObjects/BallState';
+import { PlayerState } from './static/src/out/gameObjects/syncObjects/PlayerState';
+import { Player } from './static/src/out/gameObjects/Player';
 
 
 var app = express();
@@ -32,12 +36,6 @@ server.listen(5000, function() {
 
 
 
-// Setup game (old) --> refactore into the game object!!
-
-var players = {};
-var balls = {};
-
-
 // init game (new)
 var game = new Game();
 game.initGameSimulation();
@@ -56,9 +54,9 @@ io.on('connection', function(socket:any) {
   // Player functions
   socket.on('new player', function(newPlayer:any) {
     
-    newPlayer.socketId = socket.id;
-    // @ts-ignore
-    players[newPlayer.id] = newPlayer;
+    game.players[newPlayer.id] = new Player(game, 1, 1, null, null);
+    game.players[newPlayer.id].syncState(newPlayer);
+    game.players[newPlayer.id].socketId = socket.id;
 
     io.sockets.emit('new result table', game.flipchart.resultTable);
 
@@ -76,62 +74,51 @@ io.on('connection', function(socket:any) {
 
   // OLD SYNC STUFF
 
-  socket.on('player sync', function(player:any) {
+  socket.on('player sync', function(player:PlayerState) {
     // update Player state 
-    //console.log(player);
-    // @ts-ignore
-    players[player.id] = player;
-    player.socketId = socket.id;
-    //console.log('sync Player: ' + player.id);
+    if(game.players[player.id] != null) game.players[player.id].syncState(player);
+    else {
+      // add existing player (after server restart)
+      game.players[player.id] = new Player(game, 1, 1, null, null);
+      game.players[player.id].syncState(player);
+      game.players[player.id].socketId = socket.id;
+    }
+
   });
 
   socket.on('disconnect', function() {
     log('remove Player with socked id: ' + socket.id);
 
-    var playerId = null;
-    var tempPlayers = {};
-    for(var id in players){
-      // @ts-ignore
-      if(players[id].socketId != socket.id) tempPlayers[id] = players[id];
-    }
-    players = tempPlayers;
+    for(var id in game.players){
 
-    log('Players: ');
-    for(var id in players){
-      // @ts-ignore
-      log(players[id].id);
+      if(game.players[id].socketId == socket.id){
+        delete game.players[id];
+        break;
+      }
+
     }
+
     log('removed Player with socked id: ' + socket.id);
   });
 
   // BALL action functions
-  socket.on('throw ball', function(ball:any) {
+  socket.on('throw ball', function(ball:BallState) {
     // add Ball to the world
     log('throw ball:');
     log(ball);
-    // @ts-ignore
-    balls[ball.id] = ball;
+    
+    game.balls[ball.id] = new Ball(game, ball.x, ball.y, ball.color);
+    game.balls[ball.id].syncBallState(ball);
     
   });
 
-  socket.on('take ball', function(ball:any) {
+  socket.on('take ball', function(ball:BallState) {
     // remove ball from the world
-    
-    var tempBalls = {};
-    for(var id in balls){
-      // @ts-ignore
-      if(id != ball.id) tempBalls[id] = balls[id];
-    }
-    balls = tempBalls;
-
-    log('take ball: ' + ball.id);
-    
+    delete game.balls[ball.id];
   });
   
-  socket.on('sync ball', function(ball:any) {
-    // add Ball to the world
-    // @ts-ignore
-    if(balls[ball.id] != null) balls[ball.id] = ball;
+  socket.on('sync ball', function(ball:BallState) {
+    if(game.balls[ball.id] != null) game.balls[ball.id].syncBallState(ball);
   });
 
   // TIMER
@@ -211,7 +198,7 @@ setInterval(function() {
   //console.log('sync with clients');
   // send state to clients
   //console.log(players);
-  io.sockets.emit('state', players, balls, game.timer.getSyncState(), game.flipchart.getSyncState(), game.getSyncState());
+  io.sockets.emit('state', game.getPlayerStateList(), game.getBallStateList(), game.timer.getSyncState(), game.flipchart.getSyncState(), game.getSyncState());
 
 }, 1000/60); // / 60
 
@@ -239,15 +226,6 @@ function updateGame(){
     game.timer.playTime = 0;
     game.timer.startTime = null;
     io.sockets.emit('timer ended');
-}
-
-
-  //Player
-  for(var id in players){
-    //players[id].update(timeDiff);
-  }
-  for(var id in balls){
-    //balls[id].update(timeDiff);
   }
 
 }
