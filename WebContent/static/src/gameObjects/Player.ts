@@ -149,10 +149,12 @@ export class Player {
     
 
     public syncState(player:PlayerState){
+        
+        if(this.socketId == null) this.socketId = player.socketId;
+        
         this.id = player.id;
         this.x = player.x;
         this.y = player.y;
-        this.socketId = player.socketId;
         this.middleX = player.middleX;
         this.middleY = player.middleY;
         this.rotation = player.rotation;
