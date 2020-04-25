@@ -1,24 +1,24 @@
 export class BallState {
 
-    id:number;
+    id: number;
 
-    x:number;
-    y:number;
+    x: number;
+    y: number;
 
-    lastX:number;
-    lastY:number;
+    lastX: number;
+    lastY: number;
 
-    color:string;
+    color: string;
 
-    speedX:number;
-    speedY:number;
+    speedX: number;
+    speedY: number;
 
-    state:number;
-    lastState:number;
+    state: number;
+    lastState: number;
 
-    lastSyncState:number;
+    lastSyncState: number;
 
-    lastHolderId:number;
-    touchedBy:number[];
-    
+    lastHolderId: number;
+    touchedBy: number[];
+
 }

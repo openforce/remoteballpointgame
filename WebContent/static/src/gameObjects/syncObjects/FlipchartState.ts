@@ -1,7 +1,7 @@
 export class FlipchartState {
 
-    active:boolean;
-    activeFlipchart:number;
-    lastActivator:number;
-    
+    active: boolean;
+    activeFlipchart: number;
+    lastActivator: number;
+
 }

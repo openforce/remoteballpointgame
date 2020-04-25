@@ -18,7 +18,7 @@ export class DrawUtils {
    * @param {Boolean} [fill = false] Whether to fill the rectangle.
    * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
    */
-  static roundRect(ctx:CanvasRenderingContext2D, x:number, y:number, width:number, height:number, radius:any, fill:boolean, stroke:boolean) : void {
+  static roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: any, fill: boolean, stroke: boolean): void {
     if (typeof stroke === 'undefined') {
       stroke = true;
     }
@@ -26,9 +26,9 @@ export class DrawUtils {
       radius = 5;
     }
     if (typeof radius === 'number') {
-      radius = {tl: radius, tr: radius, br: radius, bl: radius};
+      radius = { tl: radius, tr: radius, br: radius, bl: radius };
     } else {
-      var defaultRadius : any = {tl: 0, tr: 0, br: 0, bl: 0};
+      var defaultRadius: any = { tl: 0, tr: 0, br: 0, bl: 0 };
       for (var side in defaultRadius) {
         radius[side] = radius[side] || defaultRadius[side];
       }
@@ -50,29 +50,29 @@ export class DrawUtils {
     if (stroke) {
       ctx.stroke();
     }
-  
+
   }
-  
-  public static drawCyrcle(ctx:CanvasRenderingContext2D, x:number, y:number, radius:number, farbe:string){
+
+  public static drawCyrcle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, farbe: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
     ctx.strokeStyle = farbe;
     ctx.fillStyle = farbe;
-  
+
     // circle
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.closePath();
   }
-  
-  public static drawCyrcleOutline(ctx:CanvasRenderingContext2D, x:number, y:number, radius:number, farbe:string){
+
+  public static drawCyrcleOutline(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, farbe: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
     ctx.strokeStyle = farbe;
     ctx.fillStyle = farbe;
-  
+
     // circle
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.stroke();

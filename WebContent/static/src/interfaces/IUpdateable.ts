@@ -1,5 +1,5 @@
 export interface IUpdateable {
 
-    update() : void
+    update(): void
 
 }

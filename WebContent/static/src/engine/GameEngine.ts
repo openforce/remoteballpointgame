@@ -1,15 +1,22 @@
-import {Game} from '../game/Game.js';
-import {GameDrawer} from '../game/GameDrawer.js';
-import {GameSyncer} from '../game/GameSyncer.js';
-import {Inputs} from '../game/Inputs.js';
+import { GameConfigs } from '../game/Configs';
 
-import {MenuController} from './MenuController.js';
+import { Game } from '../game/Game';
+import { GameDrawer } from '../game/GameDrawer';
+import { Inputs } from '../game/Inputs';
+
+import { MenuController } from './MenuController';
+import { GameSyncerClientMode } from '../game/syncer/GameSyncerClientMode';
+import { GameSyncerServerMode } from '../game/syncer/GameSyncerServerMode';
+
 
 
 export class GameEngine {
 
 	static MODE_SIMULATION = 0;
 	static MODE_CLIENT = 1;
+
+	static SYNC_MODE_CLIENT = 0;
+	static SYNC_MODE_SERVER = 1;
 
 	static STATE_MENU = 1;
 	static STATE_GAME = 2;
@@ -30,7 +37,11 @@ export class GameEngine {
 
 	game:Game;
 	gameDrawer:GameDrawer;
-	gameSyncer:GameSyncer;
+	
+	syncMode:number;
+
+	gameSyncerClientMode:GameSyncerClientMode;
+	gameSyncerServerMode:GameSyncerServerMode;
 	
 	inputs:Inputs;
 
@@ -45,7 +56,7 @@ export class GameEngine {
 	
 
 	constructor(){
-
+		this.syncMode = GameConfigs.syncMode;
 		this.inputs = new Inputs();
 		
 	}
@@ -69,16 +80,27 @@ export class GameEngine {
 		this.state = GameEngine.STATE_GAME;
 
 		this.gameDrawer = new GameDrawer();
-		this.gameSyncer = new GameSyncer();
 		this.game = new Game();
-
-		this.game.initSocketIO(this.gameSyncer);
+		
 		this.game.initGame(playerName, playerColor, playerGender);
+		
+		if(this.syncMode == GameEngine.SYNC_MODE_CLIENT) this.initGameSyncerClient();
+		else if(this.syncMode == GameEngine.SYNC_MODE_SERVER) this.initGameSyncerServer();
 
 		
 		//time
 		var now = new Date();
 		this.lastTime = now.getTime();
+	}
+
+	public initGameSyncerClient(){
+		this.gameSyncerClientMode = new GameSyncerClientMode(this.game);
+		this.gameSyncerClientMode.init();
+	}
+
+	public initGameSyncerServer(){
+		this.gameSyncerServerMode = new GameSyncerServerMode(this.game);
+		this.gameSyncerServerMode.init();
 	}
 
 	public initGameSimulation(){
@@ -131,7 +153,13 @@ export class GameEngine {
 
 		// update game
 		if(this.mode == GameEngine.MODE_CLIENT) this.game.updateInputs(this.inputs);
-		this.game.updateGame(this.timeDiff);
+			
+		if(this.syncMode == GameEngine.SYNC_MODE_CLIENT){
+			this.game.player.setControlesFromInputState();
+			this.game.updatePlayer(this.timeDiff);
+			this.game.updateGame(this.timeDiff);
+		}
+		
 		if(this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.ctx, this.game);
 	}
 

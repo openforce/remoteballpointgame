@@ -1,9 +1,16 @@
+import { Game } from "../Game";
 
 export class GameSyncer {
     
-    socket:any;
+	socket:any;
+	
+	game:Game;
 
-	constructor(){
+	syncMode:number;
+
+	constructor(game:Game){
+
+		this.game = game;
 
 		// open socket connection to server
 		// @ts-ignore

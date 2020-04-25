@@ -10,15 +10,15 @@ import { PlayerDrawer } from '../gameObjects/drawer/PlayerDrawer';
 
 
 export class GameDrawer {
-	
-	timerDrawer:TimerDrawer;
-	ballDrawer:BallDrawer;
-	ballBasketDrawer:BallBasketDrawer;
-	flipchartDrawer:FlipchartDrawer;
-	meetingRoomDrawer:MeetingRoomDrawer;
-	playerDrawer:PlayerDrawer;
 
-	constructor(){
+	timerDrawer: TimerDrawer;
+	ballDrawer: BallDrawer;
+	ballBasketDrawer: BallBasketDrawer;
+	flipchartDrawer: FlipchartDrawer;
+	meetingRoomDrawer: MeetingRoomDrawer;
+	playerDrawer: PlayerDrawer;
+
+	constructor() {
 
 		this.timerDrawer = new TimerDrawer();
 		this.ballDrawer = new BallDrawer();
@@ -29,33 +29,33 @@ export class GameDrawer {
 
 	}
 
-	
-	public draw(ctx:CanvasRenderingContext2D, game:Game){
-		
+
+	public draw(ctx: CanvasRenderingContext2D, game: Game) {
+
 		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
-		
+
 		this.meetingRoomDrawer.draw(ctx, game.meetingRoom);
-		
-		for(var id in game.balls) {
+
+		for (var id in game.balls) {
 			this.ballDrawer.draw(ctx, game.balls[id]);
 		}
-		
-		for(var i = 0; i < game.ballBaskets.length; i++){
+
+		for (var i = 0; i < game.ballBaskets.length; i++) {
 			this.ballBasketDrawer.draw(ctx, game.ballBaskets[i]);
 		}
 
 		this.timerDrawer.draw(ctx, game.timer);
 		this.flipchartDrawer.draw(ctx, game.flipchart);
-		
-		for(var id in game.players){
+
+		for (var id in game.players) {
 			this.playerDrawer.draw(ctx, game.players[id]);
 		}
-		
-		this.playerDrawer.draw(ctx, game.player);
-		
-		if(game.flipchart.active) this.flipchartDrawer.drawFlipchartScreen(ctx, game.flipchart);
 
-		
+		this.playerDrawer.draw(ctx, game.player);
+
+		if (game.flipchart.active) this.flipchartDrawer.drawFlipchartScreen(ctx, game.flipchart);
+
+
 		// Frame
 		ctx.beginPath();
 		ctx.strokeStyle = 'black';
@@ -64,8 +64,8 @@ export class GameDrawer {
 		ctx.lineWidth = 5;
 		ctx.stroke();
 		ctx.closePath();
-		
+
 	}
-	
+
 
 }
