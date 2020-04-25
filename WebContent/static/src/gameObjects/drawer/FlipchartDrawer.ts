@@ -1,4 +1,4 @@
-import { Game } from "../../game/Game";
+import { Game } from '../../game/Game';
 import { DrawUtils } from "../../utils/DrawUtils1";
 import { Flipchart } from "../Flipchart";
 
