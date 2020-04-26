@@ -176,6 +176,9 @@ export class MenuController {
 		else if(this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'w');
 		else if(this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'w');
 		else if(this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'w');
+		else return;
+
+		this.input_name.destroy();
 
 	}
 
