@@ -11,108 +11,132 @@ import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
  * Client (controles) --> Server (performes all game logic) --> states to all other clients
 */
 export class GameSyncerServerMode extends GameSyncer {
-    
 
-	constructor(game:Game){
-        super(game);
-        this.syncMode = GameEngine.SYNC_MODE_CLIENT;
-    }
 
-    public init(){
-        this.registerNewPlayerOnServer();
+	constructor(game: Game) {
+		super(game);
+		this.syncMode = GameEngine.SYNC_MODE_CLIENT;
+	}
+
+	public init() {
+		this.registerNewPlayerOnServer();
 		this.initPlayerSyncSender();
 		this.initGameStateSyncListener();
-    }
+		this.initEventSyncSender();
+	}
 
-    public registerNewPlayerOnServer(){
-        this.socket.emit('new player', this.game.player.getSyncState());
-    }
+	public registerNewPlayerOnServer() {
+		this.socket.emit('new player', this.game.player.getSyncState());
+	}
 
-	public initPlayerSyncSender(){
-        setInterval(
-            (function(self) {                                                           //Self-executing func which takes 'this' as self
-                return function() {                                                     //Return a function in the context of 'self'
-                    self.socket.emit('player controles', self.game.player.inputState);  //Thing you wanted to run as non-window 'this'
-                }
-            })(this), 1000/60);
-    }
+	public initPlayerSyncSender() {
+		setInterval(
+			(function (self) {                                                           //Self-executing func which takes 'this' as self
+				return function () {                                                     //Return a function in the context of 'self'
+					self.socket.emit('player controles', self.game.player.inputState);  //Thing you wanted to run as non-window 'this'
+				}
+			})(this), 1000 / 60);
+	}
 
-    public initGameStateSyncListener(){
+	public initGameStateSyncListener() {
 
 		//server state listener
-		this.socket.on('state', (function(self) {                                                                                //Self-executing func which takes 'this' as self
-			    return function(serverPlayers:any, serverBalls:any, serverTimer:any, serverFlipchart:any, serverGameState:any) { //Return a function in the context of 'self'
-				    self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState);           //Thing you wanted to run as non-window 'this'
+		this.socket.on('state', (function (self) {                                                                                //Self-executing func which takes 'this' as self
+			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any) { //Return a function in the context of 'self'
+				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState);           //Thing you wanted to run as non-window 'this'
 			}
-        })(this));
-        
-    }
-    
+		})(this));
+
+	}
+
+	public initEventSyncSender() {
+		setInterval(
+			(function (self) {          //Self-executing func which takes 'this' as self
+				return function () {    //Return a function in the context of 'self'
+					self.sendEvents(); //Thing you wanted to run as non-window 'this'
+				}
+			})(this),
+			1000 / 60);
+	}
+
+	public sendEvents() {
+
+		for (var i = 0; i < this.game.syncEvents.length; i++) {
+
+			if (this.game.syncEvents[i].eventString != 'sync result table') continue;
+
+			if (this.game.syncEvents[i].eventData == null) this.sendEvent(this.game.syncEvents[i].eventString);
+			else this.sendEventAndData(this.game.syncEvents[i].eventString, this.game.syncEvents[i].eventData);
+
+		}
+
+		this.game.syncEvents = [];
+	}
 
     /***********************************
 	# sync client with server states
 	***********************************/
-	public processServerSync(playerStates:any, ballStates:IBallStateList, timerState:any, flipchartState:FlipchartState, gameState:any) {
+	public processServerSync(playerStates: any, ballStates: IBallStateList, timerState: any, flipchartState: FlipchartState, gameState: any) {
 
 		this.game.syncState(gameState);
-	
+
 		this.game.timer.syncState(timerState);
 		this.game.flipchart.syncState(flipchartState);
-		
+
 		this.syncPlayerStates(playerStates);
 		this.syncBallStates(ballStates);
-		
-	}
-	
-	public syncPlayerStates(playerStates:any){
-		
-		for (var id in playerStates) {
-		  
-		  var serverPlayerId = Number(id);
 
-		  // if its not the main Player, sync it
-		  if(serverPlayerId != this.game.player.id) {
-			
-			if(this.game.players[serverPlayerId] != null){
-			
-				this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
-			
-			}else{
-				// if the player is null add it
-				this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null);
-				this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
-			
+	}
+
+	public syncPlayerStates(playerStates: any) {
+
+		for (var id in playerStates) {
+
+			var serverPlayerId = Number(id);
+
+			// if its not the main Player, sync it
+			if (serverPlayerId != this.game.player.id) {
+
+				if (this.game.players[serverPlayerId] != null) {
+
+					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
+
+				} else {
+					// if the player is null add it
+					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null);
+					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
+
+				}
+
+			} else {
+				this.game.player.syncState(playerStates[serverPlayerId]);
 			}
-		
-		  } else {
-			this.game.player.syncState(playerStates[serverPlayerId]);
-		  }
 
 		}
 
 		// loop client players and remove not existing ones
-		for(var id in this.game.players){
-			if(playerStates[id] == null) delete this.game.players[id];
+		for (var id in this.game.players) {
+			if (playerStates[id] == null) delete this.game.players[id];
 		}
 
 	}
 
-	public syncBallStates(ballStates:IBallStateList){
+	public syncBallStates(ballStates: IBallStateList) {
 
 		// loop server balls and refresh / add existing balls
-		for(var id in ballStates) {
-			
+		for (var id in ballStates) {
+
 			var ballId = Number(id);
 
-			if(this.game.balls[ballId] != null) {
+			if (this.game.balls[ballId] != null) {
 
-                this.game.balls[ballId].syncBallState(ballStates[ballId]);
+				this.game.balls[ballId].syncBallState(ballStates[ballId]);
 
-			}else{
+			} else {
 
 				//check if the ball is in one hand
-				if((this.game.player.leftHand == null || this.game.player.leftHand.id != ballId) && (this.game.player.rightHand == null || this.game.player.rightHand.id != ballId)) {
-					
+				if ((this.game.player.leftHand == null || this.game.player.leftHand.id != ballId) && (this.game.player.rightHand == null || this.game.player.rightHand.id != ballId)) {
+
 					var newBall = new Ball(this.game, ballStates[ballId].x, ballStates[ballId].y, null);
 					newBall.syncBallState(ballStates[ballId]);
 					this.game.balls[ballId] = newBall;
@@ -122,8 +146,8 @@ export class GameSyncerServerMode extends GameSyncer {
 		}
 
 		// loop client balls and remove not existing balls
-		for(var id in this.game.balls) {
-			if(ballStates[id] == null) delete this.game.balls[id];
+		for (var id in this.game.balls) {
+			if (ballStates[id] == null) delete this.game.balls[id];
 		}
 
 	}

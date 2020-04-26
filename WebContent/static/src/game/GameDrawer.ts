@@ -52,8 +52,8 @@ export class GameDrawer {
 		}
 
 		this.playerDrawer.draw(ctx, game.player);
-
-		if (game.flipchart.active) this.flipchartDrawer.drawFlipchartScreen(ctx, game.flipchart);
+		
+		this.flipchartDrawer.drawFlipchartScreen(ctx, game.flipchart);
 
 
 		// Frame

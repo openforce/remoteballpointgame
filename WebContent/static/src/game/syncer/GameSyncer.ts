@@ -1,14 +1,14 @@
 import { Game } from "../Game";
 
 export class GameSyncer {
-    
-	socket:any;
-	
-	game:Game;
 
-	syncMode:number;
+	socket: any;
 
-	constructor(game:Game){
+	game: Game;
+
+	syncMode: number;
+
+	constructor(game: Game) {
 
 		this.game = game;
 
@@ -18,6 +18,15 @@ export class GameSyncer {
 
 	}
 
-	
+
+	public sendEvent(eventString: string) {
+		//console.log('sendEvent:', eventString);
+		this.socket.emit(eventString);
+	}
+
+	public sendEventAndData(eventString: string, data: any) {
+		//console.log('sendEventAndData:', eventString, data);
+		this.socket.emit(eventString, data);
+	}
 
 }

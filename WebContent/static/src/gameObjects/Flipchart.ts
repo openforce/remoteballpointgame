@@ -36,6 +36,8 @@ export class Flipchart {
     activeRound = 1;
 
     resultTable: any;
+    resultTableInputs: any;
+    resultTableSaveButton: Button;
 
     mousePosX: number;
     mousePosY: number;
@@ -49,8 +51,9 @@ export class Flipchart {
     nextFlipchartButton: Button;
     previousFlipchartButton: Button;
 
-    startButton: Button;
 
+    // arcade mode inputs
+    startButton: Button;
     input_estimation: any;
 
     infoBoxWidth: number = 400;
@@ -71,12 +74,17 @@ export class Flipchart {
 
         this.active = false;
 
-        this.resetResultTable();
+        this.resultTable = this.getFreshResultTable();
 
-        this.startButton = new Button(this.infoBox_x + this.infoBoxWidth / 4, this.infoBox_y + this.infoBoxHeight - 150, 60, 25, 'Got it!');
-        this.startButton.textFont = 'bold 12px Arial';
-        this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '     -->');
-        this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '<--');
+        if (this.game.arcadeMode) {
+            this.startButton = new Button(this.infoBox_x + this.infoBoxWidth / 4, this.infoBox_y + this.infoBoxHeight - 150, 60, 25, 'Got it!');
+            this.startButton.textFont = 'bold 12px Arial';
+        } else {
+            this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '     -->');
+            this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '<--');
+            this.resultTableSaveButton = new Button(this.infoBox_x + this.infoBoxWidth - 150, this.infoBox_y + this.infoBoxHeight - 170, 60, 25, 'Save');
+        }
+
 
     }
 
@@ -87,6 +95,8 @@ export class Flipchart {
         syncObject.activeFlipchart = this.activeFlipchart;
         syncObject.lastActivator = this.lastActivator;
 
+        syncObject.resultTable = this.resultTable;
+
         return syncObject;
     }
 
@@ -94,6 +104,8 @@ export class Flipchart {
         this.active = syncObject.active;
         this.activeFlipchart = syncObject.activeFlipchart;
         this.lastActivator = syncObject.lastActivator;
+
+        this.resultTable = syncObject.resultTable;
     }
 
     public updateInputs(inputs: Inputs) {
@@ -110,6 +122,8 @@ export class Flipchart {
     }
 
     public updateInputsFromPlayerInputState(inputs: PlayerInputState) {
+
+        if (inputs.playerId != this.lastActivator) return;
 
         this.mousePosX = inputs.mouseX;
         this.mousePosY = inputs.mouseY;
@@ -140,6 +154,7 @@ export class Flipchart {
             } else {
                 if (this.nextFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerNextFlipchart();
                 if (this.previousFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerPreviousFlipchart();
+                if (this.resultTableSaveButton.checkForClick(mouseX, mouseY)) this.triggerSaveResultTableinputs();
             }
 
         }
@@ -167,40 +182,36 @@ export class Flipchart {
         this.game.addEvent('trigger previous flipchart', null);
     }
 
+    public triggerSaveResultTableinputs() {
 
+        if (this.resultTableInputs == null) return;
+
+        for (var i = 0; i < 5; i++) {
+            this.resultTable['round' + (i + 1)].estimation = this.resultTableInputs['round' + (i + 1)].estimation.value();
+            this.resultTable['round' + (i + 1)].result = this.resultTableInputs['round' + (i + 1)].result.value();
+            this.resultTable['round' + (i + 1)].bugs = this.resultTableInputs['round' + (i + 1)].bugs.value();
+        }
+
+        this.game.addEvent('sync result table', this.resultTable);
+    }
 
     public syncResultTable() {
         this.game.addEvent('sync result table', this.resultTable);
     }
 
-    public resetResultTable() {
-        this.resultTable = {
-            round1: {
-                estimation: '',
-                result: '',
-                bugs: ''
-            },
-            round2: {
-                estimation: '',
-                result: '',
-                bugs: ''
-            },
-            round3: {
-                estimation: '',
-                result: '',
-                bugs: ''
-            },
-            round4: {
-                estimation: '',
-                result: '',
-                bugs: ''
-            },
-            round5: {
-                estimation: '',
-                result: '',
-                bugs: ''
-            },
+    public getFreshResultTable() {
+
+        var resultTable: any = {};
+
+        for (var i = 0; i < 5; i++) {
+            resultTable['round' + (i + 1)] = {};
+
+            resultTable['round' + (i + 1)].estimation = '';
+            resultTable['round' + (i + 1)].result = '';
+            resultTable['round' + (i + 1)].bugs = '';
         }
+
+        return resultTable;
     }
 
 
@@ -273,6 +284,8 @@ export class Flipchart {
                 // --> End PREP Phase
                 this.game.gameState = Game.GAME_STATE_PLAY;
                 this.game.addEvent('set gameState', this.game.gameState);
+
+                this.input_estimation.destroy();
                 this.input_estimation = null;
 
                 this.showFlipchart();

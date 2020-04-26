@@ -47,6 +47,7 @@ export class FlipchartDrawer {
     }
 
 
+
     public draw(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {
 
         //BG
@@ -60,6 +61,11 @@ export class FlipchartDrawer {
 
 
     public drawFlipchartScreen(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {
+
+        if (!flipchart.active) {
+            this.destroyResultTableInputs(flipchart);
+            return;
+        }
 
         // BG
         ctx.beginPath();
@@ -78,7 +84,9 @@ export class FlipchartDrawer {
             0, 0, this.flipchartSpriteWidth, this.flipchartSpriteHeight, // sprite cutout position and size
             flipchart.infoBox_x - 15, flipchart.infoBox_y, flipchart.infoBoxWidth, flipchart.infoBoxHeight); 	 // draw position and size
 
-        if (flipchart.activeFlipchart == 3) this.drawResultTable(ctx, flipchart);
+        if (flipchart.activeFlipchart == 3) {
+            this.drawResultTable(ctx, flipchart);
+        }
 
         if (flipchart.game.arcadeMode) {
             if (flipchart.activeFlipchart == Flipchart.FLIPCHART_CONTROLES) {
@@ -136,7 +144,7 @@ export class FlipchartDrawer {
             }
 
 
-        } else {
+        } else { // --> !arcadeMode
 
             if (flipchart.lastActivator == flipchart.game.player.id) {
                 flipchart.nextFlipchartButton.draw(ctx);
@@ -179,6 +187,59 @@ export class FlipchartDrawer {
         ctx.fillText(flipchart.resultTable.round5.estimation, x, y + yOffset * 4);
         ctx.fillText(flipchart.resultTable.round5.result, x + xOffset, y + yOffset * 4);
         ctx.fillText(flipchart.resultTable.round5.bugs, x + xOffset * 2, y + yOffset * 4);
+
+
+        // inputs
+        if (flipchart.lastActivator == flipchart.game.player.id) {
+
+            if (flipchart.resultTableInputs == null) this.initResultTableInputs(ctx, flipchart);
+            this.drawResultTableInputs(flipchart);
+            flipchart.resultTableSaveButton.draw(ctx);
+
+        }
+
+    }
+
+    public initResultTableInputs(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {
+        var y = 140;
+        var x = 335;
+        var yOffset = 50;
+        var xOffset = 60;
+
+        flipchart.resultTableInputs = {};
+
+        for (var i = 0; i < 5; i++) {
+            flipchart.resultTableInputs['round' + (i + 1)] = {};
+            // @ts-ignore
+            flipchart.resultTableInputs['round' + (i + 1)].estimation = new CanvasInput({ canvas: ctx.canvas, x: x, y: y + (yOffset * i), width: 30, value: flipchart.resultTable['round' + (i + 1)].estimation });
+            // @ts-ignore
+            flipchart.resultTableInputs['round' + (i + 1)].result = new CanvasInput({ canvas: ctx.canvas, x: x + (xOffset * 1), y: y + (yOffset * i), width: 30, value: flipchart.resultTable['round' + (i + 1)].result });
+            // @ts-ignore
+            flipchart.resultTableInputs['round' + (i + 1)].bugs = new CanvasInput({ canvas: ctx.canvas, x: x + (xOffset * 2), y: y + (yOffset * i), width: 30, value: flipchart.resultTable['round' + (i + 1)].bugs });
+        }
+    }
+
+    public destroyResultTableInputs(flipchart: Flipchart) {
+
+        if (flipchart.resultTableInputs != null) {
+
+            for (var i = 0; i < 5; i++) {
+                flipchart.resultTableInputs['round' + (i + 1)].estimation.destroy();
+                flipchart.resultTableInputs['round' + (i + 1)].result.destroy();
+                flipchart.resultTableInputs['round' + (i + 1)].bugs.destroy();
+            }
+
+            flipchart.resultTableInputs = null;
+        }
+
+    }
+
+    public drawResultTableInputs(flipchart: Flipchart) {
+        for (var i = 0; i < 5; i++) {
+            flipchart.resultTableInputs['round' + (i + 1)].estimation.render();
+            flipchart.resultTableInputs['round' + (i + 1)].result.render();
+            flipchart.resultTableInputs['round' + (i + 1)].bugs.render();
+        }
     }
 
     public drawColider(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {

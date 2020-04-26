@@ -158,6 +158,8 @@ export class GameEngine {
 			this.game.player.setControlesFromInputState();
 			this.game.updatePlayer(this.timeDiff);
 			this.game.updateGame(this.timeDiff);
+		}else{
+			this.game.flipchart.update(this.timeDiff);
 		}
 		
 		if(this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.ctx, this.game);

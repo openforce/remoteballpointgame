@@ -4,4 +4,5 @@ export class FlipchartState {
     activeFlipchart: number;
     lastActivator: number;
 
+    resultTable: any;
 }

@@ -40,8 +40,6 @@ export class SocketListenerServerMode extends SocketListener {
                 });
 
 
-
-                // server side update syncs
                 socket.on('player controles', function (inputState: PlayerInputState) {
 
                     //console.log('player controles', playerControleState);
@@ -59,6 +57,10 @@ export class SocketListenerServerMode extends SocketListener {
                 });
 
 
+                socket.on('sync result table', function (clientResultTable: any) {
+                    if (self.log) console.log('sync result table');
+                    self.game.flipchart.resultTable = clientResultTable;
+                });
 
             }
         })(this));
