@@ -1,15 +1,19 @@
-import { Game } from "../static/src/out/game/Game";
+import { IGameRoomList, IGameRoomSocketList } from "./IGameRoomList";
 
 export class SocketListener {
 
     io: any;
 
-    game: Game;
+    games: IGameRoomList;
+    socketId2Rooms: IGameRoomSocketList;
 
-    constructor(io: any, game: Game) {
+
+    constructor(io: any, games: IGameRoomList) {
 
         this.io = io;
-        this.game = game;
+        this.games = games;
+
+        this.socketId2Rooms = {};
 
     }
 

@@ -26,7 +26,7 @@ export class GameSyncerServerMode extends GameSyncer {
 	}
 
 	public registerNewPlayerOnServer() {
-		this.socket.emit('new player', this.game.player.getSyncState());
+		this.socket.emit('new player', this.gameRoomId, this.game.player.getSyncState());
 	}
 
 	public initPlayerSyncSender() {

@@ -1,14 +1,14 @@
 import { SocketListener } from "./SocketListener";
-import { Game } from "../static/src/out/game/Game";
 import { Player } from "../static/src/out/gameObjects/Player";
 import { PlayerInputState } from "../static/src/gameObjects/syncObjects/PlayerInputState";
+import { IGameRoomList } from "./IGameRoomList";
 
 export class SocketListenerServerMode extends SocketListener {
 
     log = false;
 
-    constructor(io: any, game: Game) {
-        super(io, game);
+    constructor(io: any, gameRooms: IGameRoomList) {
+        super(io, gameRooms);
     }
 
     public init() {
@@ -18,25 +18,35 @@ export class SocketListenerServerMode extends SocketListener {
                 if (self.log) console.log('New Socket Connection');
 
                 // connect and disconnect
-                socket.on('new player', function (newPlayer: any) {
+                socket.on('new player', function (gameRoomId: string, newPlayer: any) {
 
-                    self.game.players[newPlayer.id] = new Player(self.game, 1, 1, null, null);
-                    self.game.players[newPlayer.id].syncState(newPlayer);
-                    self.game.players[newPlayer.id].socketId = socket.id;
+                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
 
-                    self.io.sockets.emit('new result table', self.game.flipchart.resultTable);
+                    self.socketId2Rooms[socket.id] = gameRoomId;
+                    socket.join(gameRoomId);
+
+                    self.games[gameRoomId].game.players[newPlayer.id] = new Player(self.games[gameRoomId].game, 1, 1, null, null);
+                    self.games[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
+                    self.games[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
 
                     if (self.log) console.log('New Player: ' + newPlayer.id);
+                    if (self.log) console.log('Player ', newPlayer.id, ' joined room: ' + gameRoomId);
                 });
 
                 socket.on('disconnect', function () {
-                    for (var id in self.game.players) {
-                        if (self.game.players[id].socketId == socket.id) {
-                            delete self.game.players[id];
-                            break;
+                    var gameRoomId = self.socketId2Rooms[socket.id];
+                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+
+                    for (var id in self.games[gameRoomId].game.players) {
+                        if (self.games[gameRoomId].game.players[id].socketId == socket.id) {
+                            delete self.games[gameRoomId].game.players[id];
+                            delete self.socketId2Rooms[socket.id];
+
+                            if (self.log) console.log('removed Player with socked id: ' + socket.id);
+                            return;
                         }
                     }
-                    if (self.log) console.log('removed Player with socked id: ' + socket.id);
+
                 });
 
 
@@ -44,22 +54,29 @@ export class SocketListenerServerMode extends SocketListener {
 
                     //console.log('player controles', playerControleState);
 
-                    if (self.game.players[inputState.playerId] != null) {
+                    var gameRoomId = self.socketId2Rooms[socket.id];
+                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
 
-                        self.game.players[inputState.playerId].inputState = inputState;
-                        self.game.players[inputState.playerId].setControlesFromInputState();
+                    if (self.games[gameRoomId].game.players[inputState.playerId] != null) {
 
-                        self.game.flipchart.updateInputsFromPlayerInputState(inputState);
+                        self.games[gameRoomId].game.players[inputState.playerId].inputState = inputState;
+                        self.games[gameRoomId].game.players[inputState.playerId].setControlesFromInputState();
+
+                        self.games[gameRoomId].game.flipchart.updateInputsFromPlayerInputState(inputState);
 
                     }
 
-                    if (self.log) console.log('synced controles of Player with socked id: ' + socket.id);
+                    //if (self.log) console.log('synced controles of Player with socked id: ' + socket.id);
                 });
 
 
                 socket.on('sync result table', function (clientResultTable: any) {
                     if (self.log) console.log('sync result table');
-                    self.game.flipchart.resultTable = clientResultTable;
+
+                    var gameRoomId = self.socketId2Rooms[socket.id];
+                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+
+                    self.games[gameRoomId].game.flipchart.resultTable = clientResultTable;
                 });
 
             }

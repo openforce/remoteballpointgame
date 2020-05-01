@@ -13,6 +13,7 @@ import { Game } from './static/src/out/game/Game';
 import { SocketListener } from './serverSrc/SocketListener';
 import { SocketListenerClientMode } from './serverSrc/SocketListenerClientMode';
 import { SocketListenerServerMode } from './serverSrc/SocketListenerServerMode';
+import { GameRoom } from './serverSrc/GameRoom';
 
 var log = false;
 
@@ -28,17 +29,29 @@ app.use('/static', express.static(__dirname + '/static'));
 
 // Routing
 
-/* --> use game according to gameId
-app.get('/:gameId', function (request: any, response: any) {
+// --> use game according to gameId
+app.get('/:gameRoomId', function (request: any, response: any) {
   // @ts-ignore
-  response.sendFile(path.join(__dirname, 'index.html'));
-  //response.send("gameId is set to " + request.params.gameId);
+  response.sendFile(path.join(__dirname, 'game.html'));
+
+  var gameRoomId: string = request.params.gameRoomId;
+
+  if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) {
+
+    if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
+      response.send('Sorry, maximum number of rooms reached. Please try again later!');
+    }else{
+      gameRooms[gameRoomId] = new GameRoom(gameRoomId, syncMode, io);
+      if (log) console.log('created gameRoom with id ', gameRoomId);
+    }
+
+  }
+
 });
-*/
 
 app.get('/', function (request: any, response: any) {
-  // @ts-ignore
-  response.sendFile(path.join(__dirname, 'index.html'));
+  //@ts-ignore
+  response.sendFile(path.join(__dirname, 'landingpage.html'));
 });
 
 
@@ -47,45 +60,22 @@ server.listen(5000, function () {
 });
 
 
-// init game
-var game = new Game();
-game.initGameSimulation();
+var gameRooms = {};
 
-var lastTime = 0;
-var timeDiff = 0;
-
-
-// init sync mode
 var syncMode = GameConfigs.syncMode;;
 
 var socketListener: SocketListener;
-if (syncMode == GameEngine.SYNC_MODE_CLIENT) socketListener = new SocketListenerClientMode(io, game);
-else if (syncMode == GameEngine.SYNC_MODE_SERVER) socketListener = new SocketListenerServerMode(io, game);
+if (syncMode == GameEngine.SYNC_MODE_CLIENT) socketListener = new SocketListenerClientMode(io, gameRooms);
+else if (syncMode == GameEngine.SYNC_MODE_SERVER) socketListener = new SocketListenerServerMode(io, gameRooms);
 
 socketListener.init();
 
 
-// main loop
 setInterval(function () {
-
-  // update game objects
-  updateGame();
-
-  // send all game states to clients
-  io.sockets.emit('state', game.getPlayerStateList(), game.getBallStateList(), game.timer.getSyncState(), game.flipchart.getSyncState(), game.getSyncState());
-
-}, 1000 / 60); // / 60
-
-
-function updateGame() {
-
-  //time
-  var now = new Date();
-  var time = now.getTime();
-
-  timeDiff = time - lastTime;
-  lastTime = time;
-
-  if (syncMode == GameEngine.SYNC_MODE_SERVER) game.updateGame(timeDiff);
-
-}
+  for (var id in gameRooms) {
+    if (gameRooms[id].shouldBeDeleted) {
+      delete gameRooms[id];
+      console.log('deleted gameRoom ', id);
+    }
+  }
+}, 1000);

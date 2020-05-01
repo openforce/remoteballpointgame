@@ -3,6 +3,7 @@ import { Game } from "../Game";
 export class GameSyncer {
 
 	socket: any;
+	gameRoomId: string;
 
 	game: Game;
 
@@ -15,6 +16,12 @@ export class GameSyncer {
 		// open socket connection to server
 		// @ts-ignore
 		this.socket = window.io();
+
+		// get room id
+		var url = window.location.href;
+		var splittedUrl = url.split('/');
+
+		this.gameRoomId = splittedUrl[splittedUrl.length-1];
 
 	}
 

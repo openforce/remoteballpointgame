@@ -8,4 +8,5 @@ export class GameConfigs {
 
     static arcadeMode = false;
 
+    static maxGameRooms = 2;
 }
