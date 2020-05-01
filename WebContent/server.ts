@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-import { GameConfigs } from './static/src/out/game/configs';
+import { GameConfigs } from './static/src/out/game/Configs';
 
 import { GameEngine } from './static/src/out/engine/GameEngine';
 import { Game } from './static/src/out/game/Game';
