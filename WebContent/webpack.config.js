@@ -9,6 +9,5 @@ module.exports = [
     path: path.resolve(__dirname, 'static/src/out'),
     filename: 'bundle.js'
   },
-	devtool,
-	watch: true
+	devtool
 }));

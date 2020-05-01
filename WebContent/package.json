@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha -r ts-node/register test/*.ts",
     "build": "npx webpack --config webpack.config.js",
+    "build-dev": "npx webpack --config webpack.config.js --watch=true",
     "start": "ts-node server.ts"
   },
   "dependencies": {
