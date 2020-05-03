@@ -26,5 +26,28 @@
 		</center>
 	</div>
 	<br/>
-	<a href="http://localhost:5000/">back to start page</a>
+
+	<div id="roomUrl"></div>
+	<br /> 
+	<div id="startPage"></div>
+	
+
+
+	<script type="text/javascript">
+
+		function displayRoomUrl() {
+			var url = window.location;
+			document.getElementById("roomUrl").innerHTML = 'room url: <br/> <a href=' + url + '>' + url + '</a>';
+		}
+
+		function displayStartPage(){
+			var backUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+			var backToStart = '<a href="' + backUrl + '">back to start page</a>';
+			document.getElementById("startPage").innerHTML = backToStart;
+		}
+	
+		displayStartPage();
+		displayRoomUrl();
+
+	</script>
 </body>
