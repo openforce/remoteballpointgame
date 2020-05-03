@@ -1,10 +1,83 @@
 <head>
 	<meta charset="utf-8" />
+</head>
 
-	<script>
+<body id="body" style="background-color: #FFCA3E; text-align: center;">
+	<div>
+		<center>
+			<h1><u>The Remote Ball Point Game</u></h1>
+			(powered by openForce)<br /><br />
+		</center>
+	</div>
+
+	<div id="landingpage">
+		<center>
+			<div style="border: 2px solid black; width: 800;">
+				<h3>Please enter the name of the game you want to join or create!</h3> <br />
+				<input type="text" id="gameRoomName" value="TestRoom" oninput="displayRoomUrl();"
+					style="border: 2; border-color: black; width: 300; height: 30; background-color: wight;" />
+				<input type="submit" value="GO" onclick="openOrJoinGame();"
+					style="border: 2; border-color: black; width: 40; height: 30; background-color: lightgray; border-radius: 5px;">
+
+				<br /><br />
+
+				the url of your game room will be: <br />
+				<div id="roomUrl"></div>
+
+				<br />
+			</div>
+
+
+			<br />
+
+			<div style="text-align: left; align-self: center; width: 600;">
+				<h3>What is the Ball Point Game?</h3> <br />
+
+				The Ball Point Game is a real life group exercise to explore the basics of Agility. <br />
+				Players experience the concepts of iterative work, retrospectives and self-organization with the help of
+				a fun ball game.
+			</div>
+
+			<br />
+
+			<div style="text-align: left; align-self: center; width: 600;">
+				<h3>What is the Remote Ball Point Game?</h3> <br />
+
+				Like the name suggests, the remote ball point game provides the possibility to play the game online
+				with distributed teams. <br /> <br />
+
+				The game itself simply provides the setup as often given in trainings: a meeting room, balls, a timer and flipcharts with some explanations.
+				Like in a real life scenario a trainer should facilitate and debrief the game to connect the experiences of the players with the theory about Agility.
+			</div>
+
+			<br />
+
+			<img src="./static/resources/remote_ballpoint_game_04.jpg" width="395">
+			<img src="./static/resources/remote_ballpoint_game_01.pg.jpg" width="400">
+
+		</center>
+
+	</div>
+
+
+	<script type="text/javascript">
+
+		function displayRoomUrl() {
+			var url = getRoomUrl();
+			document.getElementById("roomUrl").innerHTML = '<a href=' + url + '>' + url + '</a>';
+		}
 
 		function openOrJoinGame() {
-			window.location = window.location + document.getElementById("gameRoomName").value;
+			window.location = getRoomUrl();
+		}
+
+		function getRoomUrl() {
+			return window.location + getRoomId();
+		}
+
+		function getRoomId() {
+			var roomName = document.getElementById("gameRoomName").value;
+			return roomName.replace(/\s/g, '');
 		}
 
 		document.onkeydown = function (evt) {
@@ -14,19 +87,10 @@
 			}
 		}
 
+		displayRoomUrl();
+
 	</script>
 
-</head>
 
-<body id="body">
-	<div id="landingpage">
 
-		<center>
-			<h1><u>The Remote Ball Point Game</u></h1>
-			<h3>Please enter the name of the game you want to join or create!</h3> <br />
-			<input type="text" id="gameRoomName" /> <br /><br />
-			<input type="submit" value="join or create Game" onclick="openOrJoinGame();">
-		</center>
-
-	</div>
 </body>

@@ -33,7 +33,7 @@ export class GameDrawer {
 	public draw(ctx: CanvasRenderingContext2D, game: Game) {
 
 		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
-
+		
 		this.meetingRoomDrawer.draw(ctx, game.meetingRoom);
 
 		for (var id in game.balls) {

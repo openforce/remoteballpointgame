@@ -111,6 +111,17 @@ export class MenuController {
 
 		ctx.clearRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 
+		// BG
+		ctx.beginPath();
+		ctx.strokeStyle = 'black';
+		ctx.fillStyle = 'white';
+		ctx.lineWidth = 5;
+		ctx.fillRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
+		ctx.rect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
+		ctx.stroke();
+		ctx.closePath();
+
+
 		//ctx.fillText("Press R to set random values", 20, 530);
 		//ctx.fillText("Press L to go to the level screen", 20, 560);
 		//ctx.fillText("Press S to go to the scene menu", 20, 590);
