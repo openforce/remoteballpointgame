@@ -14,10 +14,17 @@ export class PlayerState {
     color: string;
     gender: string;
 
+    // controle mode mouse
     moveUp: boolean;
     moveDown: boolean;
     moveLeft: boolean;
     moveRight: boolean;
+
+    //controle mode keyboard
+    moveForward: boolean;
+    moveBackward: boolean;
+    rotateLeft: boolean;
+    rotateRight: boolean;
 
     lookX: number;
     lookY: number;

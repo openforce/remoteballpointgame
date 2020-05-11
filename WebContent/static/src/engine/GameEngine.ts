@@ -167,11 +167,9 @@ export class GameEngine {
 
 	
 	public checkClickEvents(){
-		var now = new Date();
-		var time = now.getTime();
-
+		
 		this.inputs.clickedLeft = true;
-		this.inputs.clickedLeftTimeStemp = time;
+		this.inputs.clickedLeftTimeStemp = new Date().getTime();
 
 		switch(this.state) {
 		
@@ -191,11 +189,9 @@ export class GameEngine {
 	}
 
 	public checkRightClickEvents(){
-		var now = new Date();
-		var time = now.getTime();
-
+		
 		this.inputs.clickedRight = true;
-		this.inputs.clickedRightTimeStemp = time;
+		this.inputs.clickedRightTimeStemp = new Date().getTime();
 		
 		switch(this.state) {
 		
@@ -236,7 +232,7 @@ export class GameEngine {
 
 	public checkMouseRightUpEvents(){
 		
-		this.inputs.clickedRight = false;;
+		this.inputs.clickedRight = false;
 
 		switch(this.state) {
 		

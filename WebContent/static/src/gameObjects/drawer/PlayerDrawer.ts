@@ -1,5 +1,6 @@
 import { Player } from "../Player";
 import { DrawUtils } from "../../utils/DrawUtils1";
+import { GeometryUtils } from "../../utils/GeometryUtils1";
 
 
 export class PlayerDrawer {
@@ -43,7 +44,7 @@ export class PlayerDrawer {
     public draw(ctx: CanvasRenderingContext2D, player: Player) {
 
         ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
-        ctx.rotate(player.rotation * Math.PI / 180);
+        ctx.rotate(GeometryUtils.degreeToRad(player.rotation));
 
         // @ts-ignore
         ctx.drawImage(this.sprites[player.gender + player.color][player.walkAnimationCount],
@@ -66,7 +67,7 @@ export class PlayerDrawer {
         }
 
 
-        ctx.rotate(-player.rotation * Math.PI / 180);
+        ctx.rotate(GeometryUtils.degreeToRad(-player.rotation));
         ctx.translate(-player.x - player.width / 2, -player.y - player.height / 2);
 
         this.drawName(ctx, player);

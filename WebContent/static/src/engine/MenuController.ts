@@ -62,7 +62,7 @@ export class MenuController {
 
 		this.playerButtons = [];
 		for (var i = 0; i < this.playerSprites.length; i++) {
-			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteHeight, '');
+			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteDrawHeight, '');
 		}
 
 		this.sprites = [];

@@ -228,8 +228,4 @@ export class Ball {
         this.changeStateTo(Ball.BALL_STATE_INAIR);
     }
 
-    public getShootAngle(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
-        return GeometryUtils.getAngleBetweenToPoints(shootTargetX, shootTargetY, playerPosX, playerPosY);
-    }
-
 }

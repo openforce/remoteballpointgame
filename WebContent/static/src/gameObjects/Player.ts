@@ -11,6 +11,7 @@ import { Ball } from './Ball';
 import { PlayerInputState } from './syncObjects/PlayerInputState';
 import { PlayerState } from './syncObjects/PlayerState';
 import { throws } from 'assert';
+import { GameConfigs } from '../game/Configs';
 
 
 export class Player {
@@ -21,6 +22,8 @@ export class Player {
     static colors = ['blue', 'white', 'orange'];
     static genders = ['m', 'w'];
 
+    static CONTROLE_MODE_MOUSE = 0;
+    static CONTROLE_MODE_KEYBOARD = 1;
 
     id: number;
 
@@ -48,6 +51,7 @@ export class Player {
 
     speed: number = 0.2;
     shootSpeed: number = 0.5;
+    rotationSpeed: number = 0.5;
 
     socketId: string;
 
@@ -63,22 +67,29 @@ export class Player {
     walkAnimationTimeDif: number = 0;
 
     // controls 
-
+    controleMode: number;
     inputState: PlayerInputState;
 
-    clickedLeft: boolean = false;
-    clickedRight: boolean = false;
+    lookX: number;
+    lookY: number;
 
-    clickedLeftTimeStemp = 0;
-    clickedRightTimeStemp = 0;
+    doActionLeft: boolean = false;
+    doActionLeftTimeStamp = 0;
+    doActionRight: boolean = false;
+    doActionRightTimeStamp = 0;
 
+    // controle mode Mouse 
     moveUp: boolean;
     moveDown: boolean;
     moveLeft: boolean;
     moveRight: boolean;
 
-    lookX: number;
-    lookY: number;
+    // controle mode keyboard
+    moveForward: boolean;
+    moveBackward: boolean;
+    rotateLeft: boolean;
+    rotateRight: boolean;
+    
 
     constructor(game: Game, x: number, y: number, name: string, color: string, gender: string) {
         this.game = game;
@@ -102,6 +113,8 @@ export class Player {
 
         this.radius = 30;
         this.rotation = 180;
+
+        this.controleMode = GameConfigs.playerControleMode;
 
         this.inputState = new PlayerInputState();
         this.inputState.playerId = this.id;
@@ -133,6 +146,11 @@ export class Player {
         syncObject.moveLeft = this.moveLeft;
         syncObject.moveRight = this.moveRight;
 
+        syncObject.moveForward = this.moveForward;
+        syncObject.moveBackward = this.moveBackward;
+        syncObject.rotateLeft = this.rotateLeft;
+        syncObject.rotateRight = this.rotateRight;
+
         syncObject.lookX = this.lookX;
         syncObject.lookY = this.lookY;
         syncObject.walkAnimationCount = this.walkAnimationCount;
@@ -163,6 +181,12 @@ export class Player {
         this.moveDown = player.moveDown;
         this.moveLeft = player.moveLeft;
         this.moveRight = player.moveRight;
+
+        this.moveForward = player.moveForward;
+        this.moveBackward = player.moveBackward;
+        this.rotateLeft = player.rotateLeft;
+        this.rotateRight = player.rotateRight;
+
         this.lookX = player.lookX;
         this.lookY = player.lookY;
 
@@ -182,18 +206,38 @@ export class Player {
     // used in MODE_CLIENT
     public updateInputs(inputs: Inputs) {
 
-        // W
-        if (inputs.keys[87]) this.inputState.up = true;
-        else this.inputState.up = false;
-        // A
-        if (inputs.keys[65]) this.inputState.left = true;
-        else this.inputState.left = false;
-        // S
-        if (inputs.keys[83]) this.inputState.down = true;
-        else this.inputState.down = false;
-        // D
-        if (inputs.keys[68]) this.inputState.right = true;
-        else this.inputState.right = false;
+        // W | UP
+        if (inputs.keys[87] || inputs.keys[38]) this.inputState.w = true;
+        else this.inputState.w = false;
+        // A | LEFT
+        if (inputs.keys[65] || inputs.keys[37]) this.inputState.a = true;
+        else this.inputState.a = false;
+        // S | DOWN
+        if (inputs.keys[83] || inputs.keys[40]) this.inputState.s = true;
+        else this.inputState.s = false;
+        // D | RIGHT
+        if (inputs.keys[68] || inputs.keys[39]) this.inputState.d = true;
+        else this.inputState.d = false;
+
+        //space
+        if (inputs.keys[32]){
+            this.inputState.space = true;
+            if (this.inputState.spacePressedTimeStamp == null) this.inputState.spacePressedTimeStamp = new Date().getTime();
+        }
+        else {
+            this.inputState.space = false;
+            this.inputState.spacePressedTimeStamp = null;
+        }
+
+        //shift
+        if (inputs.keys[16]){
+            this.inputState.shift = true;
+            if (this.inputState.shiftPressedTimeStamp == null) this.inputState.shiftPressedTimeStamp = new Date().getTime();
+        }
+        else {
+            this.inputState.shift = false;
+            this.inputState.shiftPressedTimeStamp = null;
+        }
 
         this.inputState.mouseX = inputs.mousePosX;
         this.inputState.mouseY = inputs.mousePosY;
@@ -209,27 +253,53 @@ export class Player {
     // used in MODE_SIMULATION
     public setControlesFromInputState() {
 
-        this.moveUp = this.inputState.up;
-        this.moveLeft = this.inputState.left;
-        this.moveDown = this.inputState.down;
-        this.moveRight = this.inputState.right;
+        if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
 
-        this.lookX = this.inputState.mouseX;
-        this.lookY = this.inputState.mouseY;
+            this.moveUp = this.inputState.w;
+            this.moveLeft = this.inputState.a;
+            this.moveDown = this.inputState.s;
+            this.moveRight = this.inputState.d;
 
+            this.lookX = this.inputState.mouseX;
+            this.lookY = this.inputState.mouseY;
 
-        if (this.inputState.clickedLeft && this.inputState.clickedLeftTimeStemp > this.clickedLeftTimeStemp) {
-            this.clickedLeft = true;
-            this.clickedLeftTimeStemp = this.inputState.clickedLeftTimeStemp;
-        } else if (!this.inputState.clickedLeft) {
-            this.clickedLeft = false;
+            if (this.inputState.clickedLeft && this.inputState.clickedLeftTimeStemp > this.doActionLeftTimeStamp) {
+                this.doActionLeft = true;
+                this.doActionLeftTimeStamp = this.inputState.clickedLeftTimeStemp;
+            } else if (!this.inputState.clickedLeft) {
+                this.doActionLeft = false;
+            }
+
+            if (this.inputState.clickedRight && this.inputState.clickedRightTimeStemp > this.doActionRightTimeStamp) {
+                this.doActionRight = true;
+                this.doActionRightTimeStamp = this.inputState.clickedRightTimeStemp;
+            } else if (!this.inputState.clickedRight) {
+                this.doActionRight = false;
+            }
+
         }
 
-        if (this.inputState.clickedRight && this.inputState.clickedRightTimeStemp > this.clickedRightTimeStemp) {
-            this.clickedRight = true;
-            this.clickedRightTimeStemp = this.inputState.clickedRightTimeStemp;
-        } else if (!this.inputState.clickedRight) {
-            this.clickedRight = false;
+
+        if (this.controleMode == Player.CONTROLE_MODE_KEYBOARD) {
+            this.moveForward = this.inputState.w;
+            this.moveBackward = this.inputState.s;
+
+            this.rotateLeft = this.inputState.a;
+            this.rotateRight = this.inputState.d;
+
+            if (this.inputState.space && this.inputState.spacePressedTimeStamp > this.doActionLeftTimeStamp) {
+                this.doActionLeft = true;
+                this.doActionLeftTimeStamp = this.inputState.spacePressedTimeStamp;
+            } else if (!this.inputState.space) {
+                this.doActionLeft = false;
+            }
+
+            if (this.inputState.shift && this.inputState.shiftPressedTimeStamp > this.doActionRightTimeStamp) {
+                this.doActionRight = true;
+                this.doActionRightTimeStamp = this.inputState.shiftPressedTimeStamp;
+            } else if (!this.inputState.shift) {
+                this.doActionRight = false;
+            }
         }
 
     }
@@ -240,25 +310,51 @@ export class Player {
     public update(timeDiff: number) {
 
         // MOVEMENT
-        if (this.moveUp) this.y -= this.speed * timeDiff;
-        if (this.moveLeft) this.x -= this.speed * timeDiff;
-        if (this.moveDown) this.y += this.speed * timeDiff;
-        if (this.moveRight) this.x += this.speed * timeDiff;
+        var move = true;
+        if (this.game.flipchart.active && this.game.flipchart.lastActivator == this.id) {
+            move = false;
+        }
 
-        this.walkAnimationTimeDif += timeDiff;
+        if (move) {
 
-        this.middleX = this.x + this.width / 2;
-        this.middleY = this.y + this.height / 2;
+            if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
+                if (this.moveUp) this.y -= this.speed * timeDiff;
+                if (this.moveLeft) this.x -= this.speed * timeDiff;
+                if (this.moveDown) this.y += this.speed * timeDiff;
+                if (this.moveRight) this.x += this.speed * timeDiff;
 
-        // animation
-        if (this.moveDown || this.moveLeft || this.moveRight || this.moveUp) {
-            if (this.walkAnimationTimeDif > this.walkAnimationTime) {
-                this.walkAnimationCount++;
-                if (this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
-                this.walkAnimationTimeDif = 0;
+                this.rotation = -this.getLookAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
             }
-        } else this.walkAnimationCount = 0;
 
+            if (this.controleMode == Player.CONTROLE_MODE_KEYBOARD) {
+
+                if (this.rotateRight) this.rotation += this.rotationSpeed * timeDiff;
+                if (this.rotateLeft) this.rotation -= this.rotationSpeed * timeDiff;
+
+                if (this.moveForward) {
+                    this.x += (this.speed * timeDiff) * (Math.cos(GeometryUtils.degreeToRad(this.rotation + 90)));
+                    this.y += (this.speed * timeDiff) * (Math.sin(GeometryUtils.degreeToRad(this.rotation + 90)));
+                }else if (this.moveBackward) {
+                    this.x -= (this.speed * timeDiff) * (Math.cos(GeometryUtils.degreeToRad(this.rotation + 90)));
+                    this.y -= (this.speed * timeDiff) * (Math.sin(GeometryUtils.degreeToRad(this.rotation + 90)));
+                }
+            }
+
+            this.walkAnimationTimeDif += timeDiff;
+
+            this.middleX = this.x + this.width / 2;
+            this.middleY = this.y + this.height / 2;
+
+            // animation
+            if (this.moveDown || this.moveLeft || this.moveRight || this.moveUp || this.moveForward || this.moveBackward) {
+                if (this.walkAnimationTimeDif > this.walkAnimationTime) {
+                    this.walkAnimationCount++;
+                    if (this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
+                    this.walkAnimationTimeDif = 0;
+                }
+            } else this.walkAnimationCount = 0;
+
+        }
 
         // CHECK COLLISIONS
         var col = false;
@@ -312,7 +408,6 @@ export class Player {
 
 
         // OTHER STUFF
-        this.rotation = -this.getShootAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
 
         this.setActionAreaCircle();
 
@@ -326,15 +421,15 @@ export class Player {
             this.leftHand.y = this.middleY;
         }
 
-        if (this.clickedLeft) {
+        if (this.doActionLeft) {
             if (this.performAction(Player.HAND_LEFT)) {
-                this.clickedLeft = false;
+                this.doActionLeft = false;
             }
         }
 
-        if (this.clickedRight) {
+        if (this.doActionRight) {
             if (this.performAction(Player.HAND_RIGHT)) {
-                this.clickedRight = false;
+                this.doActionRight = false;
             }
         }
 
@@ -455,7 +550,7 @@ export class Player {
         if (hand == Player.HAND_LEFT) this.leftHand = null;
     }
 
-    public getShootAngle(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
+    public getLookAngle(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
         return GeometryUtils.getAngleBetweenToPoints(shootTargetX, shootTargetY, playerPosX, playerPosY);
     }
 

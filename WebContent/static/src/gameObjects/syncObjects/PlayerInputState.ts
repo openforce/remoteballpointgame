@@ -2,10 +2,16 @@ export class PlayerInputState {
 
     playerId: number;
 
-    up: boolean;
-    down: boolean;
-    left: boolean;
-    right: boolean;
+    w: boolean;
+    s: boolean;
+    a: boolean;
+    d: boolean;
+
+    space: boolean;
+    spacePressedTimeStamp: number;
+
+    shift: boolean;
+    shiftPressedTimeStamp: number;
 
     mouseX: number;
     mouseY: number;
