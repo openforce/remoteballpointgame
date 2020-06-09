@@ -4,12 +4,6 @@
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" href="/static/css/landing.css">
 
-	<!-- imports -->
-	<script type="text/javascript" src="/static/src/libs/CanvasInput-master/CanvasInput.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
-
-	<script type="module" src="/static/src/out/bundle.js"></script>
-
 </head>
 
 <body id="body" style="overflow: hidden">
@@ -28,16 +22,28 @@
 
 		<h1>The Remote Ball Point Game</h1>
 
-		<div id="game">
-			<center>
-				<canvas id="canvas">
-					Browser not compatible with HTML5 canvas
-				</canvas>
-			</center>
+		<div class="row mt-4">
+			<div class="col-md-12 d-flex justify-content-center">
+				<div class="roomname-box">
+
+					<div class="form-group mt-3">
+						<div class="input-group">
+							Sorry, maximum number of rooms reached. </br>
+							(empty rooms will be closed after 1 minute) </br>
+							<div class="input-group-addon">
+								<button type="button" class="btn btn-danger" onclick="openOrJoinGame();">Retry</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<br />
+
+		<div class="row mt-5"></div>
 
 	</div>
+
+
 
 	<div class="row footer-box">
 		<div class="col-md-12 justify-content-center">
@@ -63,6 +69,10 @@
 
 		displayStartPage();
 		displayRoomUrl();
+
+		function openOrJoinGame() {
+			location.reload();
+		}
 
 	</script>
 </body>

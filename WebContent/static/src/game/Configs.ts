@@ -12,5 +12,5 @@ export class GameConfigs {
 
     // CONTROLE_MODE_MOUSE = 0;
     // CONTROLE_MODE_KEYBOARD = 1;
-    static playerControleMode = 1;
+    static playerControleMode = 0;
 }

@@ -31,16 +31,20 @@ app.use('/static', express.static(__dirname + '/static'));
 
 // --> use game according to gameId
 app.get('/:gameRoomId', function (request: any, response: any) {
-  // @ts-ignore
-  response.sendFile(path.join(__dirname, 'game.html'));
-
+  
   var gameRoomId: string = request.params.gameRoomId;
-
+  
   if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) {
-
+    
     if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
-      response.send('Sorry, maximum number of rooms reached. Please try again later!');
+      // @ts-ignore
+      response.sendFile(path.join(__dirname, 'maxRoomsReached.html'));
+
+      if (log) console.log('max rooms reached ', gameRoomId);
     }else{
+      // @ts-ignore
+      response.sendFile(path.join(__dirname, 'game.html'));
+
       gameRooms[gameRoomId] = new GameRoom(gameRoomId, syncMode, io);
       if (log) console.log('created gameRoom with id ', gameRoomId);
     }
