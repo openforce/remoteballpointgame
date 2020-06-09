@@ -39,7 +39,7 @@ app.get('/:gameRoomId', function (request: any, response: any) {
     // @ts-ignore
     response.sendFile(path.join(__dirname, 'game.html'));
 
-  } else {
+  } else if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) {
 
     if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
       // @ts-ignore
