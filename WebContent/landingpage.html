@@ -1,78 +1,113 @@
 <head>
 	<meta charset="utf-8" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="/static/css/landing.css">
 </head>
 
-<body id="body" style="background-color: #FFCA3E; text-align: center;">
-	<div>
-		<center>
-			<h1><u>The Remote Ball Point Game</u></h1>
-			(powered by openForce)<br /><br />
-		</center>
+<body id="body">
+
+	<div class="container">
+		<div class="row main-logo">
+			<div class="col-md-12">
+				<div class="float-right">
+					<span class="label-font-size">
+						powered by<br>
+					</span>
+					<img src="static/resources/Logo_OpenFORCE.png"/>
+				</div>
+			</div>
+		</div>
+
+		<h1>The Remote Ball Point Game</h1>
+
+		<div id="landingpage">
+
+			<div class="row mt-4">
+				<div class="col-md-12 d-flex justify-content-center">
+					<div class="roomname-box">
+						Please enter the name of the game you want to join or create!
+						<div class="form-group mt-3">
+							<label class="label-font-size" for="gameRoomName">Roomname</label>
+							<div class="input-group">
+								<input class="form-control" type="text" id="gameRoomName" value="TestRoom" oninput="displayRoomUrl();"/>
+								<div class="input-group-addon">
+									<button type="button" class="btn btn-danger" onclick="openOrJoinGame();">Start</button>
+								</div>
+							</div>
+						</div>
+						<span class="label-font-size urltext">
+							the url of your game room will be: <span id="roomUrl"></span>
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="row mt-5"></div>
+			<div class="row mt-5">
+				<div class="col-lg-5">
+					<div>
+						<h2>What is the<br> Ball Point Game?</h2>
+						<div class="row mt-4"></div>
+						The Ball Point Game is a real life group exercise to explore the basics of Agility. <br />
+						Players experience the concepts of iterative work, retrospectives and self-organization with the help of
+						a fun ball game.
+					</div>
+				</div>
+
+				<div class="col-lg-7">
+					<img class="float-right game-image" src="./static/resources/remote_ballpoint_game_04.jpg">
+				</div>
+			</div>
+
+
+			<div class="row mt-5"></div>
+			<div class="row mt-5">
+				<div class="col-lg-7">
+					<img class="game-image" src="./static/resources/remote_ballpoint_game_01.pg.jpg">
+				</div>
+				<div class="col-lg-5">
+					<h2>What is the<br> Remote Ball Point Game?</h2>
+					<div class="row mt-4"></div>
+					Like the name suggests, the remote ball point game provides the possibility to play the game online
+					with distributed teams. <br /> <br />
+
+					The game itself simply provides the setup as often given in trainings: a meeting room, balls, a timer
+					and flipcharts with some explanations.
+					Like in a real life scenario a trainer should facilitate and debrief the game to connect the experiences
+					of the players with the theory about Agility.
+				</div>
+			</div>
+
+
+		</div>
 	</div>
 
-	<div id="landingpage">
-		<center>
-			<div style="border: 2px solid black; width: 800;">
-				<h3>Please enter the name of the game you want to join or create!</h3>
-				<input type="text" id="gameRoomName" value="TestRoom" oninput="displayRoomUrl();"
-					style="border: 2; border-color: black; width: 300; height: 30; background-color: wight;" />
-				<input type="submit" value="GO" onclick="openOrJoinGame();"
-					style="border: 2; border-color: black; width: 40; height: 30; background-color: lightgray; border-radius: 5px;">
+	<div class="row mt-5"></div>
+	<div class="row mt-5"></div>
+	<div class="row footer-box">
+		<div class="col-md-12 justify-content-center">
+			<h3>The #remoteballpointgame is an open source project! <br/>
+				Fell Free to contribute to it!
+			</h3>
+			<br/>
+			<a href="https://github.com/openforce/remoteballpointgame">
+				https://github.com/openforce/remoteballpointgame
+			</a>
+		</div>
+	</div>
 
-				<br /><br />
-
-				the url of your game room will be: <br />
-				<div id="roomUrl"></div>
-
-				<br />
+	<div class="container label-font-size footer">
+		<div class="row">
+			<div class="col-md-4">
+				<a href="http://www.openforce.com" target="_blank">Copyright © 2020 openFORCE Information Technology GesmbH</a>
 			</div>
-
-
-			<br />
-
-			<div style="text-align: left; align-self: center; width: 600;">
-				<h3>What is the Ball Point Game?</h3> 
-
-				The Ball Point Game is a real life group exercise to explore the basics of Agility. <br />
-				Players experience the concepts of iterative work, retrospectives and self-organization with the help of
-				a fun ball game.
+			<div class="col-md-4">
+				<a href="http://www.openforce.com" target="_blank">Privacy Policy</a>
 			</div>
-
-			<br />
-
-			<div style="text-align: left; align-self: center; width: 600;">
-				<h3>What is the Remote Ball Point Game?</h3> 
-
-				Like the name suggests, the remote ball point game provides the possibility to play the game online
-				with distributed teams. <br /> <br />
-
-				The game itself simply provides the setup as often given in trainings: a meeting room, balls, a timer
-				and flipcharts with some explanations.
-				Like in a real life scenario a trainer should facilitate and debrief the game to connect the experiences
-				of the players with the theory about Agility.
+			<div class="col-md-4">
+				<a href="http://www.openforce.com" target="_blank">Terms of use</a>
 			</div>
-
-			<br /><br />
-
-			<div style="text-align: left; align-self: center; width: 600;">
-				<center>
-					<b>The #remoteballpointgame is an open source project! <br />
-						Fell Free to contribute to it! <br />
-
-						<a href="https://github.com/openforce/remoteballpointgame">
-							https://github.com/openforce/remoteballpointgame
-						</a>
-					</b>
-				</center>
-			</div>
-
-			<br />
-
-			<img src="./static/resources/remote_ballpoint_game_04.jpg" width="395">
-			<img src="./static/resources/remote_ballpoint_game_01.pg.jpg" width="400">
-
-		</center>
-
+		</div>
 	</div>
 
 

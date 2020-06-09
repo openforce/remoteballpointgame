@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,800&display=swap');
+
+:root {
+    --color_font_default: #464949;
+    --color_font_link: #9B252D;
+    --color_backgorund_yellow: #FFCA3E;
+    --color_backgorund_gray: #F6F6F6;
+}
+
+body,
+html {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 300;
+    color: var(--color_font_default);
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 39px;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 31px;
+}
+
+h3 {
+    font-weight: 600;
+    font-size: 25px;
+}
+
+a {
+    color: var(--color_font_link);
+    text-decoration: underline;
+}
+
+a:hover {
+    color: var(--color_font_link);
+    text-decoration: none;
+}
+
+input {
+    border-radius: 0px !important;
+}
+
+.btn-danger {
+    border-radius: 0;
+}
+
+.label-font-size {
+    font-size: 12px;
+}
+
+.main-logo img {
+    width: 110px;
+}
+
+.main-logo span {
+    margin-left: 40px;
+}
+
+.roomname-box {
+    background: var(--color_backgorund_yellow);
+    padding: 35px 40px 40px 40px;
+    width: 620px;
+}
+
+.roomname-box .input-group-addon {
+    margin-left: 20px;
+}
+
+.roomname-box input, button {
+    height: 50px;
+}
+
+.roomname-box button {
+    width: 110px;
+}
+
+.roomname-box .urltext {
+    font-weight: normal;
+}
+
+.game-image {
+    width: 509px;
+}
+
+.footer-box {
+    background: var(--color_backgorund_gray);
+    padding-top: 73px;
+    padding-bottom: 80px;
+    text-align: center;
+}
+
+.footer {
+    padding-top: 29px;
+    padding-bottom: 29px;
+    text-align: center;
+}
+
+.footer a {
+    color: var(--color_font_default);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
