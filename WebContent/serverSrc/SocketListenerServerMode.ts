@@ -2,6 +2,8 @@ import { SocketListener } from "./SocketListener";
 import { Player } from "../static/src/out/gameObjects/Player";
 import { PlayerInputState } from "../static/src/gameObjects/syncObjects/PlayerInputState";
 import { IGameRoomList } from "./IGameRoomList";
+import { GameConfigs } from "../static/src/out/game/Configs";
+import { GameRoom } from "./GameRoom";
 
 export class SocketListenerServerMode extends SocketListener {
 
@@ -20,14 +22,21 @@ export class SocketListenerServerMode extends SocketListener {
                 // connect and disconnect
                 socket.on('new player', function (gameRoomId: string, newPlayer: any) {
 
-                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+                    // fallback if room was closed while player was on title or after server restart...
+                    if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) {
+
+                        // TODO: with this hack its possible to create more rooms then intended!! But its a fallback ;)
+                        self.gameRooms[gameRoomId] = new GameRoom(gameRoomId, GameConfigs.syncMode, self.io);
+
+                        console.log('fallback: created gameRoom with id ', gameRoomId);
+                    }
 
                     self.socketId2Rooms[socket.id] = gameRoomId;
                     socket.join(gameRoomId);
 
-                    self.games[gameRoomId].game.players[newPlayer.id] = new Player(self.games[gameRoomId].game, 1, 1, null, null);
-                    self.games[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
-                    self.games[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id] = new Player(self.gameRooms[gameRoomId].game, 1, 1, null, null);
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
 
                     if (self.log) console.log('New Player: ' + newPlayer.id);
                     if (self.log) console.log('Player ', newPlayer.id, ' joined room: ' + gameRoomId);
@@ -35,11 +44,11 @@ export class SocketListenerServerMode extends SocketListener {
 
                 socket.on('disconnect', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+                    if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) return;
 
-                    for (var id in self.games[gameRoomId].game.players) {
-                        if (self.games[gameRoomId].game.players[id].socketId == socket.id) {
-                            delete self.games[gameRoomId].game.players[id];
+                    for (var id in self.gameRooms[gameRoomId].game.players) {
+                        if (self.gameRooms[gameRoomId].game.players[id].socketId == socket.id) {
+                            delete self.gameRooms[gameRoomId].game.players[id];
                             delete self.socketId2Rooms[socket.id];
 
                             if (self.log) console.log('removed Player with socked id: ' + socket.id);
@@ -55,14 +64,14 @@ export class SocketListenerServerMode extends SocketListener {
                     //console.log('player controles', playerControleState);
 
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+                    if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) return;
 
-                    if (self.games[gameRoomId].game.players[inputState.playerId] != null) {
+                    if (self.gameRooms[gameRoomId].game.players[inputState.playerId] != null) {
 
-                        self.games[gameRoomId].game.players[inputState.playerId].inputState = inputState;
-                        self.games[gameRoomId].game.players[inputState.playerId].setControlesFromInputState();
+                        self.gameRooms[gameRoomId].game.players[inputState.playerId].inputState = inputState;
+                        self.gameRooms[gameRoomId].game.players[inputState.playerId].setControlesFromInputState();
 
-                        self.games[gameRoomId].game.flipchart.updateInputsFromPlayerInputState(inputState);
+                        self.gameRooms[gameRoomId].game.flipchart.updateInputsFromPlayerInputState(inputState);
 
                     }
 
@@ -74,9 +83,9 @@ export class SocketListenerServerMode extends SocketListener {
                     if (self.log) console.log('sync result table');
 
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+                    if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) return;
 
-                    self.games[gameRoomId].game.flipchart.resultTable = clientResultTable;
+                    self.gameRooms[gameRoomId].game.flipchart.resultTable = clientResultTable;
                 });
 
             }

@@ -1,5 +1,6 @@
 import { Game } from "../static/src/out/game/Game";
 import { GameEngine } from "../static/src/out/engine/GameEngine";
+import { GameConfigs } from "../static/src/out/game/Configs";
 
 export class GameRoom {
 
@@ -60,7 +61,7 @@ export class GameRoom {
                 if (this.log) console.log('room with id ', this.gameRoomId, ' is empty');
                 this.gameEmptyTimeStemp = time;
             }
-            else if ((time - this.gameEmptyTimeStemp) > (60 * 1000)) {
+            else if ((time - this.gameEmptyTimeStemp) > GameConfigs.emptyRoomDeleteDelay) {
                 this.markToDelete();
             }
         } else {

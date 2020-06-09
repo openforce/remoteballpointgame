@@ -1,4 +1,5 @@
 import { Game } from '../game/Game';
+import { TempCollider } from '../gameObjectLibrary/TempCollider';
 
 
 export class MeetingRoom {
@@ -7,9 +8,13 @@ export class MeetingRoom {
 
     border: number = 100;
 
+    doorCollider: TempCollider;
+
     constructor(game: Game) {
 
         this.game = game;
+
+        this.doorCollider = new TempCollider(695, 160, 20, 105);
 
     }
 

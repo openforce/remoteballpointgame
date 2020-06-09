@@ -23,6 +23,11 @@ var app = express();
 var server = new http.Server(app);
 var io = socketIO(server);
 
+var gameRooms = {};
+
+var syncMode = GameConfigs.syncMode;
+var socketListener: SocketListener;
+
 app.set('port', 5000);
 // @ts-ignore
 app.use('/static', express.static(__dirname + '/static'));
@@ -34,12 +39,13 @@ app.get('/:gameRoomId', function (request: any, response: any) {
 
   var gameRoomId: string = request.params.gameRoomId;
 
-  if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] != null) {
+  if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] != null) { // existing room
 
     // @ts-ignore
     response.sendFile(path.join(__dirname, 'game.html'));
 
-  } else if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) {
+
+  } else if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) { // new room
 
     if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
       // @ts-ignore
@@ -71,11 +77,6 @@ server.listen(5000, function () {
 });
 
 
-var gameRooms = {};
-
-var syncMode = GameConfigs.syncMode;;
-
-var socketListener: SocketListener;
 if (syncMode == GameEngine.SYNC_MODE_CLIENT) socketListener = new SocketListenerClientMode(io, gameRooms);
 else if (syncMode == GameEngine.SYNC_MODE_SERVER) socketListener = new SocketListenerServerMode(io, gameRooms);
 

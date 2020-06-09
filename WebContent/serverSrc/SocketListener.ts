@@ -4,14 +4,14 @@ export class SocketListener {
 
     io: any;
 
-    games: IGameRoomList;
+    gameRooms: IGameRoomList;
     socketId2Rooms: IGameRoomSocketList;
 
 
     constructor(io: any, games: IGameRoomList) {
 
         this.io = io;
-        this.games = games;
+        this.gameRooms = games;
 
         this.socketId2Rooms = {};
 

@@ -9,6 +9,7 @@ export class GameConfigs {
     static arcadeMode = false;
 
     static maxGameRooms = 3;
+    static emptyRoomDeleteDelay = 60 * 1000;
 
     // CONTROLE_MODE_MOUSE = 0;
     // CONTROLE_MODE_KEYBOARD = 1;

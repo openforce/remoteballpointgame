@@ -36,7 +36,8 @@
 							</div>
 						</div>
 						<span class="label-font-size urltext">
-							the url of your game room will be: <span id="roomUrl"></span>
+							the url of your game room will be: <span id="roomUrl"></span> </br>
+							the url of your video call will be: <span id="jitsiUrl"></span>
 						</span>
 					</div>
 				</div>
@@ -116,6 +117,9 @@
 		function displayRoomUrl() {
 			var url = getRoomUrl();
 			document.getElementById("roomUrl").innerHTML = '<a href=' + url + '>' + url + '</a>';
+
+			var jitsiUrl = 'https://meet.openforce.com/' + getRoomId() + '-rbpg';
+			document.getElementById("jitsiUrl").innerHTML = '<a target="_blank" href=' + jitsiUrl + '>' + jitsiUrl + '</a>';
 		}
 
 		function openOrJoinGame() {

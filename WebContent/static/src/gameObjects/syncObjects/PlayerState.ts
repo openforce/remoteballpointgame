@@ -34,5 +34,6 @@ export class PlayerState {
 
     walkAnimationCount: number;
 
+    leaveRoom: boolean;
 
 }

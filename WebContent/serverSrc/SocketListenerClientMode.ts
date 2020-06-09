@@ -23,16 +23,16 @@ export class SocketListenerClientMode extends SocketListener {
                 // connect and disconnect
                 socket.on('new player', function (gameRoomId: string, newPlayer: any) {
 
-                    if (self.games[gameRoomId] == null || self.games[gameRoomId].game == null) return;
+                    if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) return;
 
                     self.socketId2Rooms[socket.id] = gameRoomId;
                     socket.join(gameRoomId);
 
-                    self.games[gameRoomId].game.players[newPlayer.id] = new Player(self.games[gameRoomId].game, 1, 1, null, null);
-                    self.games[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
-                    self.games[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id] = new Player(self.gameRooms[gameRoomId].game, 1, 1, null, null);
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
+                    self.gameRooms[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
 
-                    self.io.sockets.emit('new result table', self.games[gameRoomId].game.flipchart.resultTable);
+                    self.io.sockets.emit('new result table', self.gameRooms[gameRoomId].game.flipchart.resultTable);
 
                     if (self.log) console.log('New Player: ' + newPlayer.id);
                 });
@@ -40,9 +40,9 @@ export class SocketListenerClientMode extends SocketListener {
                 socket.on('disconnect', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
 
-                    for (var id in self.games[gameRoomId].game.players) {
-                        if (self.games[gameRoomId].game.players[id].socketId == socket.id) {
-                            delete self.games[gameRoomId].game.players[id];
+                    for (var id in self.gameRooms[gameRoomId].game.players) {
+                        if (self.gameRooms[gameRoomId].game.players[id].socketId == socket.id) {
+                            delete self.gameRooms[gameRoomId].game.players[id];
                             delete self.socketId2Rooms[socket.id];
                             break;
                         }
@@ -57,12 +57,12 @@ export class SocketListenerClientMode extends SocketListener {
 
                     var gameRoomId = self.socketId2Rooms[socket.id];
 
-                    if (self.games[gameRoomId].game.players[player.id] != null) self.games[gameRoomId].game.players[player.id].syncState(player);
+                    if (self.gameRooms[gameRoomId].game.players[player.id] != null) self.gameRooms[gameRoomId].game.players[player.id].syncState(player);
                     else {
                         // add existing player (after server restart)
-                        self.games[gameRoomId].game.players[player.id] = new Player(self.games[gameRoomId].game, 1, 1, null, null);
-                        self.games[gameRoomId].game.players[player.id].syncState(player);
-                        self.games[gameRoomId].game.players[player.id].socketId = socket.id;
+                        self.gameRooms[gameRoomId].game.players[player.id] = new Player(self.gameRooms[gameRoomId].game, 1, 1, null, null);
+                        self.gameRooms[gameRoomId].game.players[player.id].syncState(player);
+                        self.gameRooms[gameRoomId].game.players[player.id].socketId = socket.id;
                     }
 
                 });
@@ -73,8 +73,8 @@ export class SocketListenerClientMode extends SocketListener {
                     //console.log('throw ball:', ball);
 
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.balls[ball.id] = new Ball(self.games[gameRoomId].game, ball.x, ball.y, ball.color);
-                    self.games[gameRoomId].game.balls[ball.id].syncBallState(ball);
+                    self.gameRooms[gameRoomId].game.balls[ball.id] = new Ball(self.gameRooms[gameRoomId].game, ball.x, ball.y, ball.color);
+                    self.gameRooms[gameRoomId].game.balls[ball.id].syncBallState(ball);
 
                 });
 
@@ -83,23 +83,23 @@ export class SocketListenerClientMode extends SocketListener {
                     //console.log('take ball:', ball);
 
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId].game.balls[ball.id] != null) delete self.games[gameRoomId].game.balls[ball.id];
+                    if (self.gameRooms[gameRoomId].game.balls[ball.id] != null) delete self.gameRooms[gameRoomId].game.balls[ball.id];
                 });
 
                 socket.on('sync ball', function (ball: BallState) {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId].game.balls[ball.id] != null) self.games[gameRoomId].game.balls[ball.id].syncBallState(ball);
+                    if (self.gameRooms[gameRoomId].game.balls[ball.id] != null) self.gameRooms[gameRoomId].game.balls[ball.id].syncBallState(ball);
                 });
 
                 // TIMER
                 socket.on('trigger timer', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId].game.timer.startTime == null) {
-                        self.games[gameRoomId].game.timer.startTime = new Date().getTime();
+                    if (self.gameRooms[gameRoomId].game.timer.startTime == null) {
+                        self.gameRooms[gameRoomId].game.timer.startTime = new Date().getTime();
                         if (self.log) console.log('--> start timer');
                     } else {
-                        self.games[gameRoomId].game.timer.startTime = null;
-                        self.games[gameRoomId].game.points = 0;
+                        self.gameRooms[gameRoomId].game.timer.startTime = null;
+                        self.gameRooms[gameRoomId].game.points = 0;
                         if (self.log) console.log('--> End timer');
                     }
                 });
@@ -108,56 +108,56 @@ export class SocketListenerClientMode extends SocketListener {
                 socket.on('trigger flipchart', function (clientLastActivator: number) {
                     //console.log('trigger flipchart', clientLastActivator);
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.active = !self.games[gameRoomId].game.flipchart.active;
-                    self.games[gameRoomId].game.flipchart.lastActivator = clientLastActivator;
+                    self.gameRooms[gameRoomId].game.flipchart.active = !self.gameRooms[gameRoomId].game.flipchart.active;
+                    self.gameRooms[gameRoomId].game.flipchart.lastActivator = clientLastActivator;
                 });
                 socket.on('trigger next flipchart', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.activeFlipchart++;
-                    if (self.games[gameRoomId].game.flipchart.activeFlipchart == self.games[gameRoomId].game.flipchart.numberOfFlipcharts) self.games[gameRoomId].game.flipchart.activeFlipchart = 0;
+                    self.gameRooms[gameRoomId].game.flipchart.activeFlipchart++;
+                    if (self.gameRooms[gameRoomId].game.flipchart.activeFlipchart == self.gameRooms[gameRoomId].game.flipchart.numberOfFlipcharts) self.gameRooms[gameRoomId].game.flipchart.activeFlipchart = 0;
                 });
                 socket.on('trigger previous flipchart', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.activeFlipchart--;
-                    if (self.games[gameRoomId].game.flipchart.activeFlipchart < 0) self.games[gameRoomId].game.flipchart.activeFlipchart = self.games[gameRoomId].game.flipchart.numberOfFlipcharts - 1;
+                    self.gameRooms[gameRoomId].game.flipchart.activeFlipchart--;
+                    if (self.gameRooms[gameRoomId].game.flipchart.activeFlipchart < 0) self.gameRooms[gameRoomId].game.flipchart.activeFlipchart = self.gameRooms[gameRoomId].game.flipchart.numberOfFlipcharts - 1;
                 });
 
                 socket.on('trigger specific flipchart', function (newFlipchart: any) {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.activeFlipchart = newFlipchart;
+                    self.gameRooms[gameRoomId].game.flipchart.activeFlipchart = newFlipchart;
                 });
 
                 socket.on('show flipchart', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.active = true;
+                    self.gameRooms[gameRoomId].game.flipchart.active = true;
                 });
                 socket.on('hide flipchart', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.flipchart.active = false;
+                    self.gameRooms[gameRoomId].game.flipchart.active = false;
                 });
 
                 socket.on('sync result table', function (clientResultTable: any) {
                     var gameRoomId = self.socketId2Rooms[socket.id];
                     if (self.log) console.log('sync result table');
-                    self.games[gameRoomId].game.flipchart.resultTable = clientResultTable;
-                    self.io.sockets.emit('new result table', self.games[gameRoomId].game.flipchart.resultTable);
+                    self.gameRooms[gameRoomId].game.flipchart.resultTable = clientResultTable;
+                    self.io.sockets.emit('new result table', self.gameRooms[gameRoomId].game.flipchart.resultTable);
                 });
 
                 socket.on('add Point', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    if (self.games[gameRoomId].game.timer.startTime != null) self.games[gameRoomId].game.points++;
-                    if (self.log) console.log('points: ' + self.games[gameRoomId].game.points);
+                    if (self.gameRooms[gameRoomId].game.timer.startTime != null) self.gameRooms[gameRoomId].game.points++;
+                    if (self.log) console.log('points: ' + self.gameRooms[gameRoomId].game.points);
                 });
 
                 socket.on('show Points', function () {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.showPoints = !self.games[gameRoomId].game.showPoints;
+                    self.gameRooms[gameRoomId].game.showPoints = !self.gameRooms[gameRoomId].game.showPoints;
                 });
 
                 socket.on('set gameState', function (newState: number) {
                     var gameRoomId = self.socketId2Rooms[socket.id];
-                    self.games[gameRoomId].game.gameState = newState;
-                    if (self.log) console.log('set game state: ' + self.games[gameRoomId].game.gameState);
+                    self.gameRooms[gameRoomId].game.gameState = newState;
+                    if (self.log) console.log('set game state: ' + self.gameRooms[gameRoomId].game.gameState);
                 });
 
 

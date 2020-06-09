@@ -28,6 +28,25 @@ export class CollisionUtils {
     }
 
     /***************************************
+    # Calculates collisions 
+    # between a circle and a rect
+    ***************************************/
+    public static colCheckCircleRect(cX:number, cY:number, cR:number, rX:number, rY:number, rW:number, rH:number) {
+        var distX = Math.abs(cX - rX - rW / 2);
+        var distY = Math.abs(cY - rY - rH / 2);
+
+        if (distX > (rW / 2 + cR)) { return false; }
+        if (distY > (rH / 2 + cR)) { return false; }
+
+        if (distX <= (rW / 2)) { return true; }
+        if (distY <= (rH / 2)) { return true; }
+
+        var dx = distX - rW / 2;
+        var dy = distY - rH / 2;
+        return (dx * dx + dy * dy <= (cR * cR));
+    }
+
+    /***************************************
     # Calculates collisions between rect objects
     ***************************************/
     public static colCheck(shapeA: ICollidable, shapeB: ICollidable): string {

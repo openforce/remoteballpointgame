@@ -59,6 +59,8 @@ export class Player {
     color: string;
     gender: string;
 
+    leaveRoom: boolean = false;
+
     game: Game;
 
     walkAnimationFrames: number = 2;
@@ -89,7 +91,7 @@ export class Player {
     moveBackward: boolean;
     rotateLeft: boolean;
     rotateRight: boolean;
-    
+
 
     constructor(game: Game, x: number, y: number, name: string, color: string, gender: string) {
         this.game = game;
@@ -158,6 +160,8 @@ export class Player {
         if (this.rightHand != null) syncObject.rightHand = this.rightHand.color;
         if (this.leftHand != null) syncObject.leftHand = this.leftHand.color;
 
+        syncObject.leaveRoom = this.leaveRoom;
+
         return syncObject;
     }
 
@@ -199,6 +203,8 @@ export class Player {
         if (player.leftHand != null) {
             if (this.leftHand == null) this.leftHand = new Ball(this.game, this.x, this.y, player.leftHand);
         } else this.leftHand = null;
+
+        this.leaveRoom = player.leaveRoom;
     }
 
     // CONTROLS
@@ -220,7 +226,7 @@ export class Player {
         else this.inputState.d = false;
 
         //space
-        if (inputs.keys[32]){
+        if (inputs.keys[32]) {
             this.inputState.space = true;
             if (this.inputState.spacePressedTimeStamp == null) this.inputState.spacePressedTimeStamp = new Date().getTime();
         }
@@ -230,7 +236,7 @@ export class Player {
         }
 
         //shift
-        if (inputs.keys[16]){
+        if (inputs.keys[16]) {
             this.inputState.shift = true;
             if (this.inputState.shiftPressedTimeStamp == null) this.inputState.shiftPressedTimeStamp = new Date().getTime();
         }
@@ -315,6 +321,10 @@ export class Player {
             move = false;
         }
 
+        if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
+            this.rotation = -this.getLookAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
+        }
+        
         if (move) {
 
             if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
@@ -323,7 +333,6 @@ export class Player {
                 if (this.moveDown) this.y += this.speed * timeDiff;
                 if (this.moveRight) this.x += this.speed * timeDiff;
 
-                this.rotation = -this.getLookAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
             }
 
             if (this.controleMode == Player.CONTROLE_MODE_KEYBOARD) {
@@ -334,7 +343,7 @@ export class Player {
                 if (this.moveForward) {
                     this.x += (this.speed * timeDiff) * (Math.cos(GeometryUtils.degreeToRad(this.rotation + 90)));
                     this.y += (this.speed * timeDiff) * (Math.sin(GeometryUtils.degreeToRad(this.rotation + 90)));
-                }else if (this.moveBackward) {
+                } else if (this.moveBackward) {
                     this.x -= (this.speed * timeDiff) * (Math.cos(GeometryUtils.degreeToRad(this.rotation + 90)));
                     this.y -= (this.speed * timeDiff) * (Math.sin(GeometryUtils.degreeToRad(this.rotation + 90)));
                 }
@@ -407,7 +416,7 @@ export class Player {
         }
 
 
-        // OTHER STUFF
+        // Actions
 
         this.setActionAreaCircle();
 
@@ -514,6 +523,12 @@ export class Player {
             //check Timer
             if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) {
                 this.game.timer.triggerTimer();
+                return true;
+            }
+
+            //check Door
+            if (CollisionUtils.colCheckCircleRect(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.meetingRoom.doorCollider.x, this.game.meetingRoom.doorCollider.y, this.game.meetingRoom.doorCollider.width, this.game.meetingRoom.doorCollider.height)) {
+                this.leaveRoom = true;
                 return true;
             }
         }

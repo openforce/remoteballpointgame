@@ -108,8 +108,13 @@ export class GameSyncerServerMode extends GameSyncer {
 
 				}
 
-			} else {
+			} else { // main player
 				this.game.player.syncState(playerStates[serverPlayerId]);
+
+				if (this.game.player.leaveRoom) {
+					window.location.reload();
+				}
+
 			}
 
 		}
