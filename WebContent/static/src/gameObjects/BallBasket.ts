@@ -11,6 +11,8 @@ export class BallBasket {
     ballRadius: number = 7;
     ballColor: string;
 
+    ballAmount: number = 9;
+
     game: Game;
 
     constructor(game: Game, x: number, y: number, ballColor: string) {
@@ -27,7 +29,16 @@ export class BallBasket {
     }
 
     public getNewBall() {
-        return new Ball(this.game, 0, 0, this.ballColor);
+        //this.ballAmount--;
+
+        var newBall = null; 
+        if(this.ballAmount > 0) newBall = new Ball(this.game, 0, 0, this.ballColor);
+        
+        return newBall;
+    }
+
+    public returnBall() {
+        //this.ballAmount++;
     }
 
 }

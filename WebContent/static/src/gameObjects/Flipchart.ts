@@ -102,9 +102,10 @@ export class Flipchart {
 
     public syncState(syncObject: FlipchartState) {
         this.active = syncObject.active;
-        this.activeFlipchart = syncObject.activeFlipchart;
         this.lastActivator = syncObject.lastActivator;
-
+        
+        if(this.lastActivator != this.game.player.id) this.activeFlipchart = syncObject.activeFlipchart;
+        
         this.resultTable = syncObject.resultTable;
     }
 

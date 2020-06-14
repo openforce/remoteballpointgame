@@ -103,7 +103,7 @@ export class GameSyncerServerMode extends GameSyncer {
 
 				} else {
 					// if the player is null add it
-					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null);
+					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null, null);
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
 
 				}

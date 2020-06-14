@@ -14,6 +14,8 @@ export class PlayerState {
     color: string;
     gender: string;
 
+    controlMode: number;
+
     // controle mode mouse
     moveUp: boolean;
     moveDown: boolean;

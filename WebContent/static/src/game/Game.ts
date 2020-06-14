@@ -59,11 +59,11 @@ export class Game {
 	/***********************************
 	# init in MODE_CLIENT
 	***********************************/
-	public initGame(playerName: string, playerColor: string, playerGender: string) {
+	public initGame(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
 		this.ui = true;
 
-		this.initPlayer(playerName, playerColor, playerGender);
+		this.initPlayer(playerName, playerColor, playerGender, playerControlMode);
 		this.initGameWorld();
 
 		// INIT Game Objects here
@@ -84,10 +84,11 @@ export class Game {
 	public initGameWorld() {
 		// ball baskets
 		this.ballBaskets = [];
-		this.ballBaskets.push(new BallBasket(this, 170, 470, 'red'));
-		this.ballBaskets.push(new BallBasket(this, 270, 470, 'blue'));
-		this.ballBaskets.push(new BallBasket(this, 370, 470, 'orange'));
-		this.ballBaskets.push(new BallBasket(this, 470, 470, null));
+		//this.ballBaskets.push(new BallBasket(this, 170, 470, 'red'));
+		//this.ballBaskets.push(new BallBasket(this, 270, 470, 'blue'));
+		//this.ballBaskets.push(new BallBasket(this, 370, 470, 'orange'));
+		this.ballBaskets.push(new BallBasket(this, 170, 470, null));
+		//this.ballBaskets.push(new BallBasket(this, 400, 150, null));
 
 		// others
 		this.meetingRoom = new MeetingRoom(this);
@@ -101,7 +102,7 @@ export class Game {
 
 	}
 
-	public initPlayer(playerName: string, playerColor: string, playerGender: string) {
+	public initPlayer(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
 		var color = playerColor;
 		if (color == null) color = RandomUtils.getRandomEntryFromNumberedArray(Player.colors);
@@ -110,7 +111,7 @@ export class Game {
 		var name = playerName;
 		if (name == null) name = RandomUtils.getRandomName();
 
-		this.player = new Player(this, 620, 180, name, color, gender);
+		this.player = new Player(this, 620, 180, name, color, gender, playerControlMode);
 
 
 	}

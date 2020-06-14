@@ -93,7 +93,7 @@ export class Player {
     rotateRight: boolean;
 
 
-    constructor(game: Game, x: number, y: number, name: string, color: string, gender: string) {
+    constructor(game: Game, x: number, y: number, name: string, color: string, gender: string, controlMode: number) {
         this.game = game;
 
         this.name = name;
@@ -116,7 +116,7 @@ export class Player {
         this.radius = 30;
         this.rotation = 180;
 
-        this.controleMode = GameConfigs.playerControleMode;
+        this.controleMode = controlMode;
 
         this.inputState = new PlayerInputState();
         this.inputState.playerId = this.id;
@@ -143,6 +143,8 @@ export class Player {
         syncObject.gender = this.gender;
         syncObject.color = this.color;
 
+        syncObject.controlMode = this.controleMode;
+
         syncObject.moveUp = this.moveUp;
         syncObject.moveDown = this.moveDown;
         syncObject.moveLeft = this.moveLeft;
@@ -166,45 +168,47 @@ export class Player {
     }
 
 
-    public syncState(player: PlayerState) {
+    public syncState(playerSyncState: PlayerState) {
 
-        if (this.socketId == null) this.socketId = player.socketId;
+        if (this.socketId == null) this.socketId = playerSyncState.socketId;
 
-        this.id = player.id;
-        this.x = player.x;
-        this.y = player.y;
-        this.middleX = player.middleX;
-        this.middleY = player.middleY;
-        this.rotation = player.rotation;
+        this.id = playerSyncState.id;
+        this.x = playerSyncState.x;
+        this.y = playerSyncState.y;
+        this.middleX = playerSyncState.middleX;
+        this.middleY = playerSyncState.middleY;
+        this.rotation = playerSyncState.rotation;
 
-        this.name = player.name;
-        this.gender = player.gender;
-        this.color = player.color;
+        this.name = playerSyncState.name;
+        this.gender = playerSyncState.gender;
+        this.color = playerSyncState.color;
 
-        this.moveUp = player.moveUp;
-        this.moveDown = player.moveDown;
-        this.moveLeft = player.moveLeft;
-        this.moveRight = player.moveRight;
+        this.controleMode = playerSyncState.controlMode;
 
-        this.moveForward = player.moveForward;
-        this.moveBackward = player.moveBackward;
-        this.rotateLeft = player.rotateLeft;
-        this.rotateRight = player.rotateRight;
+        this.moveUp = playerSyncState.moveUp;
+        this.moveDown = playerSyncState.moveDown;
+        this.moveLeft = playerSyncState.moveLeft;
+        this.moveRight = playerSyncState.moveRight;
 
-        this.lookX = player.lookX;
-        this.lookY = player.lookY;
+        this.moveForward = playerSyncState.moveForward;
+        this.moveBackward = playerSyncState.moveBackward;
+        this.rotateLeft = playerSyncState.rotateLeft;
+        this.rotateRight = playerSyncState.rotateRight;
 
-        this.walkAnimationCount = player.walkAnimationCount;
+        this.lookX = playerSyncState.lookX;
+        this.lookY = playerSyncState.lookY;
 
-        if (player.rightHand != null) {
-            if (this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, player.rightHand);
+        this.walkAnimationCount = playerSyncState.walkAnimationCount;
+
+        if (playerSyncState.rightHand != null) {
+            if (this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, playerSyncState.rightHand);
         } else this.rightHand = null;
 
-        if (player.leftHand != null) {
-            if (this.leftHand == null) this.leftHand = new Ball(this.game, this.x, this.y, player.leftHand);
+        if (playerSyncState.leftHand != null) {
+            if (this.leftHand == null) this.leftHand = new Ball(this.game, this.x, this.y, playerSyncState.leftHand);
         } else this.leftHand = null;
 
-        this.leaveRoom = player.leaveRoom;
+        this.leaveRoom = playerSyncState.leaveRoom;
     }
 
     // CONTROLS

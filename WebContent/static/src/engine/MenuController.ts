@@ -3,6 +3,7 @@ import { GameEngine } from './GameEngine.js';
 import { RandomUtils } from '../utils/RandomUtils1.js';
 
 import { Button } from '../gameObjectLibrary/Button.js';
+import { Player } from '../gameObjects/Player.js';
 
 
 export class MenuController {
@@ -28,6 +29,19 @@ export class MenuController {
 	playerY: number = 320;
 
 	playerButtons: Button[];
+	playerControlModeButtons: Button[];
+
+	playerControlMode: number = 0;
+
+
+			
+	playerControlModeButtonWidth: number = 290;
+	playerControlModeButtonHeight: number = 155;
+	playerControlModeButtonY: number = 400;
+
+	playerControlMode0ButtonX: number = 100;
+	playerControlMode1ButtonX: number = 400;
+	
 
 	canvas_input: any;
 	input_name: any;
@@ -64,6 +78,9 @@ export class MenuController {
 		for (var i = 0; i < this.playerSprites.length; i++) {
 			this.playerButtons[i] = new Button(this.playerStartX + this.playerDistX * i, this.playerY, this.playerSpriteDrawWidth, this.playerSpriteDrawHeight, '');
 		}
+		this.playerControlModeButtons = [];
+		this.playerControlModeButtons[0] = new Button(this.playerControlMode0ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight, '');
+		this.playerControlModeButtons[1] = new Button(this.playerControlMode1ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight, '');
 
 		this.sprites = [];
 		this.sprites[0] = new Image();
@@ -71,7 +88,9 @@ export class MenuController {
 		this.sprites[1] = new Image();
 		this.sprites[1].src = '/static/resources/chooseplayer.png';
 		this.sprites[2] = new Image();
-		this.sprites[2].src = '/static/resources/controlestitle.png';
+		this.sprites[2].src = '/static/resources/controles_mouse_title.png';
+		this.sprites[3] = new Image();
+		this.sprites[3].src = '/static/resources/controles_keyboard_title.png';
 	}
 
 	public gotoMenu() {
@@ -117,7 +136,7 @@ export class MenuController {
 		ctx.fillStyle = 'white';
 		ctx.lineWidth = 5;
 		ctx.fillRect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
-		ctx.rect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
+		//ctx.rect(0, 0, GameEngine.CANVAS_WIDTH, GameEngine.CANVAS_HEIGHT);
 		ctx.stroke();
 		ctx.closePath();
 
@@ -136,8 +155,30 @@ export class MenuController {
 			0, 0, 800, 600); 	 // draw position and size
 
 		ctx.drawImage(this.sprites[2],
-			0, 0, 1974, 2400, // sprite cutout position and size
-			200, 400, 1974 / 5, 2400 / 5); 	 // draw position and size
+			0, 0, 1290, 700, // sprite cutout position and size
+			this.playerControlMode0ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight); 	 // draw position and size
+
+		if (this.playerControlMode == Player.CONTROLE_MODE_MOUSE) {
+			ctx.beginPath();
+			ctx.strokeStyle = 'black';
+			ctx.lineWidth = 2;
+			ctx.rect(this.playerControlMode0ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight);
+			ctx.stroke();
+			ctx.closePath();
+		}
+
+		ctx.drawImage(this.sprites[3],
+			0, 0, 1290, 700, // sprite cutout position and size
+			this.playerControlMode1ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight); 	 // draw position and size
+
+		if (this.playerControlMode == Player.CONTROLE_MODE_KEYBOARD) {
+			ctx.beginPath();
+			ctx.strokeStyle = 'black';
+			ctx.lineWidth = 2;
+			ctx.rect(this.playerControlMode1ButtonX, this.playerControlModeButtonY, this.playerControlModeButtonWidth, this.playerControlModeButtonHeight);
+			ctx.stroke();
+			ctx.closePath();
+		}
 
 		// Name input		
 		ctx.fillStyle = "black";
@@ -149,8 +190,8 @@ export class MenuController {
 		// room info
 		ctx.fillStyle = "black";
 		ctx.font = "bold 16px Arial";
-		ctx.fillText("roomId:", 40, 550);
-		ctx.fillText(this.gameRoomId, 105, 550);
+		//ctx.fillText("roomId:", 40, 550);
+		//ctx.fillText(this.gameRoomId, 105, 550);
 
 		// Players
 		for (var i = 0; i < this.playerSprites.length; i++) {
@@ -169,7 +210,7 @@ export class MenuController {
 		// goto menu on m
 		if (this.gameEngine.inputs.keys[77]) this.gotoMenu();
 		// restart on r
-		if (this.gameEngine.inputs.keys[82]) this.gameEngine.initGame(null, null, null);
+		if (this.gameEngine.inputs.keys[82]) this.gameEngine.initGame(null, null, null, null);
 
 
 		// DRAW
@@ -193,13 +234,25 @@ export class MenuController {
 
 
 	public checkClick(mouseX: number, mouseY: number) {
+		this.checkClickControls(mouseX, mouseY);
+		this.checkClickPlayer(mouseX, mouseY);
+	}
 
-		if (this.playerButtons[0].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'm');
-		else if (this.playerButtons[1].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'm');
-		else if (this.playerButtons[2].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'm');
-		else if (this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'w');
-		else if (this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'w');
-		else if (this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'w');
+	public checkClickControls(mouseX: number, mouseY: number) {
+
+		if (this.playerControlModeButtons[0].checkForClick(mouseX, mouseY)) this.playerControlMode = Player.CONTROLE_MODE_MOUSE;
+		else if (this.playerControlModeButtons[1].checkForClick(mouseX, mouseY)) this.playerControlMode = Player.CONTROLE_MODE_KEYBOARD;
+
+	}
+
+	public checkClickPlayer(mouseX: number, mouseY: number) {
+
+		if (this.playerButtons[0].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'm', this.playerControlMode);
+		else if (this.playerButtons[1].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'm', this.playerControlMode);
+		else if (this.playerButtons[2].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'm', this.playerControlMode);
+		else if (this.playerButtons[3].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'blue', 'w', this.playerControlMode);
+		else if (this.playerButtons[4].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'orange', 'w', this.playerControlMode);
+		else if (this.playerButtons[5].checkForClick(mouseX, mouseY)) this.gameEngine.initGame(this.input_name.value(), 'white', 'w', this.playerControlMode);
 		else return;
 
 		this.input_name.destroy();
