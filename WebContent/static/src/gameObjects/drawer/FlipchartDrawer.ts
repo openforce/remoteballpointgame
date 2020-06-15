@@ -14,8 +14,8 @@ export class FlipchartDrawer {
     flipchartSpriteSmallHeight: number = 615 - 300;
 
     flipchartSprites: CanvasImageSource[];
-    flipchartSpriteWidth: number = 1974;
-    flipchartSpriteHeight: number = 2400;
+    flipchartSpriteWidth: number = 658;
+    flipchartSpriteHeight: number = 800;
 
 
 
