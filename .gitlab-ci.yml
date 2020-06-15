@@ -11,7 +11,10 @@ deploy_job:
   only:
     - /^master$/
   script:
-    - docker build -t onlineballpointgame .
+    - docker build -t onlineballpointgame --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
     - docker stop $(docker ps -q -f "label=onlineballpointgame") || true
     - docker rm onlineballpointgame || true
     - docker run -d --label "onlineballpointgame" --name "onlineballpointgame" -p 5000:5000 onlineballpointgame
