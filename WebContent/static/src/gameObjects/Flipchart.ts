@@ -61,6 +61,8 @@ export class Flipchart {
     infoBox_x: number = 200;
     infoBox_y: number = 25;
 
+    flipchartAsyncCounter: number = 0;
+
 
     constructor(game: Game, x: number, y: number) {
 
@@ -104,7 +106,16 @@ export class Flipchart {
         this.active = syncObject.active;
         this.lastActivator = syncObject.lastActivator;
         
-        if(this.lastActivator != this.game.player.id) this.activeFlipchart = syncObject.activeFlipchart;
+        // bug fix hack mack :(
+        if(this.activeFlipchart == syncObject.activeFlipchart) this.flipchartAsyncCounter = 0;
+        else{
+            if(this.lastActivator != this.game.player.id){ // --> to avoid flipping back
+                this.activeFlipchart = syncObject.activeFlipchart;
+            }else {
+                this.flipchartAsyncCounter++;
+                if(this.flipchartAsyncCounter > 10) this.activeFlipchart = syncObject.activeFlipchart; // --> to sync back if it got async
+            }
+        }
         
         this.resultTable = syncObject.resultTable;
     }
