@@ -39,6 +39,13 @@ app.get('/:gameRoomId', function (request: any, response: any) {
 
   var gameRoomId: string = request.params.gameRoomId;
 
+  if(gameRoomId == 'trainerinstructions') {
+     // @ts-ignore
+     response.sendFile(path.join(__dirname, 'trainerinstructions.html'));
+     return;
+  }
+
+
   if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] != null) { // existing room
 
     // @ts-ignore

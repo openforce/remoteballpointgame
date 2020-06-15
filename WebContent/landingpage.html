@@ -1,6 +1,7 @@
 <head>
 	<meta charset="utf-8" />
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" href="/static/css/landing.css">
 </head>
 
@@ -13,7 +14,7 @@
 					<span class="label-font-size">
 						powered by<br>
 					</span>
-					<img src="static/resources/Logo_OpenFORCE.png"/>
+					<img src="static/resources/Logo_OpenFORCE.png" />
 				</div>
 			</div>
 		</div>
@@ -29,9 +30,11 @@
 						<div class="form-group mt-3">
 							<label class="label-font-size" for="gameRoomName">Roomname</label>
 							<div class="input-group">
-								<input class="form-control" type="text" id="gameRoomName" value="TestRoom" oninput="displayRoomUrl();"/>
+								<input class="form-control" type="text" id="gameRoomName" value="TestRoom"
+									oninput="displayRoomUrl();" />
 								<div class="input-group-addon">
-									<button type="button" class="btn btn-danger" onclick="openOrJoinGame();">Start</button>
+									<button type="button" class="btn btn-danger"
+										onclick="openOrJoinGame();">Start</button>
 								</div>
 							</div>
 						</div>
@@ -50,7 +53,8 @@
 						<h2>What is the<br> Ball Point Game?</h2>
 						<div class="row mt-4"></div>
 						The Ball Point Game is a real life group exercise to explore the basics of Agility. <br />
-						Players experience the concepts of iterative work, retrospectives and self-organization with the help of
+						Players experience the concepts of iterative work, retrospectives and self-organization with the
+						help of
 						a fun ball game.
 					</div>
 				</div>
@@ -72,15 +76,20 @@
 					Like the name suggests, the remote ball point game provides the possibility to play the game online
 					with distributed teams. <br /> <br />
 
-					The game itself simply provides the setup as often given in trainings: a meeting room, balls, a timer
+					The game itself simply provides the setup as often given in trainings: a meeting room, balls, a
+					timer
 					and flipcharts with some explanations.
-					Like in a real life scenario a trainer should facilitate and debrief the game to connect the experiences
-					of the players with the theory about Agility.
+					Like in a real life scenario a trainer should facilitate and debrief the game to connect the
+					experiences
+					of the players with the theory about Agility. <br /><br />
+					<span id="trainerinstructionUrl"></span>
 				</div>
 			</div>
 
 			<div class="row mt-5">
-				<iframe width="1206" height="678" src="https://www.youtube.com/embed/E_Nssm0VM_w" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<iframe width="1206" height="678" src="https://www.youtube.com/embed/E_Nssm0VM_w" frameborder="0"
+					allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen></iframe>
 			</div>
 
 		</div>
@@ -90,10 +99,10 @@
 	<div class="row mt-5"></div>
 	<div class="row footer-box">
 		<div class="col-md-12 justify-content-center">
-			<h3>The #remoteballpointgame is an open source project! <br/>
+			<h3>The #remoteballpointgame is an open source project! <br />
 				Feel free to contribute to it!
 			</h3>
-			<br/>
+			<br />
 			<a href="https://github.com/openforce/remoteballpointgame">
 				https://github.com/openforce/remoteballpointgame
 			</a>
@@ -103,7 +112,8 @@
 	<div class="container label-font-size footer">
 		<div class="row">
 			<div class="col-md-4">
-				<a href="http://www.openforce.com" target="_blank">Copyright © 2020 openFORCE Information Technology GesmbH</a>
+				<a href="http://www.openforce.com" target="_blank">Copyright © 2020 openFORCE Information Technology
+					GesmbH</a>
 			</div>
 			<div class="col-md-4">
 				<a href="http://www.openforce.com" target="_blank">Privacy Policy</a>
@@ -123,6 +133,11 @@
 
 			var jitsiUrl = 'https://meet.openforce.com/' + getRoomId() + '-rbpg';
 			document.getElementById("jitsiUrl").innerHTML = '<a target="_blank" href=' + jitsiUrl + '>' + jitsiUrl + '</a>';
+		}
+
+		function displayTrainerInstructionsUrl(){
+			var url = window.location + 'trainerinstructions';
+			document.getElementById("trainerinstructionUrl").innerHTML = '<b><a href=' + url + '>Trainer Instructions</a></b>';
 		}
 
 		function openOrJoinGame() {
@@ -146,6 +161,7 @@
 		}
 
 		displayRoomUrl();
+		displayTrainerInstructionsUrl();
 
 	</script>
 
