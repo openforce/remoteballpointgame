@@ -31,8 +31,14 @@ You can make some configurations in the file src/game/Congifs.ts
 
 <ul>
   <li>maxGameRooms (the number of parallel rooms that can be opened)</li>
-  <li>playerControleMode (1 - movement and rotation with the keyboard; 2 - movement with the keyboard, rotation with the mouse) </li>
-  
+  <li>emptyRoomDeleteDelay (after this time the room will be closed if its empty)</li>
+  <li>arcadeMode (false - the game ist facilitated by a trainer; true - the game guides you). The arcade mode ist not really stable and the outcome of the exercise ist better if the game is facilitated by a trainer....</li>
+   
+</ul>
+
+
+</br>
+Don't use this one:
+<ul>
   <li><s>syncMode (1 - the clients only send their inputs to the server and the server updates the game state; 0 - the clients update their own state and send the state to the server). Use 1, otherwise the client can easily hack the state... </s></li>
-   <li>arcadeMode (false - the game ist facilitated by a trainer; true - the game guides you). The arcade mode ist not really stable and the outcome of the exercise ist better if the game is facilitated by a trainer....</li>
 </ul>
