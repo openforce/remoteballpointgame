@@ -14,7 +14,7 @@
 					<span class="label-font-size">
 						powered by<br>
 					</span>
-					<img src="static/resources/Logo_OpenFORCE.png" />
+					<a href="https://openforce.com/"><img src="static/resources/Logo_OpenFORCE.png" /></a>
 				</div>
 			</div>
 		</div>
@@ -125,6 +125,23 @@
 		</div>
 	</div>
 
+	<div id="cookieMgmt" class="shadow"
+		style="align-items: baseline; background: rgb(230, 230, 230); color: rgb(70, 73, 73); display: flex; flex-wrap: wrap; justify-content: space-between; left: 0px; position: fixed; width: 100%; z-index: 999; font-size: 0.8rem; bottom: 0px;">
+		<div class="" style="flex: 1 0 300px; margin: 15px;">
+			<p><span> We are using Cookies to anonymously analyse the traffic on the website.
+				</span></p>
+		</div>
+		<div class="">
+			<button class="shadow" id="rcc-confirm-button" onclick="cookiesAccepted();"
+				style="background: rgb(70, 73, 73); border: 0px; border-radius: 0px; box-shadow: none; color: rgb(255, 255, 255); cursor: pointer; flex: 0 0 auto; padding: 5px 10px; margin: 24px 15px 15px; min-width: 82px;">
+				Accept
+			</button>
+			<button class="shadow" id="rcc-decline-button" onclick="cookiesDeclined();"
+				style="background: rgb(255, 255, 255); border: 0px; border-radius: 0px; box-shadow: none; color: rgb(70, 73, 73); cursor: pointer; flex: 0 0 auto; padding: 5px 10px; margin: 15px; min-width: 82px;">
+				Decline
+			</button>
+		</div>
+	</div>
 
 	<script type="text/javascript">
 
@@ -165,6 +182,80 @@
 		displayTrainerInstructionsUrl();
 
 	</script>
+
+	<!-- Google Analytics -->
+	<script>
+
+		function setCookie(name, value) {
+			document.cookie = name + "=" + value;
+		}
+
+		function getCookie(name) {
+			var cName = name + "=";
+
+			var cookieArray = document.cookie.split(';');
+
+			for (var i = 0; i < cookieArray.length; i++) {
+				var cookie = cookieArray[i];
+				while (cookie.charAt(0) == ' ') cookie = cookie.substring(1);
+				if (cookie.indexOf(cName) == 0) return cookie.substring(cName.length, cookie.length);
+			}
+			return "";
+		}
+
+		function deleteCookie(name) {
+			var d = new Date();
+			d.setTime(d.getTime() - (24 * 60 * 60 * 1000));
+			var expires = "expires=" + d.toUTCString();
+			document.cookie = name + "=; " + expires;
+		}
+
+
+		function cookiesAccepted() {
+			console.log('cookiesAccepted');
+			setCookie('ga_accepted', 'true');
+
+			hideCookieMgmt();
+
+			console.log('ga_accepted: ', getCookie('ga_accepted'));
+		}
+
+		function cookiesDeclined() {
+			console.log('cookiesDeclined');
+			setCookie('ga_accepted', 'false');
+
+			hideCookieMgmt();
+
+			console.log('ga_accepted: ', getCookie('ga_accepted'));
+		}
+		
+
+		function hideCookieMgmt() {
+			document.getElementById("cookieMgmt").style.display = 'none';
+		}
+
+		function checkCookieMgmt() {
+			var ga_accepted = getCookie('ga_accepted');
+			if ( ga_accepted != null && ga_accepted != '' ) hideCookieMgmt();
+		}
+
+
+		checkCookieMgmt();
+
+		var ga_trackingId = '';
+
+		window.ga = window.ga || function () { (ga.q = ga.q || []).push(arguments) }; ga.l = +new Date;
+
+		if (ga_trackingId != null && ga_trackingId != '' && getCookie('ga_accepted') == 'true') {
+			console.log('ga_accepted: ', getCookie('ga_accepted'));
+
+			ga('create', ga_trackingId, 'auto');
+			ga('send', 'pageview');
+		}
+
+	</script>
+	<script async src='https://www.google-analytics.com/analytics.js'></script>
+	<!-- End Google Analytics -->
 
 
 
