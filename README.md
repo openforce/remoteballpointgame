@@ -22,8 +22,22 @@ of the players with the theory about Agility.
   <li> npm install (to install all dependencies)</li>
   <li> npm run tsc (starts watcher for changes in ts files and generates js files) </li>
   <li> npm run build-dev (starts watcher for changes in js files and bundles them) </li>
-  <li> npm start (starts node server that listens on http://localhost:5000/) </li>
+  <li> npm start (starts node server) </li>
+  <li> open http://localhost:5000/ in your Browser</li>
 </ol>
+
+<h3>How to run it local with docker</h3> 
+
+<ol>
+  <li> docker build -t remoteballpointgame .</li>
+  <li> docker run -d --label "remoteballpointgame" --name "remoteballpointgame" -p 5000:5000 remoteballpointgame </li>
+  <li> open http://localhost:5000/ in your Browser</li>
+</ol>
+
+<h3>Google Analytics</h3> 
+
+You can add you Google Analytics Key with the environment variable ANALYTICS_KEY
+(docker build --build-arg "ANALYTICS_KEY=12345 -t remoteballpointgame)
 
 <h3>Configuration Options</h3> 
 
