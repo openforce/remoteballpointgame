@@ -20,6 +20,25 @@ build:
   tags:
     - "docker"
 
+deploy:
+  stage: develop
+  script:
+    # Check job's ref name
+    - echo $CI_COMMIT_REF_NAME
+    # and is this ref protected
+    - echo $CI_COMMIT_REF_PROTECTED
+    - chmod +x onlineballpointgame.nomad.sh
+    - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
+#    - cat ofws-staging.nomad
+    - nomad job run onlineballpointgame.nomad
+  only:
+    - develop
+  tags:
+    - bastion
+    - nomad
+    - vault
+    
+
 deploy_job:
   stage: deploy
   resource_group: staging
