@@ -39,8 +39,8 @@ job "remoteballpointgame" {
       config {
         image = "git.openforce.com:4567/openforce/training/onlineballpointgame:latest"
         auth {
-          username = "$CI_REGISTRY_USER"
-          password = "$CI_REGISTRY_PASSWORD"
+          username = "gitlab+deploy-token-1"
+          password = "S9YYABtdTm8nFsNF5h6Y"
         }
       }
       resources {
