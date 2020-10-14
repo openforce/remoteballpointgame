@@ -36,7 +36,7 @@ deploy:
     - nomad
     - vault
 
-deploy:
+deploy_prod:
   stage: deploy
   script:
     # Check job's ref name
