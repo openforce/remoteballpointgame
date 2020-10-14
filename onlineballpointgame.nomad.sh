@@ -2,7 +2,7 @@
 
 #define the template.
 cat  << EOF
-job "remoteballpointgame" {
+job "onlineballpointgame-dev" {
 
   datacenters = ["dc1"]
   type = "service"
@@ -27,10 +27,10 @@ job "remoteballpointgame" {
       tags = [
         "traefik.enable=true",
         "traefik.tags=service",
-        "traefik.http.routers.ballpointgame.rule=Host(`ballpointgame.apps.openforce.com`)",
-        "traefik.http.routers.ballpointgame.tls=true",
-        "traefik.http.routers.ballpointgame.tls.certresolver=letsencrypt",
-        "traefik.http.routers.ballpointgame.entrypoints=https",
+        "traefik.http.routers.ballpointgame-dev.rule=Host(`ballpointgame.apps.openforce.com`)",
+        "traefik.http.routers.ballpointgame-dev.tls=true",
+        "traefik.http.routers.ballpointgame-dev.tls.certresolver=letsencrypt",
+        "traefik.http.routers.ballpointgame-dev.entrypoints=https",
       ]
     }
 
