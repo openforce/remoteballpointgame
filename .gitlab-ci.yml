@@ -19,6 +19,8 @@ build:
 
 deploy:
   stage: deploy
+  variables:
+    ENDPOINT_URL: "ballpointgame.apps.openforce.com"
   script:
     # Check job's ref name
     - echo $CI_COMMIT_REF_NAME
@@ -33,7 +35,24 @@ deploy:
     - bastion
     - nomad
     - vault
-    
+
+deploy:
+  stage: deploy
+  script:
+    # Check job's ref name
+    - echo $CI_COMMIT_REF_NAME
+    # and is this ref protected
+    - echo $CI_COMMIT_REF_PROTECTED
+    - chmod +x onlineballpointgame.nomad.sh
+    - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
+    - nomad job run onlineballpointgame.nomad
+  only:
+    - master
+  when: manual
+  tags:
+    - bastion
+    - nomad
+    - vault
 
 deploy_job:
   stage: deploy

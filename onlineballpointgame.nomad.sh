@@ -27,7 +27,7 @@ job "onlineballpointgame-dev" {
       tags = [
         "traefik.enable=true",
         "traefik.tags=service",
-        "traefik.http.routers.ballpointgame-dev.rule=Host(\`ballpointgame.apps.openforce.com\`)",
+        "traefik.http.routers.ballpointgame-dev.rule=Host(\`$ENDPOINT_URL\`)",
         "traefik.http.routers.ballpointgame-dev.tls=true",
         "traefik.http.routers.ballpointgame-dev.tls.certresolver=letsencrypt",
         "traefik.http.routers.ballpointgame-dev.entrypoints=https",
