@@ -35,6 +35,9 @@ job "onlineballpointgame-dev" {
     }
 
     task "game" {
+      env {
+        ANALYTICS_KEY = "$GA_TRACKING_ID"
+      }
       driver = "docker"
       config {
         image = "git.openforce.com:4567/openforce/training/onlineballpointgame:latest"
