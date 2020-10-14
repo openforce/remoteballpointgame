@@ -1,8 +1,20 @@
 stages:
+  - build
   - deploy
   - stop
 
-
+build:
+  stage: build
+  image: docker:dind
+  script:
+    - docker -H unix:///var/run/docker.sock build --tag $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
+    - docker -H unix:///var/run/docker.sock push $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA
+    - docker -H unix:///var/run/docker.sock push $CI_REGISTRY_IMAGE:latest
+  only:
+    - develop
+  tags:
+    - "docker"
+    
 deploy_job:
   stage: deploy
   resource_group: staging
