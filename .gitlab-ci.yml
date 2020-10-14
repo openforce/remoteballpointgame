@@ -2,7 +2,7 @@ stages:
   - build
   - deploy
 
-  build:
+build:
   stage: build
   image: docker:dind
   script:
