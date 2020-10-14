@@ -3,9 +3,14 @@ stages:
   - deploy
   - stop
 
+image: docker:dind
+
+before_script:
+  - /usr/local/bin/dockerd &
+  - docker -H unix:///var/run/docker.sock login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  
 build:
   stage: build
-  image: docker:dind
   script:
     - docker -H unix:///var/run/docker.sock build --tag $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
     - docker -H unix:///var/run/docker.sock push $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA
@@ -14,7 +19,7 @@ build:
     - develop
   tags:
     - "docker"
-    
+
 deploy_job:
   stage: deploy
   resource_group: staging
