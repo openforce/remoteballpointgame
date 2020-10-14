@@ -2,7 +2,7 @@
 
 #define the template.
 cat  << EOF
-job "onlineballpointgame-dev" {
+job "$JOB_NAME" {
 
   datacenters = ["dc1"]
   type = "service"
