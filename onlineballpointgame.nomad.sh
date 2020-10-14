@@ -40,7 +40,7 @@ job "$JOB_NAME" {
       }
       driver = "docker"
       config {
-        image = "git.openforce.com:4567/openforce/training/onlineballpointgame:latest"
+        image = "$CONTAINER_STAGING_TAG"
         auth {
           username = "gitlab+deploy-token-1"
           password = "S9YYABtdTm8nFsNF5h6Y"

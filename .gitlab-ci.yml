@@ -2,15 +2,17 @@ stages:
   - build
   - deploy
 
+variables:
+  CONTAINER_STAGING_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
 build:
   stage: build
   image: docker:dind
   script:
     - /usr/local/bin/dockerd &
     - docker -H unix:///var/run/docker.sock login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker -H unix:///var/run/docker.sock build --tag $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
-    - docker -H unix:///var/run/docker.sock push $CI_REGISTRY_IMAGE:builder-$CI_COMMIT_SHA
-    - docker -H unix:///var/run/docker.sock push $CI_REGISTRY_IMAGE:latest
+    - docker -H unix:///var/run/docker.sock build --tag $CONTAINER_STAGING_TAG .
+    - docker -H unix:///var/run/docker.sock push $CONTAINER_STAGING_TAG
   only:
     - develop
   tags:
