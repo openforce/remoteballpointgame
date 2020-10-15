@@ -18,6 +18,8 @@ build:
 
 deploy:
   stage: deploy
+  environment:
+    name: staging
   variables:
     JOB_NAME: "onlineballpointgame-dev"
     STAGE: "dev"
@@ -27,6 +29,7 @@ deploy:
     - echo $CI_COMMIT_REF_NAME
     # and is this ref protected
     - echo $CI_COMMIT_REF_PROTECTED
+    - echo $GA_TRACKING_ID
     - chmod +x onlineballpointgame.nomad.sh
     - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
     - nomad job run onlineballpointgame.nomad
@@ -39,6 +42,8 @@ deploy:
 
 deploy_prod:
   stage: deploy
+  environment:
+    name: prod
   variables:
     JOB_NAME: "onlineballpointgame-prod"
     STAGE: "prod"
