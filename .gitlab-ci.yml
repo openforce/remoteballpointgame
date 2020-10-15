@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  CONTAINER_STAGING_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  CONTAINER_STAGING_TAG: $CI_REGISTRY_IMAGE:CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
 
 build:
   stage: build
@@ -13,8 +13,6 @@ build:
     - docker -H unix:///var/run/docker.sock login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker -H unix:///var/run/docker.sock build --tag $CONTAINER_STAGING_TAG .
     - docker -H unix:///var/run/docker.sock push $CONTAINER_STAGING_TAG
-  only:
-    - develop
   tags:
     - docker
 
