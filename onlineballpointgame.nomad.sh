@@ -27,10 +27,10 @@ job "$JOB_NAME" {
       tags = [
         "traefik.enable=true",
         "traefik.tags=service",
-        "traefik.http.routers.ballpointgame-$STAGE.rule=Host(\`$ENDPOINT_URL\`)",
-        "traefik.http.routers.ballpointgame-$STAGE.tls=true",
-        "traefik.http.routers.ballpointgame-$STAGE.tls.certresolver=letsencrypt",
-        "traefik.http.routers.ballpointgame-$STAGE.entrypoints=https",
+        "traefik.http.routers.ballpointgame_$STAGE.rule=Host(\`$ENDPOINT_URL\`)",
+        "traefik.http.routers.ballpointgame_$STAGE.tls=true",
+        "traefik.http.routers.ballpointgame_$STAGE.tls.certresolver=letsencrypt",
+        "traefik.http.routers.ballpointgame_$STAGE.entrypoints=https",
       ]
     }
 
