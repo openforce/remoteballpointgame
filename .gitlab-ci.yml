@@ -22,7 +22,6 @@ deploy:
     JOB_NAME: "onlineballpointgame-dev"
     STAGE: "dev"
     ENDPOINT_URL: "ballpointgame.apps.openforce.com"
-    GA_TRACKING_ID: "UA-178259325-2"
   script:
     # Check job's ref name
     - echo $CI_COMMIT_REF_NAME
@@ -44,7 +43,6 @@ deploy_prod:
     JOB_NAME: "onlineballpointgame-prod"
     STAGE: "prod"
     ENDPOINT_URL: "remoteballpointgame.openforce.com"
-    GA_TRACKING_ID: "UA-178259325-1"
   script:
     # Check job's ref name
     - echo $CI_COMMIT_REF_NAME
