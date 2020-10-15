@@ -42,8 +42,8 @@ job "$JOB_NAME" {
       config {
         image = "$CONTAINER_STAGING_TAG"
         auth {
-          username = "gitlab+deploy-token-1"
-          password = "S9YYABtdTm8nFsNF5h6Y"
+          username = "$CI_DEPLOY_USER"
+          password = "$CI_DEPLOY_PASSWORD"
         }
       }
       resources {
