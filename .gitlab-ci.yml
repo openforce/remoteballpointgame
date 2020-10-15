@@ -20,6 +20,7 @@ deploy:
   stage: deploy
   variables:
     JOB_NAME: "onlineballpointgame-dev"
+    STAGE: "dev"
     ENDPOINT_URL: "ballpointgame.apps.openforce.com"
     GA_TRACKING_ID: "UA-178259325-2"
   script:
@@ -41,6 +42,7 @@ deploy_prod:
   stage: deploy
   variables:
     JOB_NAME: "onlineballpointgame-prod"
+    STAGE: "prod"
     ENDPOINT_URL: "remoteballpointgame.openforce.com"
     GA_TRACKING_ID: "UA-178259325-1"
   script:
