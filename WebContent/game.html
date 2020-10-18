@@ -42,7 +42,6 @@
 	<div class="row footer-box">
 		<div class="col-md-12 justify-content-center">
 			<div id="roomUrl"></div>
-			<div id="jitsiUrl"></div>
 			<div id="startPage"></div>
 		</div>
 	</div>
@@ -75,11 +74,6 @@
 			document.getElementById("roomUrl").innerHTML = 'room url: <a href=' + url + '>' + url + '</a>';
 		}
 
-		function displayJitsiUrl() {
-			var jitsiUrl = 'https://meet.openforce.com' + window.location.pathname + '-rbpg';
-			document.getElementById("jitsiUrl").innerHTML = 'video call url: <a target="_blank" href=' + jitsiUrl + '>' + jitsiUrl + '</a>';
-		}
-
 		function displayStartPage() {
 			var backUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
 			var backToStart = '<a href="' + backUrl + '">back to start page</a>';
@@ -88,7 +82,6 @@
 
 		displayStartPage();
 		displayRoomUrl();
-		displayJitsiUrl();
 
 	</script>
 
