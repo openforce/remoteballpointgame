@@ -1,32 +1,66 @@
 stages:
+  - build
   - deploy
-  - stop
 
+variables:
+  CONTAINER_STAGING_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
 
-deploy_job:
+build:
+  stage: build
+  image: docker:dind
+  script:
+    - /usr/local/bin/dockerd &
+    - docker -H unix:///var/run/docker.sock login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker -H unix:///var/run/docker.sock build --tag $CONTAINER_STAGING_TAG .
+    - docker -H unix:///var/run/docker.sock push $CONTAINER_STAGING_TAG
+  tags:
+    - docker
+
+deploy:
   stage: deploy
-  resource_group: staging
-  tags:
-    - ballpointgame
+  environment:
+    name: staging
+  variables:
+    JOB_NAME: "onlineballpointgame-dev"
+    STAGE: "dev"
+    ENDPOINT_URL: "ballpointgame.apps.openforce.com"
+  script:
+    # Check job's ref name
+    - echo $CI_COMMIT_REF_NAME
+    # and is this ref protected
+    - echo $CI_COMMIT_REF_PROTECTED
+    - echo $GA_TRACKING_ID
+    - chmod +x onlineballpointgame.nomad.sh
+    - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
+    - nomad job run onlineballpointgame.nomad
   only:
-    - /^master$/
-  script:
-    - echo "ANALYTICS_KEY=$ANALYTICS_KEY"
-    - docker build --build-arg "ANALYTICS_KEY=$ANALYTICS_KEY" -t onlineballpointgame -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH -t $CI_REGISTRY_IMAGE:latest .
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
-    - docker push $CI_REGISTRY_IMAGE:latest
-    - docker stop $(docker ps -q -f "label=onlineballpointgame") || true
-    - docker rm onlineballpointgame || true
-    - docker run -d --label "onlineballpointgame" --name "onlineballpointgame" -p 5000:5000 onlineballpointgame
-
-
-stop_job:
-  stage: stop
-  resource_group: staging
+    - develop
   tags:
-    - ballpointgame
-  when: manual
+    - bastion
+    - nomad
+    - vault
+
+deploy_prod:
+  stage: deploy
+  environment:
+    name: prod
+  variables:
+    JOB_NAME: "onlineballpointgame-prod"
+    STAGE: "prod"
+    ENDPOINT_URL: "remoteballpointgame.openforce.com"
   script:
-    - docker stop $(docker ps -q -f "label=onlineballpointgame") || true
+    # Check job's ref name
+    - echo $CI_COMMIT_REF_NAME
+    # and is this ref protected
+    - echo $CI_COMMIT_REF_PROTECTED
+    - echo $GA_TRACKING_ID
+    - chmod +x onlineballpointgame.nomad.sh
+    - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
+    - nomad job run onlineballpointgame.nomad
+  only:
+    - master
+  when: manual
+  tags:
+    - bastion
+    - nomad
+    - vault
