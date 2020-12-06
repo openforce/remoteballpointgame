@@ -1,6 +1,4 @@
-import { GameEngine } from '../engine/GameEngine';
 import { Game } from '../game/Game';
-import { GameSyncer } from '../game/syncer/GameSyncer';
 import { Inputs } from '../game/Inputs';
 
 import { RandomUtils } from '../utils/RandomUtils1';
@@ -42,9 +40,8 @@ export class Player {
     radius: number;
     rotation: number;
 
+    actionCircle: TempColliderCircle;
     actionCircleRadius: number = 25;
-    actionCircleX: number;
-    actionCircleY: number;
 
     rightHand: Ball;
     leftHand: Ball;
@@ -117,6 +114,9 @@ export class Player {
 
         this.inputState = new PlayerInputState();
         this.inputState.playerId = this.id;
+
+        this.actionCircle = new TempColliderCircle(0, 0, this.actionCircleRadius);
+        this.setActionAreaCircle();
 
         this.animationState = new PlayerAnimation(this);
     }
@@ -364,7 +364,7 @@ export class Player {
 
             // animation
             this.animationState.update(timeDiff);
-            
+
 
         }
 
@@ -464,7 +464,7 @@ export class Player {
         for (var id in this.game.balls) {
             if (this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR
                 && (this.rightHand == null || this.leftHand == null)
-                && CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                && CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
 
                 if (this.leftHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_LEFT);
@@ -481,11 +481,11 @@ export class Player {
     public setActionAreaCircle() {
         var fAngle = GeometryUtils.degreeToRad(-this.rotation + 90);
 
-        var diagonalDistX = (this.radius + this.actionCircleRadius) * (Math.cos(fAngle));
-        var diagonalDistY = -(this.radius + this.actionCircleRadius) * (Math.sin(fAngle));
+        var diagonalDistX = (this.radius + this.actionCircle.radius) * (Math.cos(fAngle));
+        var diagonalDistY = -(this.radius + this.actionCircle.radius) * (Math.sin(fAngle));
 
-        this.actionCircleX = this.middleX - diagonalDistX / 3;
-        this.actionCircleY = this.middleY - diagonalDistY / 3;
+        this.actionCircle.x = this.middleX - diagonalDistX / 3;
+        this.actionCircle.y = this.middleY - diagonalDistY / 3;
     }
 
 
@@ -496,7 +496,8 @@ export class Player {
 
             //check BallBaskets
             for (var i = 0; i < this.game.ballBaskets.length; i++) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.ballBaskets[i])) {
+
                     if (hand == Player.HAND_LEFT) this.leftHand = null;
                     if (hand == Player.HAND_RIGHT) this.rightHand = null;
 
@@ -511,7 +512,7 @@ export class Player {
 
             // check Balls
             for (var id in this.game.balls) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
                     this.takeBall(this.game.balls[id], hand);
                     delete this.game.balls[id];
                     return true;
@@ -520,7 +521,7 @@ export class Player {
 
             //check BallBaskets
             for (var i = 0; i < this.game.ballBaskets.length; i++) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.ballBaskets[i])) {
                     var newBall = this.game.ballBaskets[i].getNewBall();
                     newBall.x = this.middleX;
                     newBall.y = this.middleY;
@@ -530,27 +531,27 @@ export class Player {
             }
 
             //check Flipchart
-            if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) {
+            if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.flipchart.getCollider())) {
                 this.game.flipchart.triggerFlipchart(this.id);
                 return true;
             }
 
             //check Timer
-            if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) {
+            if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.timer.getCollider())) {
                 this.game.timer.triggerTimer();
                 return true;
             }
 
             //check Radios
             for (var i = 0; i < this.game.radios.length; i++) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.radios[i].middleX, this.game.radios[i].middleY, this.game.radios[i].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.radios[i].getCollider())) {
                     this.game.radios[i].triggerRadio();
                     return true;
                 }
             }
 
             //check Door
-            if (CollisionUtils.colCheckCircleRect(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.meetingRoom.colliders['doorCollider'].x, this.game.meetingRoom.colliders['doorCollider'].y, this.game.meetingRoom.colliders['doorCollider'].width, this.game.meetingRoom.colliders['doorCollider'].height)) {
+            if (CollisionUtils.colCheckCircleRectCollider(this.actionCircle, this.game.meetingRoom.colliders['doorCollider'])) {
                 this.leaveRoom = true;
                 return true;
             }

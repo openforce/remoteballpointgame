@@ -1,16 +1,14 @@
-import { GameEngine } from '../engine/GameEngine';
 import { Game } from '../game/Game';
 
 import { RandomUtils } from '../utils/RandomUtils1';
 import { CollisionUtils } from '../utils/CollisionUtils1';
-import { GeometryUtils } from '../utils/GeometryUtils1';
 
 import { Player } from './Player';
 import { BallState } from './syncObjects/BallState';
 import { ICollidableCircle } from '../interfaces/ICollidable';
 
 
-export class Ball implements ICollidableCircle{
+export class Ball implements ICollidableCircle {
 
     static BALL_STATE_ONGROUND = 0;
     static BALL_STATE_INAIR = 1;
@@ -153,34 +151,37 @@ export class Ball implements ICollidableCircle{
         var col = false;
 
         // Meeting Room
-        if(this.game.meetingRoom.checkCollisionsCyrcle(this)) col = true;
+        if (this.game.meetingRoom.checkCollisionsCyrcle(this)) col = true;
 
         //Flipchart
-        else if (CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) col = true;
+        else if (CollisionUtils.colCheckCircleColliders(this, this.game.flipchart.getCollider())) col = true;
 
         //Timer
-        else if (CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) col = true;
+        else if (CollisionUtils.colCheckCircleColliders(this, this.game.timer.getCollider())) col = true;
 
         // Radios
         for (var i = 0; i < this.game.radios.length; i++) {
             if (CollisionUtils.colCheckCircleColliders(this, this.game.radios[i].getCollider())) {
-                    col = true;
+                col = true;
                 break;
             }
         }
 
         //Baskets
         for (var i = 0; i < this.game.ballBaskets.length; i++) {
-            if (CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+            if (CollisionUtils.colCheckCircleColliders(this, this.game.ballBaskets[i])) {
                 col = true;
                 break;
             }
         }
 
         //Players   
-        if (this.game.player != null && this.lastHolderId != this.game.player.id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.player.middleY, this.game.player.middleX, this.game.player.radius)) col = true;
+        if (this.game.player != null && this.lastHolderId != this.game.player.id
+            && CollisionUtils.colCheckCircleColliders(this, this.game.player.getCollider())) col = true;
+
         for (var id in this.game.players) {
-            if (this.lastHolderId != this.game.players[id].id && CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.players[id].middleX, this.game.players[id].middleY, this.game.players[id].radius)) col = true;
+            if (this.lastHolderId != this.game.players[id].id 
+                && CollisionUtils.colCheckCircleColliders(this, this.game.players[id].getCollider())) col = true;
         }
 
         return col;
