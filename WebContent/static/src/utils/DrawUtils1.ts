@@ -1,3 +1,5 @@
+import { ICollidableCircle, ICollidableRect } from "../interfaces/ICollidable";
+
 export class DrawUtils {
 
   /**
@@ -53,28 +55,43 @@ export class DrawUtils {
 
   }
 
-  public static drawCyrcle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, farbe: string) {
+  public static drawCyrcle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = farbe;
-    ctx.fillStyle = farbe;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
 
     // circle
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.closePath();
   }
+  public static drawCyrcleObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
+    DrawUtils.drawCyrcle(ctx, circle.x, circle.y, circle.radius, color);
+  }
 
-  public static drawCyrcleOutline(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, farbe: string) {
+  public static drawCyrcleOutline(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = farbe;
-    ctx.fillStyle = farbe;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
 
     // circle
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+  }
+  public static drawCyrcleOutlineObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
+    DrawUtils.drawCyrcleOutline(ctx, circle.x, circle.y, circle.radius, color);
+  }
+
+  public static drawRectObject(ctx: CanvasRenderingContext2D, rectObject: ICollidableRect, color: string) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.rect(rectObject.x, rectObject.y, rectObject.width, rectObject.height);
+    ctx.lineWidth = 1;
     ctx.stroke();
     ctx.closePath();
   }

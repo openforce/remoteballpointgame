@@ -1,6 +1,8 @@
 import { Game } from '../game/Game';
 import { TimerState } from './syncObjects/TimerState';
 
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
+
 
 export class Timer {
 
@@ -28,8 +30,7 @@ export class Timer {
         this.x = x;
         this.y = y;
 
-        this.middleX = this.x + this.width / 2;
-        this.middleY = this.y + this.height / 2 - 15;
+        this.updateMiddle();
 
     }
 
@@ -68,6 +69,17 @@ export class Timer {
 
         }
 
+    }
+
+    public updateMiddle(){
+        this.middleX = this.x + this.width / 2;
+        this.middleY = this.y + this.height / 2 - 15;
+    } 
+
+    public getCollider(){
+
+        this.updateMiddle();
+        return new TempColliderCircle(this.middleX, this.middleY, this.radius);
     }
 
     public triggerTimer() {

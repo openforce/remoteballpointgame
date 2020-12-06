@@ -243,7 +243,7 @@ export class FlipchartDrawer {
     }
 
     public drawColider(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {
-        DrawUtils.drawCyrcleOutline(ctx, flipchart.middleX, flipchart.middleY, flipchart.radius, 'blue');
+        DrawUtils.drawCyrcleOutlineObject(ctx, flipchart.getCollider(), 'blue');
     }
 
 

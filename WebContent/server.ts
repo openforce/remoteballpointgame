@@ -23,6 +23,7 @@ var app = express();
 var server = new http.Server(app);
 var io = socketIO(server);
 
+
 var gameRooms = {};
 
 var syncMode = GameConfigs.syncMode;
@@ -31,6 +32,14 @@ var socketListener: SocketListener;
 app.set('port', 5000);
 // @ts-ignore
 app.use('/static', express.static(__dirname + '/static'));
+
+
+// init peer server
+var appForPeers = express();
+var serverForPeers = appForPeers.listen(5001)
+appForPeers.use('/peerjs', require('peer').ExpressPeerServer(serverForPeers, {
+	debug: true
+}));
 
 
 // @ts-ignore

@@ -1,7 +1,7 @@
-import { ICollidable } from '../interfaces/ICollidable';
+import { ICollidableRect } from '../interfaces/ICollidable';
 import { ClickUtils } from '../utils/ClickUtils1';
 
-export class Button implements ICollidable {
+export class Button implements ICollidableRect {
 
 	x: number;
 	y: number;

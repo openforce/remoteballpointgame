@@ -7,9 +7,10 @@ import { GeometryUtils } from '../utils/GeometryUtils1';
 
 import { Player } from './Player';
 import { BallState } from './syncObjects/BallState';
+import { ICollidableCircle } from '../interfaces/ICollidable';
 
 
-export class Ball {
+export class Ball implements ICollidableCircle{
 
     static BALL_STATE_ONGROUND = 0;
     static BALL_STATE_INAIR = 1;
@@ -152,17 +153,21 @@ export class Ball {
         var col = false;
 
         // Meeting Room
-        if (this.x - this.radius <= this.game.meetingRoom.border) col = true; //left
-        else if (this.y + this.radius >= GameEngine.CANVAS_HEIGHT - this.game.meetingRoom.border) col = true; //down
-        else if (this.y - this.radius <= this.game.meetingRoom.border) col = true; //up
-        else if (this.x + this.radius >= GameEngine.CANVAS_WIDTH - this.game.meetingRoom.border) col = true; //right
-
+        if(this.game.meetingRoom.checkCollisionsCyrcle(this)) col = true;
 
         //Flipchart
         else if (CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) col = true;
 
         //Timer
         else if (CollisionUtils.colCheckCirlces(this.x, this.y, this.radius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) col = true;
+
+        // Radios
+        for (var i = 0; i < this.game.radios.length; i++) {
+            if (CollisionUtils.colCheckCircleColliders(this, this.game.radios[i].getCollider())) {
+                    col = true;
+                break;
+            }
+        }
 
         //Baskets
         for (var i = 0; i < this.game.ballBaskets.length; i++) {

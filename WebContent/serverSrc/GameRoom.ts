@@ -40,7 +40,7 @@ export class GameRoom {
             (function (self) {
                 return function () {
                     self.updateGame();
-                    if(self.game != null) io.to(gameRoomId).emit('state', self.game.getPlayerStateList(), self.game.getBallStateList(), self.game.timer.getSyncState(), self.game.flipchart.getSyncState(), self.game.getSyncState());
+                    if(self.game != null) io.to(gameRoomId).emit('state', self.game.getPlayerStateList(), self.game.getBallStateList(), self.game.timer.getSyncState(), self.game.flipchart.getSyncState(), self.game.getSyncState(), self.game.getRadioStateList());
                 }
             })(this), 1000 / 60);
     }

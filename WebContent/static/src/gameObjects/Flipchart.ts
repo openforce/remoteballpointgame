@@ -2,6 +2,7 @@ import { Game } from '../game/Game';
 import { Inputs } from '../game/Inputs';
 
 import { Button } from '../gameObjectLibrary/Button';
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
 import { FlipchartState } from './syncObjects/FlipchartState';
 import { PlayerInputState } from './syncObjects/PlayerInputState';
 
@@ -71,8 +72,7 @@ export class Flipchart {
         this.x = x;
         this.y = y;
 
-        this.middleX = this.x + (this.width / 2) - 20;
-        this.middleY = this.y + this.height / 2;
+        this.updateMiddle();
 
         this.active = false;
 
@@ -170,6 +170,17 @@ export class Flipchart {
             }
 
         }
+    }
+
+    public updateMiddle(){
+        this.middleX = this.x + (this.width / 2) - 20;
+        this.middleY = this.y + this.height / 2;
+    } 
+
+    public getCollider(){
+
+        this.updateMiddle();
+        return new TempColliderCircle(this.middleX, this.middleY, this.radius);
     }
 
 
@@ -335,5 +346,8 @@ export class Flipchart {
 
         this.game.addEvent('trigger specific flipchart', flipchart);
     }
+
+
+    
 
 }

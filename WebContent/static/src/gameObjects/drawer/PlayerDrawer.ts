@@ -47,7 +47,7 @@ export class PlayerDrawer {
         ctx.rotate(GeometryUtils.degreeToRad(player.rotation));
 
         // @ts-ignore
-        ctx.drawImage(this.sprites[player.gender + player.color][player.walkAnimationCount],
+        ctx.drawImage(this.sprites[player.gender + player.color][player.animationState.walkAnimationCount],
             0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
             -player.width / 2, -player.height / 2, player.width, player.height); // draw position and size
 

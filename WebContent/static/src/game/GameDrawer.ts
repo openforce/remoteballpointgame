@@ -7,6 +7,7 @@ import { BallBasketDrawer } from '../gameObjects/drawer/BallBasketDrawer';
 import { FlipchartDrawer } from '../gameObjects/drawer/FlipchartDrawer';
 import { MeetingRoomDrawer } from '../gameObjects/drawer/MeetingRoomDrawer';
 import { PlayerDrawer } from '../gameObjects/drawer/PlayerDrawer';
+import { RadioDrawer } from '../gameObjects/drawer/RadioDrawer';
 
 
 export class GameDrawer {
@@ -17,7 +18,9 @@ export class GameDrawer {
 	flipchartDrawer: FlipchartDrawer;
 	meetingRoomDrawer: MeetingRoomDrawer;
 	playerDrawer: PlayerDrawer;
+	radioDrawer: RadioDrawer;
 
+	
 	constructor() {
 
 		this.timerDrawer = new TimerDrawer();
@@ -26,6 +29,7 @@ export class GameDrawer {
 		this.flipchartDrawer = new FlipchartDrawer();
 		this.meetingRoomDrawer = new MeetingRoomDrawer();
 		this.playerDrawer = new PlayerDrawer();
+		this.radioDrawer = new RadioDrawer();
 
 	}
 
@@ -45,6 +49,11 @@ export class GameDrawer {
 		}
 
 		this.timerDrawer.draw(ctx, game.timer);
+
+		for (var id in game.radios) {
+			this.radioDrawer.draw(ctx, game.radios[id]);
+		}
+
 		this.flipchartDrawer.draw(ctx, game.flipchart);
 
 		for (var id in game.players) {

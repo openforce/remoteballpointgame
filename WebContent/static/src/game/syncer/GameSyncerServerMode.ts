@@ -5,6 +5,9 @@ import { Ball } from "../../gameObjects/Ball";
 import { GameEngine } from "../../engine/GameEngine";
 import { IBallStateList } from "../../interfaces/IBallLists";
 import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
+import { PeerConnector } from "../peer/PeerConnector";
+import { IRadioStateList } from "../../interfaces/IRadioList";
+import { Radio } from "../../gameObjects/Radio";
 
 /** 
  * GameSyncer implementation that gives controle of the player and ball states to the server
@@ -12,6 +15,7 @@ import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
 */
 export class GameSyncerServerMode extends GameSyncer {
 
+	//peerConnector: PeerConnector;
 
 	constructor(game: Game) {
 		super(game);
@@ -42,8 +46,8 @@ export class GameSyncerServerMode extends GameSyncer {
 
 		//server state listener
 		this.socket.on('state', (function (self) {                                                                                //Self-executing func which takes 'this' as self
-			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any) { //Return a function in the context of 'self'
-				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState);           //Thing you wanted to run as non-window 'this'
+			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any, serverRadios: any) { //Return a function in the context of 'self'
+				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState, serverRadios);           //Thing you wanted to run as non-window 'this'
 			}
 		})(this));
 
@@ -73,10 +77,10 @@ export class GameSyncerServerMode extends GameSyncer {
 		this.game.syncEvents = [];
 	}
 
-    /***********************************
+	/***********************************
 	# sync client with server states
 	***********************************/
-	public processServerSync(playerStates: any, ballStates: IBallStateList, timerState: any, flipchartState: FlipchartState, gameState: any) {
+	public processServerSync(playerStates: any, ballStates: IBallStateList, timerState: any, flipchartState: FlipchartState, gameState: any, radioStates: any) {
 
 		this.game.syncState(gameState);
 
@@ -86,6 +90,31 @@ export class GameSyncerServerMode extends GameSyncer {
 		this.syncPlayerStates(playerStates);
 		this.syncBallStates(ballStates);
 
+		this.syncRadioStates(radioStates);
+
+	}
+
+	public syncRadioStates(radioStates: IRadioStateList) {
+		for (var id in radioStates) {
+
+			var found = false;
+
+			for (var i = 0; i < this.game.radios.length; i++) {
+
+				if (Number(id) == this.game.radios[i].id) {
+					this.game.radios[i].syncState(radioStates[id]);
+					found = true;
+				}
+
+			}
+
+			if (!found) {
+				var newRadio = new Radio(this.game, radioStates[id].x, radioStates[id].y, radioStates[id].rotation);
+				newRadio.syncState(radioStates[id]);
+				this.game.radios.push(newRadio);
+			}
+
+		}
 	}
 
 	public syncPlayerStates(playerStates: any) {
@@ -101,11 +130,15 @@ export class GameSyncerServerMode extends GameSyncer {
 
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
 
+					// TEST SEND TO PEER
+					//this.peerConnector.sendDataToPeerWithPlayerId(serverPlayerId, 'hallo');
+
 				} else {
 					// if the player is null add it
 					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null, null);
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
 
+					//if (this.peerConnector != null) this.peerConnector.connectToPeerWithPlayerId(serverPlayerId);
 				}
 
 			} else { // main player

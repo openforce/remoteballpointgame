@@ -42,7 +42,7 @@ export class BallBasketDrawer {
 
 
     public drawColider(ctx: CanvasRenderingContext2D, ballBasket: BallBasket) {
-        DrawUtils.drawCyrcleOutline(ctx, ballBasket.x, ballBasket.y, ballBasket.radius + 1, 'blue');
+        DrawUtils.drawCyrcleOutlineObject(ctx, ballBasket, 'blue');
     }
 
 

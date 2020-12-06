@@ -12,6 +12,8 @@ import { RandomUtils } from '../utils/RandomUtils1';
 import { IBallList, IBallStateList } from '../interfaces/IBallLists';
 import { IPlayerList, IPlayerStateList } from '../interfaces/IPlayerLists';
 import { GameConfigs } from './Configs';
+import { Radio } from '../gameObjects/Radio';
+import { IRadioStateList } from '../interfaces/IRadioList';
 
 
 export class Game {
@@ -34,6 +36,8 @@ export class Game {
 	meetingRoom: MeetingRoom;
 	flipchart: Flipchart;
 	timer: Timer;
+
+	radios: Radio[];
 
 	//Multiplayer Objects
 	players: IPlayerList;
@@ -68,7 +72,6 @@ export class Game {
 
 		// INIT Game Objects here
 		this.player.init();
-
 	}
 
 	/***********************************
@@ -77,6 +80,9 @@ export class Game {
 	public initGameSimulation() {
 		this.ui = false;
 		this.initGameWorld();
+
+		//this.radios.push(new Radio(this, 120, 350, 270));
+		this.radios.push(new Radio(this, 700, 350, 90));
 
 		this.player = null;
 	}
@@ -94,6 +100,8 @@ export class Game {
 		this.meetingRoom = new MeetingRoom(this);
 		this.flipchart = new Flipchart(this, 40, 80);
 		this.timer = new Timer(this, 170, 60);
+
+		this.radios = [];
 
 		this.balls = {};
 		this.players = {};
@@ -141,6 +149,10 @@ export class Game {
 			this.balls[id].update(timeDiff);
 		}
 
+		for (var i = 0; i < this.radios.length; i++) {
+			this.radios[i].update(timeDiff);
+		}
+
 
 	}
 
@@ -185,6 +197,17 @@ export class Game {
 		}
 
 		return ballStates;
+	}
+
+	public getRadioStateList() {
+		var radioStates: IRadioStateList;
+		radioStates = {};
+
+		for (var i = 0; i < this.radios.length; i++) {
+			radioStates[this.radios[i].id] = this.radios[i].getSyncState();
+		}
+
+		return radioStates;
 	}
 
 	public getPlayerStateList() {

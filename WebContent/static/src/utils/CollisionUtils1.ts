@@ -1,4 +1,5 @@
-import { ICollidable } from '../interfaces/ICollidable';
+import { ICollidableCircle, ICollidableRect } from '../interfaces/ICollidable';
+import { GeometryUtils } from './GeometryUtils1';
 
 export class CollisionUtils {
 
@@ -27,11 +28,15 @@ export class CollisionUtils {
         return dist < aR + cR;
     }
 
+    public static colCheckCircleColliders(circleA: ICollidableCircle, circleB: ICollidableCircle) {
+        return CollisionUtils.colCheckCirlces(circleA.x, circleA.y, circleA.radius, circleB.x, circleB.y, circleB.radius);
+    }
+
     /***************************************
     # Calculates collisions 
     # between a circle and a rect
     ***************************************/
-    public static colCheckCircleRect(cX:number, cY:number, cR:number, rX:number, rY:number, rW:number, rH:number) {
+    public static colCheckCircleRect(cX: number, cY: number, cR: number, rX: number, rY: number, rW: number, rH: number) {
         var distX = Math.abs(cX - rX - rW / 2);
         var distY = Math.abs(cY - rY - rH / 2);
 
@@ -46,10 +51,49 @@ export class CollisionUtils {
         return (dx * dx + dy * dy <= (cR * cR));
     }
 
+    public static colCheckCircleRectCollider(circle: ICollidableCircle, rect: ICollidableRect) {
+        return CollisionUtils.colCheckCircleRect(circle.x, circle.y, circle.radius, rect.x, rect.y, rect.width, rect.height);
+    }
+
+    public static colCheckCircleRectRotation(circle:ICollidableCircle, rect: ICollidableRect) {
+        
+        var cx, cy;
+        var angleOfRad = GeometryUtils.degreeToRad(0); //rotation of rect
+        var rectCenterX = rect.x + rect.width / 2;
+        var rectCenterY = rect.y + rect.height / 2;
+
+        var rotateCircleX = Math.cos(angleOfRad) * (circle.x - rectCenterX) - Math.sin(angleOfRad) * (circle.y - rectCenterY) + rectCenterX;
+        var rotateCircleY = Math.sin(angleOfRad) * (circle.x - rectCenterX) + Math.cos(angleOfRad) * (circle.y - rectCenterY) + rectCenterY;
+
+
+        if (rotateCircleX < rect.x) {
+            cx = rect.x;
+        } else if (rotateCircleX > rect.x + rect.width) {
+            cx = rect.x + rect.width;
+        } else {
+            cx = rotateCircleX;
+        }
+
+        if (rotateCircleY < rect.y) {
+            cy = rect.y;
+        } else if (rotateCircleY > rect.y + rect.height) {
+            cy = rect.y + rect.height;
+        } else {
+            cy = rotateCircleY;
+        }
+       
+        if (GeometryUtils.getDistance(rotateCircleX, rotateCircleY, cx, cy) < circle.radius) {
+            return true;
+        }
+
+        return false;
+
+    }
+
     /***************************************
     # Calculates collisions between rect objects
     ***************************************/
-    public static colCheck(shapeA: ICollidable, shapeB: ICollidable): string {
+    public static colCheck(shapeA: ICollidableRect, shapeB: ICollidableRect): string {
         // get the vectors to check against
         var vX = (shapeA.x + (shapeA.width / 2)) - (shapeB.x + (shapeB.width / 2)),
             vY = (shapeA.y + (shapeA.height / 2)) - (shapeB.y + (shapeB.height / 2)),
@@ -88,7 +132,7 @@ export class CollisionUtils {
     # Calculates collisions between objects
     # but do not let them overlap
     ***************************************/
-    public static colCheckWithShapeReset(shapeA: ICollidable, shapeB: ICollidable): string {
+    public static colCheckWithShapeReset(shapeA: ICollidableRect, shapeB: ICollidableRect): string {
         // get the vectors to check against
         var vX = (shapeA.x + (shapeA.width / 2)) - (shapeB.x + (shapeB.width / 2)),
             vY = (shapeA.y + (shapeA.height / 2)) - (shapeB.y + (shapeB.height / 2)),

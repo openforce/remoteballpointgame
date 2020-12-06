@@ -2,11 +2,15 @@ import { GameConfigs } from '../game/Configs';
 
 import { Game } from '../game/Game';
 import { GameDrawer } from '../game/GameDrawer';
+
 import { Inputs } from '../game/Inputs';
 
 import { MenuController } from './MenuController';
 import { GameSyncerClientMode } from '../game/syncer/GameSyncerClientMode';
 import { GameSyncerServerMode } from '../game/syncer/GameSyncerServerMode';
+import { PeerConnector } from '../game/peer/PeerConnector';
+import { PeerConnectorTest } from '../game/peer/PeerConnectorTest';
+import { GameSounds } from '../game/GameSounds';
 
 
 
@@ -36,12 +40,16 @@ export class GameEngine {
 	menuController: MenuController;
 
 	game: Game;
+
 	gameDrawer: GameDrawer;
+	gameSounds: GameSounds;
 
 	syncMode: number;
 
 	gameSyncerClientMode: GameSyncerClientMode;
 	gameSyncerServerMode: GameSyncerServerMode;
+
+	peerConnector: PeerConnectorTest;
 
 	inputs: Inputs;
 
@@ -81,12 +89,19 @@ export class GameEngine {
 
 		this.gameDrawer = new GameDrawer();
 		this.game = new Game();
+		this.gameSounds = new GameSounds(this.game);
 
 		this.game.initGame(playerName, playerColor, playerGender, playerControlMode);
-
+		
+		// init game logic syncer (socketIO connection to node server)
 		if (this.syncMode == GameEngine.SYNC_MODE_CLIENT) this.initGameSyncerClient();
 		else if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.initGameSyncerServer();
 
+		// init peer connector (for peer to peer connections with webRTC)
+		this.peerConnector = new PeerConnectorTest(this.game);
+		//this.peerConnector.init();
+		// inject peer Connector
+		//if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.gameSyncerServerMode.peerConnector = this.peerConnector;
 
 		//time
 		var now = new Date();
@@ -162,7 +177,10 @@ export class GameEngine {
 			this.game.flipchart.update(this.timeDiff);
 		}
 
-		if (this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.ctx, this.game);
+		if (this.mode == GameEngine.MODE_CLIENT){
+			this.gameDrawer.draw(this.ctx, this.game);
+			this.gameSounds.update();
+		}
 	}
 
 

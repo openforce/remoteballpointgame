@@ -10,9 +10,9 @@ import { GeometryUtils } from '../utils/GeometryUtils1';
 import { Ball } from './Ball';
 import { PlayerInputState } from './syncObjects/PlayerInputState';
 import { PlayerState } from './syncObjects/PlayerState';
-import { throws } from 'assert';
-import { GameConfigs } from '../game/Configs';
+import { PlayerAnimation } from './drawer/animationStates/PlayerAnimation';
 
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
 
 export class Player {
 
@@ -63,10 +63,7 @@ export class Player {
 
     game: Game;
 
-    walkAnimationFrames: number = 2;
-    walkAnimationCount: number = 0;
-    walkAnimationTime: number = 200;
-    walkAnimationTimeDif: number = 0;
+    animationState: PlayerAnimation;
 
     // controls 
     controleMode: number;
@@ -120,6 +117,8 @@ export class Player {
 
         this.inputState = new PlayerInputState();
         this.inputState.playerId = this.id;
+
+        this.animationState = new PlayerAnimation(this);
     }
 
 
@@ -157,12 +156,15 @@ export class Player {
 
         syncObject.lookX = this.lookX;
         syncObject.lookY = this.lookY;
-        syncObject.walkAnimationCount = this.walkAnimationCount;
 
         if (this.rightHand != null) syncObject.rightHand = this.rightHand.color;
         if (this.leftHand != null) syncObject.leftHand = this.leftHand.color;
 
         syncObject.leaveRoom = this.leaveRoom;
+
+
+        // animation
+        syncObject.walkAnimationCount = this.animationState.walkAnimationCount;
 
         return syncObject;
     }
@@ -198,8 +200,6 @@ export class Player {
         this.lookX = playerSyncState.lookX;
         this.lookY = playerSyncState.lookY;
 
-        this.walkAnimationCount = playerSyncState.walkAnimationCount;
-
         if (playerSyncState.rightHand != null) {
             if (this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, playerSyncState.rightHand);
         } else this.rightHand = null;
@@ -209,7 +209,12 @@ export class Player {
         } else this.leftHand = null;
 
         this.leaveRoom = playerSyncState.leaveRoom;
+
+
+        // animation
+        this.animationState.walkAnimationCount = playerSyncState.walkAnimationCount;
     }
+
 
     // CONTROLS
 
@@ -328,7 +333,7 @@ export class Player {
         if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
             this.rotation = -this.getLookAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
         }
-        
+
         if (move) {
 
             if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
@@ -353,58 +358,60 @@ export class Player {
                 }
             }
 
-            this.walkAnimationTimeDif += timeDiff;
-
             this.middleX = this.x + this.width / 2;
             this.middleY = this.y + this.height / 2;
 
+
             // animation
-            if (this.moveDown || this.moveLeft || this.moveRight || this.moveUp || this.moveForward || this.moveBackward) {
-                if (this.walkAnimationTimeDif > this.walkAnimationTime) {
-                    this.walkAnimationCount++;
-                    if (this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
-                    this.walkAnimationTimeDif = 0;
-                }
-            } else this.walkAnimationCount = 0;
+            this.animationState.update(timeDiff);
+            
 
         }
 
         // CHECK COLLISIONS
         var col = false;
 
+        var playerCollider = new TempColliderCircle(this.middleX, this.middleY, this.radius);
+
         // Meeting Room
-        if (this.middleX - this.radius <= this.game.meetingRoom.border) col = true; //left
-        else if (this.middleY + this.radius >= GameEngine.CANVAS_HEIGHT - this.game.meetingRoom.border) col = true; //down
-        else if (this.middleY - this.radius <= this.game.meetingRoom.border) col = true; //up
-        else if (this.middleX + this.radius >= GameEngine.CANVAS_WIDTH - this.game.meetingRoom.border) col = true; //right
+        if (this.game.meetingRoom.checkCollisionsCyrcle(playerCollider)) col = true;
 
-        //Flipchart
-        else if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) col = true;
+        // Flipchart
+        else if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.flipchart.getCollider())) col = true;
 
-        //Timer
-        else if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) col = true;
+        // Timer
+        else if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.timer.getCollider())) col = true;
 
-        //Baskets
-        for (var i = 0; i < this.game.ballBaskets.length; i++) {
-            if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+
+        // Radios
+        for (var i = 0; i < this.game.radios.length; i++) {
+            if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.radios[i].getCollider())) {
                 col = true;
                 break;
             }
         }
 
-        //Balls
+        // Baskets
+        for (var i = 0; i < this.game.ballBaskets.length; i++) {
+            if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.ballBaskets[i])) {
+                col = true;
+                break;
+            }
+        }
+
+        // Balls
         for (var id in this.game.balls) {
             if (this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR) {
-                if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.balls[id])) {
                     col = true;
                     break;
                 }
             }
         }
 
-        //Players   
+        // Players   
         for (var id in this.game.players) {
-            //if(colCheckCirlces(this.x, this.y, this.radius, players[id].middleX, players[id].middleY, players[id].radius)) col = true;
+            //if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.players[id].getCollider())) col = true;
         }
 
 
@@ -447,6 +454,10 @@ export class Player {
         }
 
         this.automaticCatch();
+    }
+
+    public getCollider() {
+        return new TempColliderCircle(this.middleX, this.middleY, this.radius);
     }
 
     public automaticCatch() {
@@ -530,8 +541,16 @@ export class Player {
                 return true;
             }
 
+            //check Radios
+            for (var i = 0; i < this.game.radios.length; i++) {
+                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.radios[i].middleX, this.game.radios[i].middleY, this.game.radios[i].radius)) {
+                    this.game.radios[i].triggerRadio();
+                    return true;
+                }
+            }
+
             //check Door
-            if (CollisionUtils.colCheckCircleRect(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.meetingRoom.doorCollider.x, this.game.meetingRoom.doorCollider.y, this.game.meetingRoom.doorCollider.width, this.game.meetingRoom.doorCollider.height)) {
+            if (CollisionUtils.colCheckCircleRect(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.meetingRoom.colliders['doorCollider'].x, this.game.meetingRoom.colliders['doorCollider'].y, this.game.meetingRoom.colliders['doorCollider'].width, this.game.meetingRoom.colliders['doorCollider'].height)) {
                 this.leaveRoom = true;
                 return true;
             }
