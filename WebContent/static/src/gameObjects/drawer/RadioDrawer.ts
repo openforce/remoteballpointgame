@@ -52,7 +52,7 @@ export class RadioDrawer {
 
 
     public drawColider(ctx: CanvasRenderingContext2D, radio: Radio) {
-        DrawUtils.drawCyrcleOutlineObject(ctx, radio.getCollider(), 'blue');
+        DrawUtils.drawCircleOutlineObject(ctx, radio.getCollider(), 'blue');
     }
 
 

@@ -55,7 +55,7 @@ export class DrawUtils {
 
   }
 
-  public static drawCyrcle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+  public static drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
@@ -67,11 +67,11 @@ export class DrawUtils {
     ctx.fill();
     ctx.closePath();
   }
-  public static drawCyrcleObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
-    DrawUtils.drawCyrcle(ctx, circle.x, circle.y, circle.radius, color);
+  public static drawCircleObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
+    DrawUtils.drawCircle(ctx, circle.x, circle.y, circle.radius, color);
   }
 
-  public static drawCyrcleOutline(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+  public static drawCircleOutline(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
     // set draw parameters
     ctx.beginPath();
     ctx.lineWidth = 1;
@@ -83,8 +83,8 @@ export class DrawUtils {
     ctx.stroke();
     ctx.closePath();
   }
-  public static drawCyrcleOutlineObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
-    DrawUtils.drawCyrcleOutline(ctx, circle.x, circle.y, circle.radius, color);
+  public static drawCircleOutlineObject(ctx: CanvasRenderingContext2D, circle:ICollidableCircle, color: string) {
+    DrawUtils.drawCircleOutline(ctx, circle.x, circle.y, circle.radius, color);
   }
 
   public static drawRectObject(ctx: CanvasRenderingContext2D, rectObject: ICollidableRect, color: string) {

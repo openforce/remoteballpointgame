@@ -82,7 +82,7 @@ export class Game {
 		this.initGameWorld();
 
 		//this.radios.push(new Radio(this, 120, 350, 270));
-		this.radios.push(new Radio(this, 700, 350, 90));
+		this.radios.push(new Radio(this, 696, 350, 90));
 
 		this.player = null;
 	}

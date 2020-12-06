@@ -15,9 +15,13 @@ export class BallBasketDrawer {
     public draw(ctx: CanvasRenderingContext2D, ballBasket: BallBasket) {
 
         //Basket
-        DrawUtils.drawCyrcle(ctx, ballBasket.x, ballBasket.y, ballBasket.radius + 1, 'black');
-        DrawUtils.drawCyrcle(ctx, ballBasket.x, ballBasket.y, ballBasket.radius, 'chocolate');
-        
+        //DrawUtils.drawCyrcle(ctx, ballBasket.x, ballBasket.y, ballBasket.radius + 1, 'black');
+        //DrawUtils.drawCyrcle(ctx, ballBasket.x, ballBasket.y, ballBasket.radius, 'chocolate');
+
+        DrawUtils.drawCircleObject(ctx, ballBasket, 'chocolate');
+        DrawUtils.drawCircleOutlineObject(ctx, ballBasket, 'black');
+
+
         var ballPositions = [-12, 0, 12];
 
         //balls
@@ -25,24 +29,27 @@ export class BallBasketDrawer {
         var ballCount = 0;
         for (var i = 0; i < 3; i++) {
             for (var j = 0; j < 3; j++) {
-                DrawUtils.drawCyrcle(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius + 1, 'black');
-                
-                if (ballBasket.ballColor == null) DrawUtils.drawCyrcle(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
-                else DrawUtils.drawCyrcle(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius, ballBasket.ballColor);
-                
+
+                if (ballBasket.ballColor == null) {
+                    DrawUtils.drawCircle(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius, Ball.colors[ballColor % Ball.colors.length]);
+                } else {
+                    DrawUtils.drawCircle(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius, ballBasket.ballColor);
+                }
+                DrawUtils.drawCircleOutline(ctx, ballBasket.x + ballPositions[j], ballBasket.y + ballPositions[i], ballBasket.ballRadius, 'black');
+
                 ballCount++;
                 ballColor++;
-                if(ballCount >= ballBasket.ballAmount) break;
+                if (ballCount >= ballBasket.ballAmount) break;
             }
-            if(ballCount >= ballBasket.ballAmount) break;
+            if (ballCount >= ballBasket.ballAmount) break;
         }
-        
+
         if (ballBasket.game.drawColliders) this.drawColider(ctx, ballBasket);
     }
 
 
     public drawColider(ctx: CanvasRenderingContext2D, ballBasket: BallBasket) {
-        DrawUtils.drawCyrcleOutlineObject(ctx, ballBasket, 'blue');
+        DrawUtils.drawCircleOutlineObject(ctx, ballBasket, 'blue');
     }
 
 

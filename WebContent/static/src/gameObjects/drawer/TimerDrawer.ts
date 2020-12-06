@@ -60,7 +60,7 @@ export class TimerDrawer {
     }
 
     public drawColider(ctx: CanvasRenderingContext2D, timer: Timer) {
-        DrawUtils.drawCyrcleOutlineObject(ctx, timer.getCollider(), 'blue');
+        DrawUtils.drawCircleOutlineObject(ctx, timer.getCollider(), 'blue');
     }
 
 
