@@ -11,6 +11,6 @@ export class GameConfigs {
     static maxGameRooms = 3;
     static emptyRoomDeleteDelay = 40 * 1000;
 
-    static useProximityChat = 0;
+    static useProximityChat = 1;
     
 }
