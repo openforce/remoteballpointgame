@@ -25,12 +25,7 @@ export class PeerConnectorTest {
 			host: 'localhost',
 			port: '5001', //location.port || (location.protocol === 'https:' ? 443 : 80),
 			path: '/peerjs',
-			debug: true,
-			config: {
-				'iceServers': [
-					{ 'url': 'stun:stun.l.google.com:19302' }
-				]
-			}
+			debug: true
 		});
 
 		this.peer.on('open', function (id: any) {
