@@ -35,12 +35,13 @@ app.use('/static', express.static(__dirname + '/static'));
 
 
 // init peer server
-var appForPeers = express();
-var serverForPeers = appForPeers.listen(5001)
-appForPeers.use('/peerjs', require('peer').ExpressPeerServer(serverForPeers, {
-	debug: true
-}));
-
+if(GameConfigs.useProximityChat == 1){
+  var appForPeers = express();
+  var serverForPeers = appForPeers.listen(5001)
+  appForPeers.use('/peerjs', require('peer').ExpressPeerServer(serverForPeers, {
+    debug: true
+  }));
+}
 
 // @ts-ignore
 var analyticsKey = process.env.ANALYTICS_KEY;

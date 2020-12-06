@@ -8,6 +8,7 @@ import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
 import { PeerConnector } from "../peer/PeerConnector";
 import { IRadioStateList } from "../../interfaces/IRadioList";
 import { Radio } from "../../gameObjects/Radio";
+import { GameConfigs } from "../Configs";
 
 /** 
  * GameSyncer implementation that gives controle of the player and ball states to the server
@@ -138,7 +139,9 @@ export class GameSyncerServerMode extends GameSyncer {
 					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null, null);
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
 
-					//if (this.peerConnector != null) this.peerConnector.connectToPeerWithPlayerId(serverPlayerId);
+					if(GameConfigs.useProximityChat == 1){
+						//if (this.peerConnector != null) this.peerConnector.connectToPeerWithPlayerId(serverPlayerId);
+					}
 				}
 
 			} else { // main player

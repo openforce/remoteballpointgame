@@ -98,10 +98,12 @@ export class GameEngine {
 		else if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.initGameSyncerServer();
 
 		// init peer connector (for peer to peer connections with webRTC)
-		this.peerConnector = new PeerConnectorTest(this.game);
-		//this.peerConnector.init();
-		// inject peer Connector
-		//if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.gameSyncerServerMode.peerConnector = this.peerConnector;
+		if(GameConfigs.useProximityChat == 1){
+			this.peerConnector = new PeerConnectorTest(this.game);
+			//this.peerConnector.init();
+			// inject peer Connector
+			//if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.gameSyncerServerMode.peerConnector = this.peerConnector;
+		}
 
 		//time
 		var now = new Date();

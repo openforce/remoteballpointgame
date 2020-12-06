@@ -14,6 +14,8 @@ export class PeerConnectorTest {
 	conn: any;
 	call: any;
 
+	streamReceived: boolean;
+
 	htmlVideo: any;
 
 	public addPeer(peerId: any) {
@@ -59,8 +61,10 @@ export class PeerConnectorTest {
 		// Receive call
 		this.peer.on('call', (function (self) {
 			return function (call: any) {
-
+				
 				console.log('received call from peer', call.peer);
+
+				this.call = call;
 
 				// answer with own stream
 				navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -72,6 +76,9 @@ export class PeerConnectorTest {
 				call.on('stream', function (stream: any) {
 
 					console.log('received stream from incoming call!');
+
+					if(this.streamReceived) return;
+					else this.streamReceived = true;
 
 					var htmlVideo = document.createElement('video');
 					// @ts-ignore
@@ -150,6 +157,9 @@ export class PeerConnectorTest {
 				this.call.on('stream', function (remoteStream: any) {
 
 					console.log('received stream from outgoing call!');
+
+					if(this.streamReceived) return;
+					else this.streamReceived = true;
 
 					var htmlVideo = document.createElement('video');
 					// @ts-ignore
