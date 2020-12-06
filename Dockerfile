@@ -9,3 +9,4 @@ RUN npx webpack --config webpack.config.js
 CMD ["npm", "start"]
 
 EXPOSE 5000
+EXPOSE 5001
