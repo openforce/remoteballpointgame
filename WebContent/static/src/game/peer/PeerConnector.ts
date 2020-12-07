@@ -168,7 +168,7 @@ export class PeerConnector {
 
 	public showMyVideo() {
 
-		navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+		navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 			.then(stream => this.showVideo(this.game.player.id.toString(), stream))
 			.catch(e => {
 				console.log("e: ", e);
