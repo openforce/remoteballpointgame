@@ -49,7 +49,8 @@ export class GameEngine {
 	gameSyncerClientMode: GameSyncerClientMode;
 	gameSyncerServerMode: GameSyncerServerMode;
 
-	peerConnector: PeerConnectorTest;
+	peerConnectorTest: PeerConnectorTest;
+	peerConnector: PeerConnector;
 
 	inputs: Inputs;
 
@@ -99,10 +100,10 @@ export class GameEngine {
 
 		// init peer connector (for peer to peer connections with webRTC)
 		if(GameConfigs.useProximityChat == 1){
-			this.peerConnector = new PeerConnectorTest(this.game);
-			//this.peerConnector.init();
-			// inject peer Connector
-			//if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.gameSyncerServerMode.peerConnector = this.peerConnector;
+			this.peerConnectorTest = new PeerConnectorTest(this.game);
+
+			this.peerConnector = new PeerConnector(this.game);
+			this.peerConnector.init();
 		}
 
 		//time
@@ -182,6 +183,8 @@ export class GameEngine {
 		if (this.mode == GameEngine.MODE_CLIENT){
 			this.gameDrawer.draw(this.ctx, this.game);
 			this.gameSounds.update();
+			
+			if(GameConfigs.useProximityChat == 1) this.peerConnector.update();
 		}
 	}
 

@@ -1,15 +1,17 @@
 import { Game } from '../game/Game';
 import { RadioState } from './syncObjects/RadioState';
 
-import { RandomUtils } from '../utils/RandomUtils1';
 import { RadioSound } from './sound/RadioSound';
-import { GeometryUtils } from '../utils/GeometryUtils1';
-
-import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
 import { RadioAnimation } from './drawer/animationStates/RadioAnimation';
 
+import { ISound } from '../interfaces/ISound';
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
 
-export class Radio {
+import { RandomUtils } from '../utils/RandomUtils1';
+import { SoundUtils } from '../utils/SoundUtils';
+
+
+export class Radio implements ISound{
 
     id: number;
 
@@ -28,7 +30,7 @@ export class Radio {
     sprite: CanvasImageSource;
 
     sound: RadioSound;
-    soundRadius: number = 100;
+    soundRadius: number = 500;
 
     game: Game;
 
@@ -93,15 +95,7 @@ export class Radio {
     public updateSound() {
 
         if (this.on) {
-            //get distance to player and adjust volume
-            var distance = GeometryUtils.getDistance(this.x, this.y, this.game.player.x, this.game.player.y);
-            var volume = this.soundRadius / distance; // TODO: gescheite Formel!!
-
-            //console.log('distance: ', distance, ' volume: ', volume);
-
-            if (volume > 1) volume = 1;
-            if (volume < 0) volume = 0;
-
+            var volume = SoundUtils.getVolumeFromDistanceSoundObject(this, this.game.player.x, this.game.player.y);
             this.sound.setVolume(volume);
         }
 

@@ -11,8 +11,9 @@ import { PlayerState } from './syncObjects/PlayerState';
 import { PlayerAnimation } from './drawer/animationStates/PlayerAnimation';
 
 import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
+import { ISound } from '../interfaces/ISound';
 
-export class Player {
+export class Player implements ISound{
 
     static HAND_LEFT = 0;
     static HAND_RIGHT = 1;
@@ -61,6 +62,8 @@ export class Player {
     game: Game;
 
     animationState: PlayerAnimation;
+
+    soundRadius: number = 500;
 
     // controls 
     controleMode: number;

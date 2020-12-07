@@ -5,18 +5,14 @@ import { Ball } from "../../gameObjects/Ball";
 import { GameEngine } from "../../engine/GameEngine";
 import { IBallStateList } from "../../interfaces/IBallLists";
 import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
-import { PeerConnector } from "../peer/PeerConnector";
 import { IRadioStateList } from "../../interfaces/IRadioList";
 import { Radio } from "../../gameObjects/Radio";
-import { GameConfigs } from "../Configs";
 
 /** 
  * GameSyncer implementation that gives controle of the player and ball states to the server
  * Client (controles) --> Server (performes all game logic) --> states to all other clients
 */
 export class GameSyncerServerMode extends GameSyncer {
-
-	//peerConnector: PeerConnector;
 
 	constructor(game: Game) {
 		super(game);
@@ -131,17 +127,10 @@ export class GameSyncerServerMode extends GameSyncer {
 
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
 
-					// TEST SEND TO PEER
-					//this.peerConnector.sendDataToPeerWithPlayerId(serverPlayerId, 'hallo');
-
 				} else {
 					// if the player is null add it
 					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null, null);
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
-
-					if(GameConfigs.useProximityChat == 1){
-						//if (this.peerConnector != null) this.peerConnector.connectToPeerWithPlayerId(serverPlayerId);
-					}
 				}
 
 			} else { // main player
