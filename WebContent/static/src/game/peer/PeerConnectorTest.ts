@@ -21,12 +21,15 @@ export class PeerConnectorTest {
 	public addPeer(peerId: any) {
 
 		// @ts-ignore
+		this.peer = new Peer(peerId, {}); // Public PeerJS Server
+
+		/*
 		this.peer = new Peer(peerId, {
 			host: 'localhost',
 			port: '5001', //location.port || (location.protocol === 'https:' ? 443 : 80),
 			path: '/peerjs',
 			debug: true
-		});
+		});*/
 
 		this.peer.on('open', function (id: any) {
 			console.log('OPEN: My peer ID is: ' + id);

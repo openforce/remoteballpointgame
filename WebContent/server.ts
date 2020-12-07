@@ -35,7 +35,7 @@ app.use('/static', express.static(__dirname + '/static'));
 
 
 // init peer server
-if(GameConfigs.useProximityChat == 1){
+if(GameConfigs.hostPeerJsServer == 1){
   var appForPeers = express();
   var serverForPeers = appForPeers.listen(5001)
   appForPeers.use('/peerjs', require('peer').ExpressPeerServer(serverForPeers, {
