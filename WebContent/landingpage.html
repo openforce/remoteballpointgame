@@ -6,11 +6,13 @@
 
 	<title>The Remote Ball Point Game</title>
 	<meta name="description" content="The Browsergame version of the legendary Ball Point Game" />
+
 	<meta property="og:title" content="The Remote Ball Point Game" />
 	<meta property="og:description" content="The Browsergame version of the legendary Ball Point Game" />
-	<meta property="og:image" content="https://ahoi.opendevs.net/content/images/opendevs-logo-arrows.png" id="preview_image_url"/>
-	<meta property="og:image:secure_url" content="https://ahoi.opendevs.net/content/images/opendevs-logo-arrows.png" id="preview_image_secure_url"/>
-	<meta property="og:url" content="https://ahoi.opendevs.net/app/" id="preview_url"/>
+	<meta property="og:image" content="https://remoteballpointgame.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:image:secure_url" content="https://remoteballpointgame.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:url" content="https://remoteballpointgame.openforce.com/" />
+	
 </head>
 
 <body id="body">
@@ -154,18 +156,6 @@
 
 	<script type="text/javascript">
 
-		function setPreviewMetaData() {
-			var url = window.location;
-
-			var preview_image_url = url + "static/resources/remote_ballpoint_game_04.jpg";
-			var preview_image_secure_url = url + "static/resources/remote_ballpoint_game_04.jpg";
-			var preview_url = url;
-
-			document.getElementById("preview_image_url").setAttribute("content", preview_image_url);
-			document.getElementById("preview_image_secure_url").setAttribute("content", preview_image_secure_url);
-			document.getElementById("preview_url").setAttribute("content", preview_url);
-		}
-
 		function displayRoomUrl() {
 			var url = getRoomUrl();
 			document.getElementById("roomUrl").innerHTML = '<a href=' + url + '>' + url + '</a>';
@@ -196,7 +186,6 @@
 			}
 		}
 
-		setPreviewMetaData();
 		displayRoomUrl();
 		displayTrainerInstructionsUrl();
 
