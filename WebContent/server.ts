@@ -30,6 +30,10 @@ var syncMode = GameConfigs.syncMode;
 var socketListener: SocketListener;
 
 app.set('port', 5000);
+
+var favicon = require('serve-favicon');
+app.use(favicon(__dirname + '/favicon.ico'));
+
 // @ts-ignore
 app.use('/static', express.static(__dirname + '/static'));
 
@@ -79,13 +83,19 @@ app.get('/:gameRoomId', function (request: any, response: any) {
   }
 
 
-  if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] != null) { // existing room
+  if (gameRoomId == 'favicon.ico' ) { // favicon
+
+    // @ts-ignore
+    response.send('/favicon.ico');
+
+
+  } else if (gameRooms[gameRoomId] != null) { // existing room
 
     // @ts-ignore
     response.send(gameHTML);
 
 
-  } else if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) { // new room
+  } else if (gameRooms[gameRoomId] == null) { // new room
 
     if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
       // @ts-ignore

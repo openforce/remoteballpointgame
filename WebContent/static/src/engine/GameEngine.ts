@@ -100,7 +100,7 @@ export class GameEngine {
 
 		// init peer connector (for peer to peer connections with webRTC)
 		if(GameConfigs.useProximityChat == 1){
-			this.peerConnectorTest = new PeerConnectorTest(this.game);
+			//this.peerConnectorTest = new PeerConnectorTest(this.game);
 
 			this.peerConnector = new PeerConnector(this.game);
 			this.peerConnector.init();
