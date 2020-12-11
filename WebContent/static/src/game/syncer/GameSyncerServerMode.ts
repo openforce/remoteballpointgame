@@ -32,8 +32,8 @@ export class GameSyncerServerMode extends GameSyncer {
 
 	public initPlayerSyncSender() {
 		setInterval(
-			(function (self) {                                                           //Self-executing func which takes 'this' as self
-				return function () {                                                     //Return a function in the context of 'self'
+			(function (self) {                                                          //Self-executing func which takes 'this' as self
+				return function () {                                                    //Return a function in the context of 'self'
 					self.socket.emit('player controles', self.game.player.inputState);  //Thing you wanted to run as non-window 'this'
 				}
 			})(this), 1000 / 60);
@@ -42,9 +42,9 @@ export class GameSyncerServerMode extends GameSyncer {
 	public initGameStateSyncListener() {
 
 		//server state listener
-		this.socket.on('state', (function (self) {                                                                                //Self-executing func which takes 'this' as self
-			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any, serverRadios: any) { //Return a function in the context of 'self'
-				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState, serverRadios);           //Thing you wanted to run as non-window 'this'
+		this.socket.on('state', (function (self) {                                                                                
+			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any, serverRadios: any) { 
+				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState, serverRadios);           
 			}
 		})(this));
 
@@ -52,9 +52,9 @@ export class GameSyncerServerMode extends GameSyncer {
 
 	public initEventSyncSender() {
 		setInterval(
-			(function (self) {          //Self-executing func which takes 'this' as self
-				return function () {    //Return a function in the context of 'self'
-					self.sendEvents(); //Thing you wanted to run as non-window 'this'
+			(function (self) {          
+				return function () {    
+					self.sendEvents(); 
 				}
 			})(this),
 			1000 / 60);

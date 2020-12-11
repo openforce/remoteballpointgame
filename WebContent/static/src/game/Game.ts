@@ -130,9 +130,7 @@ export class Game {
 	}
 
 	public updateGame(timeDiff: number) {
-
-		// UPDATE Game Objects
-
+		
 		for (var i = 0; i < this.ballBaskets.length; i++) {
 			this.ballBaskets[i].update;
 		}
@@ -141,9 +139,10 @@ export class Game {
 		this.flipchart.update(timeDiff);
 		this.timer.update(timeDiff);
 
-		for (var id in this.players) {
-			this.players[id].update(timeDiff);
-		}
+		if (!this.flipchart.active)
+			for (var id in this.players) {
+				this.players[id].update(timeDiff);
+			}
 
 		for (var id in this.balls) {
 			this.balls[id].update(timeDiff);

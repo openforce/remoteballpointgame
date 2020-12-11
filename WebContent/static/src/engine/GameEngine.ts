@@ -6,7 +6,6 @@ import { GameDrawer } from '../game/GameDrawer';
 import { Inputs } from '../game/Inputs';
 
 import { MenuController } from './MenuController';
-import { GameSyncerClientMode } from '../game/syncer/GameSyncerClientMode';
 import { GameSyncerServerMode } from '../game/syncer/GameSyncerServerMode';
 import { PeerConnector } from '../game/peer/PeerConnector';
 import { PeerConnectorTest } from '../game/peer/PeerConnectorTest';
@@ -44,10 +43,7 @@ export class GameEngine {
 	gameDrawer: GameDrawer;
 	gameSounds: GameSounds;
 
-	syncMode: number;
-
-	gameSyncerClientMode: GameSyncerClientMode;
-	gameSyncerServerMode: GameSyncerServerMode;
+	gameSyncer: GameSyncerServerMode;
 
 	peerConnectorTest: PeerConnectorTest;
 	peerConnector: PeerConnector;
@@ -65,7 +61,6 @@ export class GameEngine {
 
 
 	constructor() {
-		this.syncMode = GameConfigs.syncMode;
 		this.inputs = new Inputs();
 
 	}
@@ -95,8 +90,7 @@ export class GameEngine {
 		this.game.initGame(playerName, playerColor, playerGender, playerControlMode);
 		
 		// init game logic syncer (socketIO connection to node server)
-		if (this.syncMode == GameEngine.SYNC_MODE_CLIENT) this.initGameSyncerClient();
-		else if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.initGameSyncerServer();
+		this.initGameSyncerServer();
 
 		// init peer connector (for peer to peer connections with webRTC)
 		if(GameConfigs.useProximityChat == 1){
@@ -111,14 +105,9 @@ export class GameEngine {
 		this.lastTime = now.getTime();
 	}
 
-	public initGameSyncerClient() {
-		this.gameSyncerClientMode = new GameSyncerClientMode(this.game);
-		this.gameSyncerClientMode.init();
-	}
-
 	public initGameSyncerServer() {
-		this.gameSyncerServerMode = new GameSyncerServerMode(this.game);
-		this.gameSyncerServerMode.init();
+		this.gameSyncer = new GameSyncerServerMode(this.game);
+		this.gameSyncer.init();
 	}
 
 	public initGameSimulation() {
@@ -155,6 +144,7 @@ export class GameEngine {
 
 	}
 
+	// Game Client Main Loop!
 	public mainLoopGame() {
 		//time
 		var now = new Date();
@@ -165,20 +155,13 @@ export class GameEngine {
 		if (this.timeDiff > this.maxTimeDiff) {
 			this.maxTimeDiff = this.timeDiff;
 		}
-		//if(timeDiff > 20) console.log(timeDiff);
-
+		
 		this.lastTime = time;
 
 		// update game
 		if (this.mode == GameEngine.MODE_CLIENT) this.game.updateInputs(this.inputs);
 
-		if (this.syncMode == GameEngine.SYNC_MODE_CLIENT) {
-			this.game.player.setControlesFromInputState();
-			this.game.updatePlayer(this.timeDiff);
-			this.game.updateGame(this.timeDiff);
-		} else {
-			this.game.flipchart.update(this.timeDiff);
-		}
+		this.game.flipchart.updateClient(this.timeDiff);		
 
 		if (this.mode == GameEngine.MODE_CLIENT){
 			this.gameDrawer.draw(this.ctx, this.game);

@@ -7,6 +7,7 @@ export class GameRoom {
     gameRoomId: string;
     gameCreatedTimestamp: number;
 
+    // @ts-ignore
     game: Game;
 
     log = true;
@@ -14,18 +15,15 @@ export class GameRoom {
     lastTime = 0;
     timeDiff = 0;
 
-    syncMode: number;
-
     gameEmptyTimeStemp: number;
 
     mainLoopIntervallId: any;
 
     shouldBeDeleted: boolean;
 
-    constructor(gameRoomId: string, syncMode: number, io: any) {
+    constructor(gameRoomId: string, io: any) {
 
         this.gameRoomId = gameRoomId;
-        this.syncMode = syncMode;
 
         var now = new Date();
         this.gameCreatedTimestamp = now.getTime();
@@ -54,7 +52,7 @@ export class GameRoom {
         this.timeDiff = time - this.lastTime;
         this.lastTime = time;
 
-        if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.game.updateGame(this.timeDiff);
+        this.game.updateGame(this.timeDiff);
 
         if (Object.keys(this.game.players).length == 0) {
             if (this.gameEmptyTimeStemp == null) {

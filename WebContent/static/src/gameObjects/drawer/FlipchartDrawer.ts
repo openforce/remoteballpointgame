@@ -5,8 +5,6 @@ import { Flipchart } from "../Flipchart";
 
 export class FlipchartDrawer {
 
-    sprite: CanvasImageSource;
-
     flipchartSpritesSmall: CanvasImageSource[];
     flipchartSpriteSmallStartX: number = 410;
     flipchartSpriteSmallStartY: number = 300;
@@ -17,12 +15,20 @@ export class FlipchartDrawer {
     flipchartSpriteWidth: number = 658;
     flipchartSpriteHeight: number = 800;
 
+    nextFlipchartButtonSprite: CanvasImageSource;
+    nextFlipchartButtonSpriteWidth: number = 100;
+    nextFlipchartButtonSpriteHeight: number = 100;
 
+    previousFlipchartButtonSprite: CanvasImageSource;
+    previousFlipchartButtonSpriteWidth: number = 100;
+    previousFlipchartButtonSpriteHeight: number = 100;
+    
+    closeFlipchartButtonSprite: CanvasImageSource;
+    closeFlipchartButtonSpriteWidth: number = 100;
+    closeFlipchartButtonSpriteHeight: number = 100;
+    
 
     constructor() {
-
-        this.sprite = new Image();
-        this.sprite.src = "/static/resources/flipchart.png";
 
         this.flipchartSprites = [];
         this.flipchartSprites[0] = new Image();
@@ -43,6 +49,13 @@ export class FlipchartDrawer {
         this.flipchartSpritesSmall[2].src = "/static/resources/flipchartRulesSmall.png";
         this.flipchartSpritesSmall[3] = new Image();
         this.flipchartSpritesSmall[3].src = "/static/resources/flipchartResultsSmall.png";
+
+        this.nextFlipchartButtonSprite = new Image();
+        this.nextFlipchartButtonSprite.src = "/static/resources/flipchart.png"; //ToDo
+        this.previousFlipchartButtonSprite = new Image();
+        this.previousFlipchartButtonSprite.src = "/static/resources/flipchart.png"; //ToDo
+        this.closeFlipchartButtonSprite = new Image();
+        this.closeFlipchartButtonSprite.src = "/static/resources/flipchart.png"; //ToDo
 
     }
 
@@ -89,70 +102,78 @@ export class FlipchartDrawer {
         }
 
         if (flipchart.game.arcadeMode) {
-            if (flipchart.activeFlipchart == Flipchart.FLIPCHART_CONTROLES) {
-
-                flipchart.startButton.text = 'Got it';
-                flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
-                flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
-
-                flipchart.startButton.draw(ctx);
-
-            } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_WARMUP) {
-
-                flipchart.startButton.text = 'Start';
-                flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
-                flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
-
-                flipchart.startButton.draw(ctx);
-
-            } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_RULES) {
-
-                flipchart.startButton.text = 'Got it';
-                flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
-                flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
-
-                flipchart.startButton.draw(ctx);
-
-            } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_RESULTS) {
-                var y = 145;
-                var yOffset = 50;
-
-                if (flipchart.game.gameState == Game.GAME_STATE_PREP) flipchart.startButton.text = 'Prepare';
-                if (flipchart.game.gameState == Game.GAME_STATE_PLAY) flipchart.startButton.text = 'Start';
-
-                flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth - flipchart.startButton.width - 75;
-                flipchart.startButton.y = y + yOffset * (flipchart.activeRound - 1);
-
-                if (flipchart.game.gameState != Game.GAME_STATE_END) flipchart.startButton.draw(ctx);
-
-                //estimation Input
-                if (flipchart.game.gameState == Game.GAME_STATE_PLAY) {
-
-                    if (flipchart.input_estimation == null)
-                        // @ts-ignore
-                        flipchart.input_estimation = new CanvasInput({
-                            canvas: ctx.canvas,
-                            x: 333,
-                            y: y + yOffset * (flipchart.activeRound - 1),
-                            width: 30,
-                            value: '?'
-                        });
-
-                    flipchart.input_estimation.render();
-                }
-
-            }
-
-
-        } else { // --> !arcadeMode
+            this.drawFlipchartScreenArcadeMode(ctx, flipchart);
+        } else { 
 
             if (flipchart.lastActivator == flipchart.game.player.id) {
                 flipchart.nextFlipchartButton.draw(ctx);
                 flipchart.previousFlipchartButton.draw(ctx);
+                flipchart.closeFlipchartButton.draw(ctx);
+
+                //flipchart.nextFlipchartButton.drawSprite(ctx, this.nextFlipchartButtonSprite, this.nextFlipchartButtonSpriteWidth, this.nextFlipchartButtonSpriteHeight);
+                //flipchart.previousFlipchartButton.drawSprite(ctx, this.previousFlipchartButtonSprite, this.previousFlipchartButtonSpriteWidth, this.previousFlipchartButtonSpriteHeight);
+                //flipchart.closeFlipchartButton.drawSprite(ctx, this.closeFlipchartButtonSprite, this.closeFlipchartButtonSpriteWidth, this.closeFlipchartButtonSpriteHeight);
             }
 
         }
 
+
+    }
+
+    public drawFlipchartScreenArcadeMode(ctx: CanvasRenderingContext2D, flipchart: Flipchart) {
+        if (flipchart.activeFlipchart == Flipchart.FLIPCHART_CONTROLES) {
+
+            flipchart.startButton.text = 'Got it';
+            flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
+            flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
+
+            flipchart.startButton.draw(ctx);
+
+        } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_WARMUP) {
+
+            flipchart.startButton.text = 'Start';
+            flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
+            flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
+
+            flipchart.startButton.draw(ctx);
+
+        } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_RULES) {
+
+            flipchart.startButton.text = 'Got it';
+            flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth / 4;
+            flipchart.startButton.y = flipchart.infoBox_y + flipchart.infoBoxHeight - 150;
+
+            flipchart.startButton.draw(ctx);
+
+        } else if (flipchart.activeFlipchart == Flipchart.FLIPCHART_RESULTS) {
+            var y = 145;
+            var yOffset = 50;
+
+            if (flipchart.game.gameState == Game.GAME_STATE_PREP) flipchart.startButton.text = 'Prepare';
+            if (flipchart.game.gameState == Game.GAME_STATE_PLAY) flipchart.startButton.text = 'Start';
+
+            flipchart.startButton.x = flipchart.infoBox_x + flipchart.infoBoxWidth - flipchart.startButton.width - 75;
+            flipchart.startButton.y = y + yOffset * (flipchart.activeRound - 1);
+
+            if (flipchart.game.gameState != Game.GAME_STATE_END) flipchart.startButton.draw(ctx);
+
+            //estimation Input
+            if (flipchart.game.gameState == Game.GAME_STATE_PLAY) {
+
+                if (flipchart.input_estimation == null)
+                    // @ts-ignore
+                    flipchart.input_estimation = new CanvasInput({
+                        canvas: ctx.canvas,
+                        x: 333,
+                        y: y + yOffset * (flipchart.activeRound - 1),
+                        width: 30,
+                        value: '?'
+                    });
+
+                flipchart.input_estimation.render();
+            }
+
+        }
 
     }
 

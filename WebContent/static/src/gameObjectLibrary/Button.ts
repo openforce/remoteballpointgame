@@ -1,3 +1,4 @@
+import { runInThisContext } from 'vm';
 import { ICollidableRect } from '../interfaces/ICollidable';
 import { ClickUtils } from '../utils/ClickUtils1';
 
@@ -30,27 +31,27 @@ export class Button implements ICollidableRect {
 		this.disabled = false;
 	}
 
-	click(object: object): void {
+	public click(object: object): void {
 
 	};
 
-	show() {
+	public show() {
 		this.visible = true;
 	};
 
-	hide() {
+	public hide() {
 		this.visible = false;
 	};
 
-	disable() {
+	public disable() {
 		this.disabled = true;
 	};
 
-	enable() {
+	public enable() {
 		this.disabled = false;
 	};
 
-	checkForClick(mouseX: number, mouseY: number): boolean {
+	public checkForClick(mouseX: number, mouseY: number): boolean {
 
 		if (this.visible && !this.disabled && ClickUtils.checkClickOnRectObject(mouseX, mouseY, this)) {
 			return true;
@@ -58,7 +59,15 @@ export class Button implements ICollidableRect {
 
 	};
 
-	draw(ctx: CanvasRenderingContext2D) {
+	public drawSprite(ctx: CanvasRenderingContext2D, sprite: CanvasImageSource, spriteWidth: number, spriteHeight: number) {
+
+		ctx.drawImage(sprite,
+			0, 0, spriteWidth, spriteHeight, 		  // sprite cutout position and size
+			this.x, this.y, this.width, this.height); // draw position and size
+
+	}
+
+	public draw(ctx: CanvasRenderingContext2D) {
 		if (this.visible) {
 
 			ctx.beginPath();

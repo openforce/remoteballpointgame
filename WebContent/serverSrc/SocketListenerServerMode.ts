@@ -26,7 +26,7 @@ export class SocketListenerServerMode extends SocketListener {
                     if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) {
 
                         // TODO: with this hack its possible to create more rooms then intended!! But its a fallback ;)
-                        self.gameRooms[gameRoomId] = new GameRoom(gameRoomId, GameConfigs.syncMode, self.io);
+                        self.gameRooms[gameRoomId] = new GameRoom(gameRoomId, self.io);
 
                         console.log('fallback: created gameRoom with id ', gameRoomId);
                     }

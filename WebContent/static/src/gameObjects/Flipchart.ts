@@ -45,12 +45,15 @@ export class Flipchart {
 
     clickedLeft: boolean = false;
     clickedRight: boolean = false;
+    clickedClose: boolean = false;
 
     clickedLeftTimeStemp = 0;
     clickedRightTimeStemp = 0;
+    clickedCloseTimeStemp = 0;
 
     nextFlipchartButton: Button;
     previousFlipchartButton: Button;
+    closeFlipchartButton: Button;
 
 
     // arcade mode inputs
@@ -61,8 +64,6 @@ export class Flipchart {
     infoBoxHeight: number = 550;
     infoBox_x: number = 200;
     infoBox_y: number = 25;
-
-    flipchartAsyncCounter: number = 0;
 
 
     constructor(game: Game, x: number, y: number) {
@@ -84,6 +85,8 @@ export class Flipchart {
         } else {
             this.nextFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 60, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '     -->');
             this.previousFlipchartButton = new Button(this.infoBox_x + 10, this.infoBox_y + this.infoBoxHeight - 30, 50, 20, '<--');
+            this.closeFlipchartButton = new Button(this.infoBox_x + this.infoBoxWidth - 30, this.infoBox_y + 10, 25, 25, 'x');
+
             this.resultTableSaveButton = new Button(this.infoBox_x + this.infoBoxWidth - 150, this.infoBox_y + this.infoBoxHeight - 170, 60, 25, 'Save');
         }
 
@@ -105,18 +108,7 @@ export class Flipchart {
     public syncState(syncObject: FlipchartState) {
         this.active = syncObject.active;
         this.lastActivator = syncObject.lastActivator;
-        
-        // bug fix hack mack :(
-        if(this.activeFlipchart == syncObject.activeFlipchart) this.flipchartAsyncCounter = 0;
-        else{
-            if(this.lastActivator != this.game.player.id){ // --> to avoid flipping back
-                this.activeFlipchart = syncObject.activeFlipchart;
-            }else {
-                this.flipchartAsyncCounter++;
-                if(this.flipchartAsyncCounter > 10) this.activeFlipchart = syncObject.activeFlipchart; // --> to sync back if it got async
-            }
-        }
-        
+        this.activeFlipchart = syncObject.activeFlipchart;
         this.resultTable = syncObject.resultTable;
     }
 
@@ -155,6 +147,9 @@ export class Flipchart {
             this.clickedLeft = false;
         }
 
+        // check if the lastActivator left the game!
+        if (this.lastActivator && !this.game.players[this.lastActivator]) this.active = false;
+
     }
 
     public checkClick(mouseX: number, mouseY: number) {
@@ -166,18 +161,39 @@ export class Flipchart {
             } else {
                 if (this.nextFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerNextFlipchart();
                 if (this.previousFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerPreviousFlipchart();
+                if (this.closeFlipchartButton.checkForClick(mouseX, mouseY)) this.triggerCloseFlipchart();
+
                 if (this.resultTableSaveButton.checkForClick(mouseX, mouseY)) this.triggerSaveResultTableinputs();
             }
 
         }
     }
 
-    public updateMiddle(){
+    // special handling for client side updates for result table inputs
+    public updateClient(timeDiff: number) {
+
+        if (this.clickedLeft) {
+            this.checkClickClient(this.mousePosX, this.mousePosY);
+            this.clickedLeft = false;
+        }
+
+    }
+    // special handling for client side updates for result table inputs
+    public checkClickClient(mouseX: number, mouseY: number) {
+
+        if (this.active) {
+            if (this.game.arcadeMode) return;
+            else if (this.resultTableSaveButton.checkForClick(mouseX, mouseY)) this.triggerSaveResultTableinputs();
+        }
+
+    }
+
+    public updateMiddle() {
         this.middleX = this.x + (this.width / 2) - 20;
         this.middleY = this.y + this.height / 2;
-    } 
+    }
 
-    public getCollider(){
+    public getCollider() {
 
         this.updateMiddle();
         return new TempColliderCircle(this.middleX, this.middleY, this.radius);
@@ -187,22 +203,21 @@ export class Flipchart {
     public triggerFlipchart(playerId: number) {
         this.active = !this.active;
         this.lastActivator = playerId;
-        this.game.addEvent('trigger flipchart', playerId);
     }
 
 
     public triggerNextFlipchart() {
         this.activeFlipchart++;
         if (this.activeFlipchart == this.numberOfFlipcharts) this.activeFlipchart = 0;
-
-        this.game.addEvent('trigger next flipchart', null);
     }
 
     public triggerPreviousFlipchart() {
         this.activeFlipchart--;
         if (this.activeFlipchart < 0) this.activeFlipchart = this.numberOfFlipcharts - 1;
+    }
 
-        this.game.addEvent('trigger previous flipchart', null);
+    public triggerCloseFlipchart() {
+        this.active = false;
     }
 
     public triggerSaveResultTableinputs() {
@@ -236,6 +251,7 @@ export class Flipchart {
 
         return resultTable;
     }
+
 
 
     // ARCADE MODE STUFF
@@ -348,6 +364,6 @@ export class Flipchart {
     }
 
 
-    
+
 
 }

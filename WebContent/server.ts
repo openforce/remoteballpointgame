@@ -7,11 +7,7 @@ import * as socketIO from 'socket.io';
 
 import { GameConfigs } from './static/src/out/game/Configs';
 
-import { GameEngine } from './static/src/out/engine/GameEngine';
-import { Game } from './static/src/out/game/Game';
-
 import { SocketListener } from './serverSrc/SocketListener';
-import { SocketListenerClientMode } from './serverSrc/SocketListenerClientMode';
 import { SocketListenerServerMode } from './serverSrc/SocketListenerServerMode';
 import { GameRoom } from './serverSrc/GameRoom';
 
@@ -26,7 +22,6 @@ var io = socketIO(server);
 
 var gameRooms = {};
 
-var syncMode = GameConfigs.syncMode;
 var socketListener: SocketListener;
 
 app.set('port', 5000);
@@ -104,7 +99,7 @@ app.get('/:gameRoomId', function (request: any, response: any) {
       if (log) console.log('max rooms reached ', gameRoomId);
 
     } else {
-      gameRooms[gameRoomId] = new GameRoom(gameRoomId, syncMode, io);
+      gameRooms[gameRoomId] = new GameRoom(gameRoomId, io);
 
       // @ts-ignore
       response.send(gameHTML);
@@ -127,9 +122,7 @@ server.listen(5000, function () {
 });
 
 
-if (syncMode == GameEngine.SYNC_MODE_CLIENT) socketListener = new SocketListenerClientMode(io, gameRooms);
-else if (syncMode == GameEngine.SYNC_MODE_SERVER) socketListener = new SocketListenerServerMode(io, gameRooms);
-
+socketListener = new SocketListenerServerMode(io, gameRooms);
 socketListener.init();
 
 
