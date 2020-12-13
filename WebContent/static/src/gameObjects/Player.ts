@@ -315,6 +315,7 @@ export class Player implements ISound {
         }
 
 
+        // PLAYER
         if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
 
             this.moveUp = this.inputState.w;

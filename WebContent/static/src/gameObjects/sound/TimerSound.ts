@@ -1,5 +1,3 @@
-import { Timer } from '../Timer';
-
 
 export class TimerSound {
 
