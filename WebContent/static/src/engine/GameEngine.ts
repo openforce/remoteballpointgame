@@ -15,12 +15,6 @@ import { GameSounds } from '../game/GameSounds';
 
 export class GameEngine {
 
-	static MODE_SIMULATION = 0;
-	static MODE_CLIENT = 1;
-
-	static SYNC_MODE_CLIENT = 0;
-	static SYNC_MODE_SERVER = 1;
-
 	static STATE_MENU = 1;
 	static STATE_GAME = 2;
 	static STATE_AFTER_GAME = 3;
@@ -69,7 +63,6 @@ export class GameEngine {
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
 
-		this.mode = GameEngine.MODE_CLIENT
 		this.state = GameEngine.STATE_MENU;
 
 		this.menuController = new MenuController(this);
@@ -80,7 +73,6 @@ export class GameEngine {
 
 	public initGame(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
-		this.mode = GameEngine.MODE_CLIENT;
 		this.state = GameEngine.STATE_GAME;
 
 		this.gameDrawer = new GameDrawer();
@@ -88,12 +80,12 @@ export class GameEngine {
 		this.gameSounds = new GameSounds(this.game);
 
 		this.game.initGame(playerName, playerColor, playerGender, playerControlMode);
-		
+
 		// init game logic syncer (socketIO connection to node server)
 		this.initGameSyncerServer();
 
 		// init peer connector (for peer to peer connections with webRTC)
-		if(GameConfigs.useProximityChat == 1){
+		if (GameConfigs.useProximityChat == 1) {
 			//this.peerConnectorTest = new PeerConnectorTest(this.game);
 
 			this.peerConnector = new PeerConnector(this.game);
@@ -108,14 +100,6 @@ export class GameEngine {
 	public initGameSyncerServer() {
 		this.gameSyncer = new GameSyncerServerMode(this.game);
 		this.gameSyncer.init();
-	}
-
-	public initGameSimulation() {
-
-		this.mode = GameEngine.MODE_SIMULATION;
-		this.state = GameEngine.STATE_GAME;
-
-		this.game.initGameSimulation();
 	}
 
 
@@ -144,7 +128,6 @@ export class GameEngine {
 
 	}
 
-	// Game Client Main Loop!
 	public mainLoopGame() {
 		//time
 		var now = new Date();
@@ -155,20 +138,19 @@ export class GameEngine {
 		if (this.timeDiff > this.maxTimeDiff) {
 			this.maxTimeDiff = this.timeDiff;
 		}
-		
+
 		this.lastTime = time;
 
 		// update game
-		if (this.mode == GameEngine.MODE_CLIENT) this.game.updateInputs(this.inputs);
+		this.game.updateInputs(this.inputs);
 
-		this.game.flipchart.updateClient(this.timeDiff);		
+		this.game.flipchart.updateClient(this.timeDiff);
 
-		if (this.mode == GameEngine.MODE_CLIENT){
-			this.gameDrawer.draw(this.ctx, this.game);
-			this.gameSounds.update();
-			
-			if(GameConfigs.useProximityChat == 1) this.peerConnector.update();
-		}
+		this.gameDrawer.draw(this.ctx, this.game);
+		this.gameSounds.update();
+
+		if (GameConfigs.useProximityChat == 1) this.peerConnector.update();
+
 	}
 
 

@@ -16,7 +16,6 @@ export class GameSyncerServerMode extends GameSyncer {
 
 	constructor(game: Game) {
 		super(game);
-		this.syncMode = GameEngine.SYNC_MODE_CLIENT;
 	}
 
 	public init() {

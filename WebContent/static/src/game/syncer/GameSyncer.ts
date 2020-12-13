@@ -7,8 +7,6 @@ export class GameSyncer {
 
 	game: Game;
 
-	syncMode: number;
-
 	constructor(game: Game) {
 
 		this.game = game;

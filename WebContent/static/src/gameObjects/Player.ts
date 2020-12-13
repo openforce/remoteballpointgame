@@ -12,8 +12,9 @@ import { PlayerAnimation } from './drawer/animationStates/PlayerAnimation';
 
 import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
 import { ISound } from '../interfaces/ISound';
+import { GameConfigs } from '../game/Configs';
 
-export class Player implements ISound{
+export class Player implements ISound {
 
     static HAND_LEFT = 0;
     static HAND_RIGHT = 1;
@@ -88,6 +89,9 @@ export class Player implements ISound{
     moveBackward: boolean;
     rotateLeft: boolean;
     rotateRight: boolean;
+
+    // hotkeys
+    triggerFlipchartTimestamp = 0;
 
 
     constructor(game: Game, x: number, y: number, name: string, color: string, gender: string, controlMode: number) {
@@ -224,6 +228,9 @@ export class Player implements ISound{
     // used in MODE_CLIENT
     public updateInputs(inputs: Inputs) {
 
+        // keys for result table input
+        this.inputState.keys = inputs.keys;
+
         // W | UP
         if (inputs.keys[87] || inputs.keys[38]) this.inputState.w = true;
         else this.inputState.w = false;
@@ -237,7 +244,7 @@ export class Player implements ISound{
         if (inputs.keys[68] || inputs.keys[39]) this.inputState.d = true;
         else this.inputState.d = false;
 
-        //space
+        // space
         if (inputs.keys[32]) {
             this.inputState.space = true;
             if (this.inputState.spacePressedTimeStamp == null) this.inputState.spacePressedTimeStamp = new Date().getTime();
@@ -247,7 +254,7 @@ export class Player implements ISound{
             this.inputState.spacePressedTimeStamp = null;
         }
 
-        //shift
+        // shift
         if (inputs.keys[16]) {
             this.inputState.shift = true;
             if (this.inputState.shiftPressedTimeStamp == null) this.inputState.shiftPressedTimeStamp = new Date().getTime();
@@ -256,6 +263,17 @@ export class Player implements ISound{
             this.inputState.shift = false;
             this.inputState.shiftPressedTimeStamp = null;
         }
+
+        // F --> activate Flipchart
+        if (inputs.keys[70]) {
+            this.inputState.f = true;
+            this.inputState.fPressedTimestamp = inputs.keysPressedTimeStamp[70];
+        }
+        else {
+            this.inputState.f = false;
+            this.inputState.fPressedTimestamp = null;
+        }
+
 
         this.inputState.mouseX = inputs.mousePosX;
         this.inputState.mouseY = inputs.mousePosY;
@@ -270,6 +288,13 @@ export class Player implements ISound{
 
     // used in MODE_SIMULATION
     public setControlesFromInputState() {
+
+        // hotkeys
+        if (this.inputState.f && this.inputState.fPressedTimestamp > this.triggerFlipchartTimestamp) {
+            this.game.flipchart.triggerFlipchart(this.id);
+            this.triggerFlipchartTimestamp = this.inputState.fPressedTimestamp;
+        }
+
 
         if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
 
@@ -456,7 +481,9 @@ export class Player implements ISound{
             }
         }
 
-        this.automaticCatch();
+        if(GameConfigs.autocatch == 1) this.automaticCatch();
+
+
     }
 
     public getCollider() {

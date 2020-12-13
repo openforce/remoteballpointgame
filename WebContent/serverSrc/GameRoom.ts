@@ -1,5 +1,4 @@
 import { Game } from "../static/src/out/game/Game";
-import { GameEngine } from "../static/src/out/engine/GameEngine";
 import { GameConfigs } from "../static/src/out/game/Configs";
 
 export class GameRoom {
