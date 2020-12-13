@@ -1,6 +1,7 @@
 import { Game } from '../../game/Game';
 import { Timer } from '../Timer';
 import { DrawUtils } from '../../utils/DrawUtils1';
+import { RandomUtils } from '../../utils/RandomUtils1';
 
 
 export class TimerDrawer {
@@ -18,23 +19,42 @@ export class TimerDrawer {
 
     public draw(ctx: CanvasRenderingContext2D, timer: Timer) {
 
-        //BG
+        // animation based on time
+        var animationCount = (timer.playTime % 2);
+
+        var width = timer.width + (animationCount * 3);
+        var height = timer.height + (animationCount * 3);
+
+        var ringPosModifikator = 0;
+        if(timer.playTime == 0) ringPosModifikator = RandomUtils.getRandomNumber(-2, 2);
+        
+        ctx.translate(timer.x + timer.width / 2, timer.y + timer.height / 2);
+
         ctx.drawImage(this.sprite,
-            0, 0, timer.width, timer.height - 30, // sprite cutout position and size
-            timer.x, timer.y, timer.width, timer.height - 10); 	 // draw position and size
+            0, 0, timer.width, timer.height,          
+            (-width / 2) + ringPosModifikator, (-height / 2) + ringPosModifikator, width, height);
+        
 
         //playTime
         ctx.fillStyle = "black";
-        ctx.font = "bold 16px Arial";
+
+        if (animationCount == 0) ctx.font = "bold 16px Arial";
+        else if (animationCount == 1) ctx.font = "bold 18px Arial";
+        
         ctx.textAlign = 'center';
 
-        ctx.fillText("Time ", timer.x + 40, timer.y + 20);
-        ctx.fillText(timer.playTime.toString(), timer.x + 40, timer.y + 35);
+        ctx.fillText("Time ", 0 + ringPosModifikator, -5 + ringPosModifikator);
+        
+        if (timer.playTime <  10) ctx.fillStyle = "red";
+        ctx.fillText(timer.playTime.toString(), 0 + ringPosModifikator, 0 + 15 + ringPosModifikator);
 
         if (!timer.game.arcadeMode && timer.game.showPoints) {
-            ctx.fillText("Points ", timer.x + 40, timer.y + 55);
-            ctx.fillText(timer.game.points.toString(), timer.x + 40, timer.y + 70);
+            ctx.fillText("Points ", 0, 0 + 55/2);
+            ctx.fillText(timer.game.points.toString(), 0, 0 + 70/2);
         }
+
+        ctx.translate(-timer.x - timer.width / 2, -timer.y - timer.height / 2);
+
 
         if (timer.game.arcadeMode) {
             if (timer.game.gameState == Game.GAME_STATE_WARMUP) {

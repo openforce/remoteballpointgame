@@ -12,6 +12,9 @@ export class PlayerInputState {
     f: boolean;
     fPressedTimestamp: number;
 
+    t: boolean;
+    tPressedTimestamp: number;
+
     space: boolean;
     spacePressedTimeStamp: number;
 

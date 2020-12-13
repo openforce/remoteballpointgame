@@ -92,6 +92,7 @@ export class Player implements ISound {
 
     // hotkeys
     triggerFlipchartTimestamp = 0;
+    triggerTimerTimestamp = 0;
 
 
     constructor(game: Game, x: number, y: number, name: string, color: string, gender: string, controlMode: number) {
@@ -274,6 +275,16 @@ export class Player implements ISound {
             this.inputState.fPressedTimestamp = null;
         }
 
+        // T --> activate Timer
+        if (inputs.keys[84]) {
+            this.inputState.t = true;
+            this.inputState.tPressedTimestamp = inputs.keysPressedTimeStamp[84];
+        }
+        else {
+            this.inputState.t = false;
+            this.inputState.tPressedTimestamp = null;
+        }
+
 
         this.inputState.mouseX = inputs.mousePosX;
         this.inputState.mouseY = inputs.mousePosY;
@@ -289,10 +300,18 @@ export class Player implements ISound {
     // used in MODE_SIMULATION
     public setControlesFromInputState() {
 
-        // hotkeys
+        // HOTKEYS
+
+        // F
         if (this.inputState.f && this.inputState.fPressedTimestamp > this.triggerFlipchartTimestamp) {
             this.game.flipchart.triggerFlipchart(this.id);
             this.triggerFlipchartTimestamp = this.inputState.fPressedTimestamp;
+        }
+
+        // T
+        if (this.inputState.t && this.inputState.tPressedTimestamp > this.triggerTimerTimestamp) {
+            this.game.timer.triggerTimer();
+            this.triggerTimerTimestamp = this.inputState.tPressedTimestamp;
         }
 
 

@@ -80,6 +80,7 @@ export class GameEngine {
 		this.gameSounds = new GameSounds(this.game);
 
 		this.game.initGame(playerName, playerColor, playerGender, playerControlMode);
+		this.gameSounds.init();
 
 		// init game logic syncer (socketIO connection to node server)
 		this.initGameSyncerServer();
