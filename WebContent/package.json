@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^1.7.4"
+    "socket.io": "^2.4.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
