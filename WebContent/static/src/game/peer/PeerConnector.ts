@@ -18,6 +18,22 @@ export class PeerConnector {
 
 	videoContainerWidth = 200;
 
+	streamConstraints = {
+		video: {
+			"width": { "exact": 640 },
+			"height": { "exact": 480 }
+		},
+		audio: true
+	};
+
+	streamConstraintsOwnVideo = {
+		video: {
+			"width": { "exact": 640 },
+			"height": { "exact": 480 }
+		},
+		audio: false
+	};
+
 	constructor(game: Game) {
 		this.game = game;
 
@@ -69,7 +85,7 @@ export class PeerConnector {
 				self.calls[call.peer] = call;
 
 				// answer with own stream
-				navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+				navigator.mediaDevices.getUserMedia(self.streamConstraints)
 					.then(stream => {
 						call.answer(stream);
 					});
@@ -137,7 +153,7 @@ export class PeerConnector {
 
 	public callPeer(peerId: any) {
 
-		navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+		navigator.mediaDevices.getUserMedia(this.streamConstraints)
 			.then((function (self, peerId) {
 
 				return function (stream: any) {
@@ -168,13 +184,12 @@ export class PeerConnector {
 
 	public showMyVideo() {
 
-		navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+		navigator.mediaDevices.getUserMedia(this.streamConstraintsOwnVideo)
 			.then(stream => this.showVideo(this.game.player.id.toString(), stream))
 			.catch(e => {
 				console.log("e: ", e);
 			});
 	}
-
 
 
 	public showVideo(id: string, stream: any) {
@@ -215,9 +230,9 @@ export class PeerConnector {
 	public insertHtmlVideo(htmlVideo: any) {
 		var videoContainer = document.getElementById('videos-container');
 
-		if(videoContainer.lastChild) videoContainer.insertBefore(htmlVideo, videoContainer.lastChild.nextSibling);
+		if (videoContainer.lastChild) videoContainer.insertBefore(htmlVideo, videoContainer.lastChild.nextSibling);
 		else videoContainer.insertBefore(htmlVideo, videoContainer.firstChild);
 	}
-	
+
 }
 

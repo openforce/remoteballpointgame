@@ -1,10 +1,13 @@
 import { Game } from "../static/src/out/game/Game";
 import { GameConfigs } from "../static/src/out/game/Configs";
+import { GameRoomStatistics } from "./GameRoomStatistics";
 
 export class GameRoom {
 
     gameRoomId: string;
     gameCreatedTimestamp: number;
+
+    gameRoomStatistics: GameRoomStatistics;
 
     // @ts-ignore
     game: Game;
@@ -29,6 +32,9 @@ export class GameRoom {
 
         this.game = new Game();
         this.game.initGameSimulation();
+
+        this.gameRoomStatistics = new GameRoomStatistics(this.gameRoomId, this.game.gameStatistics);
+        this.gameRoomStatistics.createdTimestamp = this.gameCreatedTimestamp;
 
         this.gameEmptyTimeStemp = null;
 
@@ -69,6 +75,9 @@ export class GameRoom {
 
     public markToDelete() {
         if (this.log) console.log('mark room with id ', this.gameRoomId, ' to delete');
+        
+        this.gameRoomStatistics.setClosedTimestamp();
+        this.gameRoomStatistics.logStatics();
 
         clearInterval(this.mainLoopIntervallId);
         this.game = null;

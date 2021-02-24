@@ -2,7 +2,6 @@ import { SocketListener } from "./SocketListener";
 import { Player } from "../static/src/out/gameObjects/Player";
 import { PlayerInputState } from "../static/src/gameObjects/syncObjects/PlayerInputState";
 import { IGameRoomList } from "./IGameRoomList";
-import { GameConfigs } from "../static/src/out/game/Configs";
 import { GameRoom } from "./GameRoom";
 
 export class SocketListenerServerMode extends SocketListener {
@@ -37,6 +36,8 @@ export class SocketListenerServerMode extends SocketListener {
                     self.gameRooms[gameRoomId].game.players[newPlayer.id] = new Player(self.gameRooms[gameRoomId].game, 1, 1, null, null);
                     self.gameRooms[gameRoomId].game.players[newPlayer.id].syncState(newPlayer);
                     self.gameRooms[gameRoomId].game.players[newPlayer.id].socketId = socket.id;
+                    
+                    self.gameRooms[gameRoomId].gameRoomStatistics.playerAdded(Object.keys(self.gameRooms[gameRoomId].game.players).length);
 
                     if (self.log) console.log('New Player: ' + newPlayer.id);
                     if (self.log) console.log('Player ', newPlayer.id, ' joined room: ' + gameRoomId);
@@ -86,6 +87,8 @@ export class SocketListenerServerMode extends SocketListener {
                     if (self.gameRooms[gameRoomId] == null || self.gameRooms[gameRoomId].game == null) return;
 
                     self.gameRooms[gameRoomId].game.flipchart.resultTable = clientResultTable;
+
+                    self.gameRooms[gameRoomId].game.gameStatistics.numberOfResultSubmits++;
                 });
 
             }

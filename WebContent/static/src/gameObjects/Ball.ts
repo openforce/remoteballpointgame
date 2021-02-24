@@ -206,6 +206,8 @@ export class Ball implements ICollidableCircle {
         this.lastHolderId = player.id;
         this.touchedBy.push(player.id);
 
+        
+        // logic for points
         var touchedByEverybody = true;
         for (var id in this.game.players) {
             var touchedByPlayer = false;

@@ -14,6 +14,7 @@ import { IPlayerList, IPlayerStateList } from '../interfaces/IPlayerLists';
 import { GameConfigs } from './Configs';
 import { Radio } from '../gameObjects/Radio';
 import { IRadioStateList } from '../interfaces/IRadioList';
+import { GameStatistics } from './GameStatistics';
 
 
 export class Game {
@@ -25,6 +26,8 @@ export class Game {
 	static GAME_STATE_END = 4;
 
 	gameName = "Remote Ball Point Game";
+
+	gameStatistics: GameStatistics;
 
 	//GAME Objects
 	player: Player;
@@ -61,7 +64,7 @@ export class Game {
 
 
 	/***********************************
-	# init in MODE_CLIENT
+	# init in MODE_CLIENT --> Browser Client
 	***********************************/
 	public initGame(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
@@ -75,7 +78,7 @@ export class Game {
 	}
 
 	/***********************************
-	# init in MODE_SIMULATION
+	# init in MODE_SIMULATION --> Server
 	***********************************/
 	public initGameSimulation() {
 		this.ui = false;
@@ -85,6 +88,8 @@ export class Game {
 		this.radios.push(new Radio(this, 696, 350, 90));
 
 		this.player = null;
+
+		this.gameStatistics = new GameStatistics();
 	}
 
 	public initGameWorld() {

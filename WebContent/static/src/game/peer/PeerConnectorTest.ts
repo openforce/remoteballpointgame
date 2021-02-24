@@ -176,5 +176,83 @@ export class PeerConnectorTest {
 			});
 
 	}
+
+
+
+
+	// TEST with seperated stream tracks
+
+	videoContainerWidth = 200;
+	// handle video and audio stream seperated 
+	// and handle permissions (e.g. audio only)
+	mediaStream: MediaStream = new MediaStream();
+	audio: number = 2; // 2 waiting; 1 true; 0 false
+	video: number = 2; // 2 waiting; 1 true; 0 false
+	// get lokal video
+	public showMyVideoOnly() {
+		navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+			.then((function (self: any) {
+				return function (stream: MediaStream) {
+					self.mediaStream.addTrack(stream.getVideoTracks()[0]);
+					self.video = 1;
+					self.handleMediaTracks('tomtom');
+				}
+			})(this))
+			.catch((function (self) {
+				return function (e: any) {
+					console.log("e: ", e);
+					self.video = 0;
+					self.handleMediaTracks('tomtom');
+				};
+			}(this)));
+	}
+	// get lokal video
+	public showMyAudioOnly() {
+		navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+			.then((function (self: any) {
+				return function (stream: MediaStream) {
+					self.mediaStream.addTrack(stream.getAudioTracks()[0]);
+					self.audio = 1;
+					self.handleMediaTracks('tomtom');
+				}
+			})(this))
+			.catch((function (self) {
+				return function (e: any) {
+					console.log("e: ", e);
+					self.audio = 0;
+					self.handleMediaTracks('tomtom');
+				};
+			}(this)));
+	}
+	// wait for both tracks or handle permissions 
+	public handleMediaTracks(id: string) {
+		if (this.video != 2 && this.audio != 2) {
+			var htmlVideo = this.createHtmlVideo(id);
+			htmlVideo.srcObject = this.mediaStream;
+			this.insertHtmlVideo(htmlVideo);
+		}
+	}
+
+	public createHtmlVideo(id: string) {
+		var htmlVideo = document.createElement('video');
+		// @ts-ignore
+		htmlVideo.setAttribute('autoplay', true);
+		// @ts-ignore
+		htmlVideo.setAttribute('controls', true);
+
+		htmlVideo.setAttribute('width', this.videoContainerWidth.toString());
+		//htmlVideo.setAttribute('height', '150');
+
+		htmlVideo.id = id;
+
+		return htmlVideo;
+	}
+
+	public insertHtmlVideo(htmlVideo: any) {
+		var videoContainer = document.getElementById('videos-container');
+
+		if (videoContainer.lastChild) videoContainer.insertBefore(htmlVideo, videoContainer.lastChild.nextSibling);
+		else videoContainer.insertBefore(htmlVideo, videoContainer.firstChild);
+	}
 }
 

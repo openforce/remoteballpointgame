@@ -208,11 +208,13 @@ export class Flipchart {
 
     public triggerNextFlipchart() {
         this.activeFlipchart++;
+        this.game.gameStatistics.numberOfFlipchartPageChanges++;
         if (this.activeFlipchart == this.numberOfFlipcharts) this.activeFlipchart = 0;
     }
 
     public triggerPreviousFlipchart() {
         this.activeFlipchart--;
+        this.game.gameStatistics.numberOfFlipchartPageChanges++;
         if (this.activeFlipchart < 0) this.activeFlipchart = this.numberOfFlipcharts - 1;
     }
 

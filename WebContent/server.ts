@@ -10,6 +10,8 @@ import { GameConfigs } from './static/src/out/game/Configs';
 import { SocketListener } from './serverSrc/SocketListener';
 import { SocketListenerServerMode } from './serverSrc/SocketListenerServerMode';
 import { GameRoom } from './serverSrc/GameRoom';
+import { ServerStatistics } from './serverSrc/ServerStatistics';
+
 
 var log = true;
 
@@ -21,6 +23,7 @@ var io = socketIO(server);
 
 
 var gameRooms = {};
+var serverStatistics = new ServerStatistics();
 
 var socketListener: SocketListener;
 
@@ -96,10 +99,14 @@ app.get('/:gameRoomId', function (request: any, response: any) {
       // @ts-ignore
       response.send(maxRoomsReachedHTML);
 
+      serverStatistics.numberOfRoomLimitReached++;
+
       if (log) console.log('max rooms reached ', gameRoomId);
 
     } else {
       gameRooms[gameRoomId] = new GameRoom(gameRoomId, io);
+      
+      serverStatistics.numberOfRoomsCreated++;
 
       // @ts-ignore
       response.send(gameHTML);
@@ -131,6 +138,8 @@ setInterval(function () {
     if (gameRooms[id].shouldBeDeleted) {
       delete gameRooms[id];
       console.log('deleted gameRoom ', id);
+
+      serverStatistics.logStatics();
     }
   }
 }, 1000);

@@ -519,9 +519,11 @@ export class Player implements ISound {
                 if (this.leftHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_LEFT);
                     delete this.game.balls[id];
+                    this.game.gameStatistics.numberOfBallAutoCatches++;
                 } else if (this.rightHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_RIGHT);
                     delete this.game.balls[id];
+                    this.game.gameStatistics.numberOfBallAutoCatches++;
                 }
 
             }
@@ -564,6 +566,7 @@ export class Player implements ISound {
             for (var id in this.game.balls) {
                 if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
                     this.takeBall(this.game.balls[id], hand);
+                    this.game.gameStatistics.numberOfBallsTaken++;
                     delete this.game.balls[id];
                     return true;
                 }
@@ -576,6 +579,7 @@ export class Player implements ISound {
                     newBall.x = this.middleX;
                     newBall.y = this.middleY;
                     this.takeBall(newBall, hand);
+                    this.game.gameStatistics.numberOfBallsTakenFromBasket++;
                     return true;
                 }
             }
@@ -583,12 +587,14 @@ export class Player implements ISound {
             //check Flipchart
             if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.flipchart.getCollider())) {
                 this.game.flipchart.triggerFlipchart(this.id);
+                this.game.gameStatistics.numberOfFlipchartTriggers++;
                 return true;
             }
 
             //check Timer
             if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.timer.getCollider())) {
                 this.game.timer.triggerTimer();
+                this.game.gameStatistics.numberOfTimerTriggers++;
                 return true;
             }
 
@@ -596,6 +602,7 @@ export class Player implements ISound {
             for (var i = 0; i < this.game.radios.length; i++) {
                 if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.radios[i].getCollider())) {
                     this.game.radios[i].triggerRadio();
+                    this.game.gameStatistics.numberOfRadioTriggers++;
                     return true;
                 }
             }
@@ -603,6 +610,7 @@ export class Player implements ISound {
             //check Door
             if (CollisionUtils.colCheckCircleRectCollider(this.actionCircle, this.game.meetingRoom.colliders['doorCollider'])) {
                 this.leaveRoom = true;
+                this.game.gameStatistics.numberOfDoorTriggers++;
                 return true;
             }
         }
@@ -637,6 +645,8 @@ export class Player implements ISound {
 
         if (hand == Player.HAND_RIGHT) this.rightHand = null;
         if (hand == Player.HAND_LEFT) this.leftHand = null;
+
+        this.game.gameStatistics.numberOfBallShots++;
     }
 
     public getLookAngle(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
