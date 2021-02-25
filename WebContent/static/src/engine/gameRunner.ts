@@ -65,6 +65,10 @@ function mainLoop() {
 # Input Stuff
 ***********************************/
 function keyDown(evt: KeyboardEvent) {
+
+	// if the player is writing in the feedback form it should not be handeled by the game
+	if(document.activeElement.id == 'feedback') return;
+
 	gameEngine.inputs.keys[evt.keyCode] = true;
 
 	if (gameEngine.inputs.keysPressedTimeStamp[evt.keyCode] == null) {
@@ -73,6 +77,7 @@ function keyDown(evt: KeyboardEvent) {
 }
 
 function keyUp(evt: KeyboardEvent) {
+
 	gameEngine.inputs.keys[evt.keyCode] = false;
 	gameEngine.inputs.keysPressedTimeStamp[evt.keyCode] = null;
 }
