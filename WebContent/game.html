@@ -11,8 +11,10 @@
 
 	<meta property="og:title" content="The Remote Ball Point Game" />
 	<meta property="og:description" content="The Browsergame version of the legendary Ball Point Game" />
-	<meta property="og:image" content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
-	<meta property="og:image:secure_url" content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:image"
+		content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:image:secure_url"
+		content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
 	<meta property="og:url" content="https://ballpointgame.apps.openforce.com/" />
 
 	<!-- imports -->
@@ -49,6 +51,24 @@
 			</center>
 		</div>
 		<br />
+
+	</div>
+
+	<div class="col-md-12 d-flex justify-content-center">
+
+		<div class="form-group mt-3" id="feedbackForm">
+			<label class="label-font-size" for="feedback">Please help us improve and provide Feedback!</label>
+			<div class="input-group">
+				<textarea id="feedback" name="feedback" rows="2" cols="50"> </textarea>
+				<div class="input-group-addon">
+					&nbsp;&nbsp;<button type="button" class="btn btn-danger" onclick="sendTextAsMail();">Send</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="feedbackThank" hidden=true>
+			<label class="label-font-size" for="feedback">Thank you for your feedback!!</label>
+		</div>
 
 	</div>
 
@@ -95,6 +115,21 @@
 
 		displayStartPage();
 		displayRoomUrl();
+
+		function sendTextAsMail() {
+			var feedbackTextArea = document.getElementById("feedback");
+			var feedbackText = feedbackTextArea.value;
+
+			//alert(feedbackText);
+
+			gameEngine.sendFeedback(feedbackText); 
+			
+			var feedbackForm = document.getElementById("feedbackForm");
+			var feedbackThank = document.getElementById("feedbackThank");
+
+			feedbackForm.hidden = true;
+			feedbackThank.hidden = false;
+		}
 
 	</script>
 

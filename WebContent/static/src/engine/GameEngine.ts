@@ -12,7 +12,6 @@ import { PeerConnectorTest } from '../game/peer/PeerConnectorTest';
 import { GameSounds } from '../game/GameSounds';
 
 
-
 export class GameEngine {
 
 	static STATE_MENU = 1;
@@ -56,7 +55,7 @@ export class GameEngine {
 
 	constructor() {
 		this.inputs = new Inputs();
-
+		this.gameSyncer = new GameSyncerServerMode();
 	}
 
 	public initMenu(canvas: HTMLCanvasElement) {
@@ -99,8 +98,7 @@ export class GameEngine {
 	}
 
 	public initGameSyncerServer() {
-		this.gameSyncer = new GameSyncerServerMode(this.game);
-		this.gameSyncer.init();
+		this.gameSyncer.init(this.game);
 	}
 
 
@@ -239,6 +237,9 @@ export class GameEngine {
 		}
 	}
 
+	public sendFeedback(text: string){
+		this.gameSyncer.sendEventAndData('feedback', text);
+	}
 
 }
 

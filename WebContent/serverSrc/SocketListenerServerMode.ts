@@ -91,6 +91,10 @@ export class SocketListenerServerMode extends SocketListener {
                     self.gameRooms[gameRoomId].game.gameStatistics.numberOfResultSubmits++;
                 });
 
+                socket.on('feedback', function (feedback: any) {
+                    console.log('feedback: ', feedback); // ToDo: das gehört ins logging!!!
+                });
+
             }
         })(this));
 

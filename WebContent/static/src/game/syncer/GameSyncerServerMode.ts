@@ -14,11 +14,14 @@ import { Radio } from "../../gameObjects/Radio";
 */
 export class GameSyncerServerMode extends GameSyncer {
 
-	constructor(game: Game) {
-		super(game);
+	constructor() {
+		super();
 	}
 
-	public init() {
+	public init(game: Game) {
+		
+		this.game = game;
+
 		this.registerNewPlayerOnServer();
 		this.initPlayerSyncSender();
 		this.initGameStateSyncListener();
@@ -63,10 +66,10 @@ export class GameSyncerServerMode extends GameSyncer {
 
 		for (var i = 0; i < this.game.syncEvents.length; i++) {
 
-			if (this.game.syncEvents[i].eventString != 'sync result table') continue;
-
-			if (this.game.syncEvents[i].eventData == null) this.sendEvent(this.game.syncEvents[i].eventString);
-			else this.sendEventAndData(this.game.syncEvents[i].eventString, this.game.syncEvents[i].eventData);
+			if (this.game.syncEvents[i].eventString == 'sync result table' || this.game.syncEvents[i].eventString == 'feedback') {
+				if (this.game.syncEvents[i].eventData == null) this.sendEvent(this.game.syncEvents[i].eventString);
+				else this.sendEventAndData(this.game.syncEvents[i].eventString, this.game.syncEvents[i].eventData);
+			}
 
 		}
 
