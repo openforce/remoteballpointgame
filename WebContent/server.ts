@@ -7,13 +7,11 @@ import * as socketIO from 'socket.io';
 
 import { GameConfigs } from './static/src/out/game/Configs';
 
-import { GameEngine } from './static/src/out/engine/GameEngine';
-import { Game } from './static/src/out/game/Game';
-
 import { SocketListener } from './serverSrc/SocketListener';
-import { SocketListenerClientMode } from './serverSrc/SocketListenerClientMode';
 import { SocketListenerServerMode } from './serverSrc/SocketListenerServerMode';
 import { GameRoom } from './serverSrc/GameRoom';
+import { ServerStatistics } from './serverSrc/ServerStatistics';
+
 
 var log = true;
 
@@ -23,15 +21,29 @@ var app = express();
 var server = new http.Server(app);
 var io = socketIO(server);
 
-var gameRooms = {};
 
-var syncMode = GameConfigs.syncMode;
+var gameRooms = {};
+var serverStatistics = new ServerStatistics();
+
 var socketListener: SocketListener;
 
 app.set('port', 5000);
+
+var favicon = require('serve-favicon');
+app.use(favicon(__dirname + '/favicon.ico'));
+
 // @ts-ignore
 app.use('/static', express.static(__dirname + '/static'));
 
+
+// init peer server
+if(GameConfigs.hostPeerJsServer == 1){
+  var appForPeers = express();
+  var serverForPeers = appForPeers.listen(5001)
+  appForPeers.use('/peerjs', require('peer').ExpressPeerServer(serverForPeers, {
+    debug: true
+  }));
+}
 
 // @ts-ignore
 var analyticsKey = process.env.ANALYTICS_KEY;
@@ -69,22 +81,32 @@ app.get('/:gameRoomId', function (request: any, response: any) {
   }
 
 
-  if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] != null) { // existing room
+  if (gameRoomId == 'favicon.ico' ) { // favicon
+
+    // @ts-ignore
+    response.send('/favicon.ico');
+
+
+  } else if (gameRooms[gameRoomId] != null) { // existing room
 
     // @ts-ignore
     response.send(gameHTML);
 
 
-  } else if (gameRoomId != 'favicon.ico' && gameRooms[gameRoomId] == null) { // new room
+  } else if (gameRooms[gameRoomId] == null) { // new room
 
     if (Object.keys(gameRooms).length >= GameConfigs.maxGameRooms) {
       // @ts-ignore
       response.send(maxRoomsReachedHTML);
 
+      serverStatistics.numberOfRoomLimitReached++;
+
       if (log) console.log('max rooms reached ', gameRoomId);
 
     } else {
-      gameRooms[gameRoomId] = new GameRoom(gameRoomId, syncMode, io);
+      gameRooms[gameRoomId] = new GameRoom(gameRoomId, io);
+      
+      serverStatistics.numberOfRoomsCreated++;
 
       // @ts-ignore
       response.send(gameHTML);
@@ -107,9 +129,7 @@ server.listen(5000, function () {
 });
 
 
-if (syncMode == GameEngine.SYNC_MODE_CLIENT) socketListener = new SocketListenerClientMode(io, gameRooms);
-else if (syncMode == GameEngine.SYNC_MODE_SERVER) socketListener = new SocketListenerServerMode(io, gameRooms);
-
+socketListener = new SocketListenerServerMode(io, gameRooms);
 socketListener.init();
 
 
@@ -118,6 +138,8 @@ setInterval(function () {
     if (gameRooms[id].shouldBeDeleted) {
       delete gameRooms[id];
       console.log('deleted gameRoom ', id);
+
+      serverStatistics.logStatics();
     }
   }
 }, 1000);

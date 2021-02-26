@@ -1,8 +1,9 @@
 import { Game } from '../game/Game';
+import { ICollidableCircle } from '../interfaces/ICollidable';
 import { Ball } from './Ball';
 
 
-export class BallBasket {
+export class BallBasket implements ICollidableCircle {
 
     x: number;
     y: number;

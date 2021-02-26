@@ -7,11 +7,7 @@ export class GameSyncer {
 
 	game: Game;
 
-	syncMode: number;
-
-	constructor(game: Game) {
-
-		this.game = game;
+	constructor() {
 
 		// open socket connection to server
 		// @ts-ignore
@@ -25,6 +21,10 @@ export class GameSyncer {
 
 	}
 
+	public closeConnection(){
+		this.socket.close();
+	}
+
 
 	public sendEvent(eventString: string) {
 		//console.log('sendEvent:', eventString);
@@ -32,7 +32,7 @@ export class GameSyncer {
 	}
 
 	public sendEventAndData(eventString: string, data: any) {
-		//console.log('sendEventAndData:', eventString, data);
+		console.log('sendEventAndData:', eventString, data);
 		this.socket.emit(eventString, data);
 	}
 

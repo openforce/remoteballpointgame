@@ -1,12 +1,26 @@
+<!doctype html>
+
 <head>
 	<meta charset="utf-8" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" href="/static/css/landing.css">
 
+	<title>The Remote Ball Point Game</title>
+	<meta name="description" content="The Browsergame version of the legendary Ball Point Game" />
+
+	<meta property="og:title" content="The Remote Ball Point Game" />
+	<meta property="og:description" content="The Browsergame version of the legendary Ball Point Game" />
+	<meta property="og:image"
+		content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:image:secure_url"
+		content="https://ballpointgame.apps.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
+	<meta property="og:url" content="https://ballpointgame.apps.openforce.com/" />
+
 	<!-- imports -->
 	<script type="text/javascript" src="/static/src/libs/CanvasInput-master/CanvasInput.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
 	<script type="module" src="/static/src/out/bundle.js"></script>
 
@@ -33,9 +47,28 @@
 				<canvas id="canvas">
 					Browser not compatible with HTML5 canvas
 				</canvas>
+				<div id="videos-container" style="float: right; width:200px; max-width:200px;"></div>
 			</center>
 		</div>
 		<br />
+
+	</div>
+
+	<div class="col-md-12 d-flex justify-content-center">
+
+		<div class="form-group mt-3" id="feedbackForm">
+			<label class="label-font-size" for="feedback">Please help us improve and provide Feedback!</label>
+			<div class="input-group">
+				<textarea id="feedback" name="feedback" rows="2" cols="50"></textarea>
+				<div class="input-group-addon">
+					&nbsp;&nbsp;<button type="button" class="btn btn-danger" onclick="sendFeedback();">Send</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="feedbackThank" hidden=true>
+			<label class="label-font-size" for="feedback">Thank you for your feedback!!</label>
+		</div>
 
 	</div>
 
@@ -65,8 +98,6 @@
 	</div>
 
 
-
-
 	<script type="text/javascript">
 
 		function displayRoomUrl() {
@@ -82,6 +113,35 @@
 
 		displayStartPage();
 		displayRoomUrl();
+
+		function sendFeedbackPerMail(feedbackText){
+			var mailtoString = 'mailto:remoteballpointgame@openforce.com?';
+			
+			var subject = 'subject=Feedback&';
+			var body = 'body=' + feedbackText;
+		
+			mailtoString = mailtoString + subject + body;
+
+			//console.log(mailtoString);
+			window.open(mailtoString);
+		}
+
+		function sendFeedback() {
+			var feedbackTextArea = document.getElementById("feedback");
+			var feedbackText = feedbackTextArea.value;
+
+			//alert(feedbackText);
+
+			gameEngine.sendFeedback(feedbackText); 
+			
+			sendFeedbackPerMail(feedbackText); // ToDo: remove after persistend server logging is implemented
+			
+			var feedbackForm = document.getElementById("feedbackForm");
+			var feedbackThank = document.getElementById("feedbackThank");
+
+			feedbackForm.hidden = true;
+			feedbackThank.hidden = false;
+		}
 
 	</script>
 
@@ -130,7 +190,7 @@
 
 			console.log('ga_accepted: ', getCookie('ga_accepted'));
 		}
-		
+
 
 		function hideCookieMgmt() {
 			document.getElementById("cookieMgmt").style.display = 'none';
@@ -138,7 +198,7 @@
 
 		function checkCookieMgmt() {
 			var ga_accepted = getCookie('ga_accepted');
-			if ( ga_accepted != null && ga_accepted != '' ) hideCookieMgmt();
+			if (ga_accepted != null && ga_accepted != '') hideCookieMgmt();
 		}
 
 
@@ -158,4 +218,6 @@
 	</script>
 	<script async src='https://www.google-analytics.com/analytics.js'></script>
 	<!-- End Google Analytics -->
+
+
 </body>

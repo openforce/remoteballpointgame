@@ -1,4 +1,5 @@
 import { GameEngine } from "../../engine/GameEngine";
+import { DrawUtils } from "../../utils/DrawUtils1";
 import { MeetingRoom } from "../MeetingRoom";
 
 export class MeetingRoomDrawer {
@@ -26,31 +27,17 @@ export class MeetingRoomDrawer {
             0, 0, 900, 1000); 	 // draw position and size
 
         if (meetingRoom.game.drawColliders) {
-            this.drawBorder(ctx, meetingRoom);
-            this.drawDoorCollider(ctx, meetingRoom);
+            this.drawColliders(ctx, meetingRoom);
         }
     }
 
-    public drawBorder(ctx: CanvasRenderingContext2D, meetingRoom: MeetingRoom) {
+    public drawColliders(ctx: CanvasRenderingContext2D, meetingRoom: MeetingRoom) {
 
-        //draw border
-        ctx.beginPath();
-        ctx.strokeStyle = 'blue';
-        ctx.rect(meetingRoom.border, meetingRoom.border, GameEngine.CANVAS_WIDTH - meetingRoom.border * 2, GameEngine.CANVAS_HEIGHT - meetingRoom.border * 2);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.closePath();
+        for(var id in meetingRoom.colliders){
+            DrawUtils.drawRectObject(ctx, meetingRoom.colliders[id], 'blue');
+        }
+
     }
-
-    public drawDoorCollider(ctx: CanvasRenderingContext2D, meetingRoom: MeetingRoom) {
-        //draw border
-        ctx.beginPath();
-        ctx.strokeStyle = 'blue';
-        ctx.rect(meetingRoom.doorCollider.x, meetingRoom.doorCollider.y, meetingRoom.doorCollider.width, meetingRoom.doorCollider.height);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.closePath();
-    }
-
+    
 
 }

@@ -12,6 +12,9 @@ import { RandomUtils } from '../utils/RandomUtils1';
 import { IBallList, IBallStateList } from '../interfaces/IBallLists';
 import { IPlayerList, IPlayerStateList } from '../interfaces/IPlayerLists';
 import { GameConfigs } from './Configs';
+import { Radio } from '../gameObjects/Radio';
+import { IRadioStateList } from '../interfaces/IRadioList';
+import { GameStatistics } from './GameStatistics';
 
 
 export class Game {
@@ -24,6 +27,8 @@ export class Game {
 
 	gameName = "Remote Ball Point Game";
 
+	gameStatistics: GameStatistics;
+
 	//GAME Objects
 	player: Player;
 
@@ -34,6 +39,8 @@ export class Game {
 	meetingRoom: MeetingRoom;
 	flipchart: Flipchart;
 	timer: Timer;
+
+	radios: Radio[];
 
 	//Multiplayer Objects
 	players: IPlayerList;
@@ -57,7 +64,7 @@ export class Game {
 
 
 	/***********************************
-	# init in MODE_CLIENT
+	# init in MODE_CLIENT --> Browser Client
 	***********************************/
 	public initGame(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
@@ -68,17 +75,21 @@ export class Game {
 
 		// INIT Game Objects here
 		this.player.init();
-
 	}
 
 	/***********************************
-	# init in MODE_SIMULATION
+	# init in MODE_SIMULATION --> Server
 	***********************************/
 	public initGameSimulation() {
 		this.ui = false;
 		this.initGameWorld();
 
+		//this.radios.push(new Radio(this, 120, 350, 270));
+		this.radios.push(new Radio(this, 696, 350, 90));
+
 		this.player = null;
+
+		this.gameStatistics = new GameStatistics();
 	}
 
 	public initGameWorld() {
@@ -94,6 +105,8 @@ export class Game {
 		this.meetingRoom = new MeetingRoom(this);
 		this.flipchart = new Flipchart(this, 40, 80);
 		this.timer = new Timer(this, 170, 60);
+
+		this.radios = [];
 
 		this.balls = {};
 		this.players = {};
@@ -122,9 +135,7 @@ export class Game {
 	}
 
 	public updateGame(timeDiff: number) {
-
-		// UPDATE Game Objects
-
+		
 		for (var i = 0; i < this.ballBaskets.length; i++) {
 			this.ballBaskets[i].update;
 		}
@@ -133,12 +144,17 @@ export class Game {
 		this.flipchart.update(timeDiff);
 		this.timer.update(timeDiff);
 
-		for (var id in this.players) {
-			this.players[id].update(timeDiff);
-		}
+		if (!this.flipchart.active)
+			for (var id in this.players) {
+				this.players[id].update(timeDiff);
+			}
 
 		for (var id in this.balls) {
 			this.balls[id].update(timeDiff);
+		}
+
+		for (var i = 0; i < this.radios.length; i++) {
+			this.radios[i].update(timeDiff);
 		}
 
 
@@ -185,6 +201,17 @@ export class Game {
 		}
 
 		return ballStates;
+	}
+
+	public getRadioStateList() {
+		var radioStates: IRadioStateList;
+		radioStates = {};
+
+		for (var i = 0; i < this.radios.length; i++) {
+			radioStates[this.radios[i].id] = this.radios[i].getSyncState();
+		}
+
+		return radioStates;
 	}
 
 	public getPlayerStateList() {

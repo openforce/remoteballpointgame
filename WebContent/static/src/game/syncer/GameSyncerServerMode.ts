@@ -5,6 +5,8 @@ import { Ball } from "../../gameObjects/Ball";
 import { GameEngine } from "../../engine/GameEngine";
 import { IBallStateList } from "../../interfaces/IBallLists";
 import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
+import { IRadioStateList } from "../../interfaces/IRadioList";
+import { Radio } from "../../gameObjects/Radio";
 
 /** 
  * GameSyncer implementation that gives controle of the player and ball states to the server
@@ -12,13 +14,14 @@ import { FlipchartState } from "../../gameObjects/syncObjects/FlipchartState";
 */
 export class GameSyncerServerMode extends GameSyncer {
 
-
-	constructor(game: Game) {
-		super(game);
-		this.syncMode = GameEngine.SYNC_MODE_CLIENT;
+	constructor() {
+		super();
 	}
 
-	public init() {
+	public init(game: Game) {
+		
+		this.game = game;
+
 		this.registerNewPlayerOnServer();
 		this.initPlayerSyncSender();
 		this.initGameStateSyncListener();
@@ -31,8 +34,8 @@ export class GameSyncerServerMode extends GameSyncer {
 
 	public initPlayerSyncSender() {
 		setInterval(
-			(function (self) {                                                           //Self-executing func which takes 'this' as self
-				return function () {                                                     //Return a function in the context of 'self'
+			(function (self) {                                                          //Self-executing func which takes 'this' as self
+				return function () {                                                    //Return a function in the context of 'self'
 					self.socket.emit('player controles', self.game.player.inputState);  //Thing you wanted to run as non-window 'this'
 				}
 			})(this), 1000 / 60);
@@ -41,9 +44,9 @@ export class GameSyncerServerMode extends GameSyncer {
 	public initGameStateSyncListener() {
 
 		//server state listener
-		this.socket.on('state', (function (self) {                                                                                //Self-executing func which takes 'this' as self
-			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any) { //Return a function in the context of 'self'
-				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState);           //Thing you wanted to run as non-window 'this'
+		this.socket.on('state', (function (self) {                                                                                
+			return function (serverPlayers: any, serverBalls: any, serverTimer: any, serverFlipchart: any, serverGameState: any, serverRadios: any) { 
+				self.processServerSync(serverPlayers, serverBalls, serverTimer, serverFlipchart, serverGameState, serverRadios);           
 			}
 		})(this));
 
@@ -51,9 +54,9 @@ export class GameSyncerServerMode extends GameSyncer {
 
 	public initEventSyncSender() {
 		setInterval(
-			(function (self) {          //Self-executing func which takes 'this' as self
-				return function () {    //Return a function in the context of 'self'
-					self.sendEvents(); //Thing you wanted to run as non-window 'this'
+			(function (self) {          
+				return function () {    
+					self.sendEvents(); 
 				}
 			})(this),
 			1000 / 60);
@@ -63,20 +66,20 @@ export class GameSyncerServerMode extends GameSyncer {
 
 		for (var i = 0; i < this.game.syncEvents.length; i++) {
 
-			if (this.game.syncEvents[i].eventString != 'sync result table') continue;
-
-			if (this.game.syncEvents[i].eventData == null) this.sendEvent(this.game.syncEvents[i].eventString);
-			else this.sendEventAndData(this.game.syncEvents[i].eventString, this.game.syncEvents[i].eventData);
+			if (this.game.syncEvents[i].eventString == 'sync result table' || this.game.syncEvents[i].eventString == 'feedback') {
+				if (this.game.syncEvents[i].eventData == null) this.sendEvent(this.game.syncEvents[i].eventString);
+				else this.sendEventAndData(this.game.syncEvents[i].eventString, this.game.syncEvents[i].eventData);
+			}
 
 		}
 
 		this.game.syncEvents = [];
 	}
 
-    /***********************************
+	/***********************************
 	# sync client with server states
 	***********************************/
-	public processServerSync(playerStates: any, ballStates: IBallStateList, timerState: any, flipchartState: FlipchartState, gameState: any) {
+	public processServerSync(playerStates: any, ballStates: IBallStateList, timerState: any, flipchartState: FlipchartState, gameState: any, radioStates: any) {
 
 		this.game.syncState(gameState);
 
@@ -86,6 +89,31 @@ export class GameSyncerServerMode extends GameSyncer {
 		this.syncPlayerStates(playerStates);
 		this.syncBallStates(ballStates);
 
+		this.syncRadioStates(radioStates);
+
+	}
+
+	public syncRadioStates(radioStates: IRadioStateList) {
+		for (var id in radioStates) {
+
+			var found = false;
+
+			for (var i = 0; i < this.game.radios.length; i++) {
+
+				if (Number(id) == this.game.radios[i].id) {
+					this.game.radios[i].syncState(radioStates[id]);
+					found = true;
+				}
+
+			}
+
+			if (!found) {
+				var newRadio = new Radio(this.game, radioStates[id].x, radioStates[id].y, radioStates[id].rotation);
+				newRadio.syncState(radioStates[id]);
+				this.game.radios.push(newRadio);
+			}
+
+		}
 	}
 
 	public syncPlayerStates(playerStates: any) {
@@ -105,7 +133,6 @@ export class GameSyncerServerMode extends GameSyncer {
 					// if the player is null add it
 					this.game.players[serverPlayerId] = new Player(this.game, 0, 0, null, null, null, null);
 					this.game.players[serverPlayerId].syncState(playerStates[serverPlayerId]);
-
 				}
 
 			} else { // main player

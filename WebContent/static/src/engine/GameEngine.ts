@@ -2,21 +2,17 @@ import { GameConfigs } from '../game/Configs';
 
 import { Game } from '../game/Game';
 import { GameDrawer } from '../game/GameDrawer';
+
 import { Inputs } from '../game/Inputs';
 
 import { MenuController } from './MenuController';
-import { GameSyncerClientMode } from '../game/syncer/GameSyncerClientMode';
 import { GameSyncerServerMode } from '../game/syncer/GameSyncerServerMode';
-
+import { PeerConnector } from '../game/peer/PeerConnector';
+import { PeerConnectorTest } from '../game/peer/PeerConnectorTest';
+import { GameSounds } from '../game/GameSounds';
 
 
 export class GameEngine {
-
-	static MODE_SIMULATION = 0;
-	static MODE_CLIENT = 1;
-
-	static SYNC_MODE_CLIENT = 0;
-	static SYNC_MODE_SERVER = 1;
 
 	static STATE_MENU = 1;
 	static STATE_GAME = 2;
@@ -36,12 +32,14 @@ export class GameEngine {
 	menuController: MenuController;
 
 	game: Game;
+
 	gameDrawer: GameDrawer;
+	gameSounds: GameSounds;
 
-	syncMode: number;
+	gameSyncer: GameSyncerServerMode;
 
-	gameSyncerClientMode: GameSyncerClientMode;
-	gameSyncerServerMode: GameSyncerServerMode;
+	peerConnectorTest: PeerConnectorTest;
+	peerConnector: PeerConnector;
 
 	inputs: Inputs;
 
@@ -56,16 +54,14 @@ export class GameEngine {
 
 
 	constructor() {
-		this.syncMode = GameConfigs.syncMode;
 		this.inputs = new Inputs();
-
+		this.gameSyncer = new GameSyncerServerMode();
 	}
 
 	public initMenu(canvas: HTMLCanvasElement) {
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
 
-		this.mode = GameEngine.MODE_CLIENT
 		this.state = GameEngine.STATE_MENU;
 
 		this.menuController = new MenuController(this);
@@ -76,39 +72,33 @@ export class GameEngine {
 
 	public initGame(playerName: string, playerColor: string, playerGender: string, playerControlMode: number) {
 
-		this.mode = GameEngine.MODE_CLIENT;
 		this.state = GameEngine.STATE_GAME;
 
 		this.gameDrawer = new GameDrawer();
 		this.game = new Game();
+		this.gameSounds = new GameSounds(this.game);
 
 		this.game.initGame(playerName, playerColor, playerGender, playerControlMode);
+		this.gameSounds.init();
 
-		if (this.syncMode == GameEngine.SYNC_MODE_CLIENT) this.initGameSyncerClient();
-		else if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.initGameSyncerServer();
+		// init game logic syncer (socketIO connection to node server)
+		this.initGameSyncerServer();
 
+		// init peer connector (for peer to peer connections with webRTC)
+		if (GameConfigs.useProximityChat == 1) {
+			//this.peerConnectorTest = new PeerConnectorTest(this.game);
+
+			this.peerConnector = new PeerConnector(this.game);
+			this.peerConnector.init();
+		}
 
 		//time
 		var now = new Date();
 		this.lastTime = now.getTime();
 	}
 
-	public initGameSyncerClient() {
-		this.gameSyncerClientMode = new GameSyncerClientMode(this.game);
-		this.gameSyncerClientMode.init();
-	}
-
 	public initGameSyncerServer() {
-		this.gameSyncerServerMode = new GameSyncerServerMode(this.game);
-		this.gameSyncerServerMode.init();
-	}
-
-	public initGameSimulation() {
-
-		this.mode = GameEngine.MODE_SIMULATION;
-		this.state = GameEngine.STATE_GAME;
-
-		this.game.initGameSimulation();
+		this.gameSyncer.init(this.game);
 	}
 
 
@@ -147,22 +137,19 @@ export class GameEngine {
 		if (this.timeDiff > this.maxTimeDiff) {
 			this.maxTimeDiff = this.timeDiff;
 		}
-		//if(timeDiff > 20) console.log(timeDiff);
 
 		this.lastTime = time;
 
 		// update game
-		if (this.mode == GameEngine.MODE_CLIENT) this.game.updateInputs(this.inputs);
+		this.game.updateInputs(this.inputs);
 
-		if (this.syncMode == GameEngine.SYNC_MODE_CLIENT) {
-			this.game.player.setControlesFromInputState();
-			this.game.updatePlayer(this.timeDiff);
-			this.game.updateGame(this.timeDiff);
-		} else {
-			this.game.flipchart.update(this.timeDiff);
-		}
+		this.game.flipchart.updateClient(this.timeDiff);
 
-		if (this.mode == GameEngine.MODE_CLIENT) this.gameDrawer.draw(this.ctx, this.game);
+		this.gameDrawer.draw(this.ctx, this.game);
+		this.gameSounds.update();
+
+		if (GameConfigs.useProximityChat == 1) this.peerConnector.update();
+
 	}
 
 
@@ -250,6 +237,9 @@ export class GameEngine {
 		}
 	}
 
+	public sendFeedback(text: string){
+		this.gameSyncer.sendEventAndData('feedback', text);
+	}
 
 }
 

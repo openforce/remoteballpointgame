@@ -1,4 +1,5 @@
 <!doctype html>
+
 <head>
 	<meta charset="utf-8" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -10,9 +11,13 @@
 
 	<meta property="og:title" content="The Remote Ball Point Game" />
 	<meta property="og:description" content="The Browsergame version of the legendary Ball Point Game" />
+
 	<meta property="og:image" content="https://remoteballpointgame.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
 	<meta property="og:image:secure_url" content="https://remoteballpointgame.openforce.com/static/resources/remote_ballpoint_game_04.jpg" />
 	<meta property="og:url" content="https://remoteballpointgame.openforce.com/" />
+
+	<link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
+
 	
 </head>
 
@@ -118,7 +123,7 @@
 				https://github.com/openforce/remoteballpointgame
 			</a>
 			<br />
-			<a href="mailto:remoteballpointgame@openforce.come">remoteballpointgame@openforce.com</a>
+			<a href="mailto:remoteballpointgame@openforce.com">remoteballpointgame@openforce.com</a>
 		</div>
 	</div>
 
@@ -237,7 +242,7 @@
 
 			console.log('ga_accepted: ', getCookie('ga_accepted'));
 		}
-		
+
 
 		function hideCookieMgmt() {
 			document.getElementById("cookieMgmt").style.display = 'none';
@@ -245,7 +250,7 @@
 
 		function checkCookieMgmt() {
 			var ga_accepted = getCookie('ga_accepted');
-			if ( ga_accepted != null && ga_accepted != '' ) hideCookieMgmt();
+			if (ga_accepted != null && ga_accepted != '') hideCookieMgmt();
 		}
 
 

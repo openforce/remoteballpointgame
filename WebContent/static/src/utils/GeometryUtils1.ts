@@ -1,6 +1,6 @@
 export class GeometryUtils {
 
-    static getAngleBetweenToPoints(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
+    public static getAngleBetweenToPoints(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {
         var dx = shootTargetX - playerPosX;
         // Minus to correct for coord re-mapping
         var dy = (shootTargetY - playerPosY) * -1;
@@ -20,18 +20,18 @@ export class GeometryUtils {
         return this.radToDegree(inRads);
     }
 
-    static radToDegree(radValue: number) {
+    public static radToDegree(radValue: number) {
         var pi = Math.PI;
         var ra_de = radValue * (180 / pi);
         return ra_de;
     }
-    static degreeToRad(degreeValue: number) {
+    public static degreeToRad(degreeValue: number) {
         var pi = Math.PI;
         var de_ra = degreeValue * (pi / 180);
         return de_ra;
     }
 
-    static getDistance(fromX: number, fromY: number, toX: number, toY: number) {
+    public static getDistance(fromX: number, fromY: number, toX: number, toY: number) {
         var a = Math.abs(fromX - toX);
         var b = Math.abs(fromY - toY);
 

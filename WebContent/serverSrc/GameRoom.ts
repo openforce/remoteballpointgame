@@ -1,12 +1,15 @@
 import { Game } from "../static/src/out/game/Game";
-import { GameEngine } from "../static/src/out/engine/GameEngine";
 import { GameConfigs } from "../static/src/out/game/Configs";
+import { GameRoomStatistics } from "./GameRoomStatistics";
 
 export class GameRoom {
 
     gameRoomId: string;
     gameCreatedTimestamp: number;
 
+    gameRoomStatistics: GameRoomStatistics;
+
+    // @ts-ignore
     game: Game;
 
     log = true;
@@ -14,24 +17,24 @@ export class GameRoom {
     lastTime = 0;
     timeDiff = 0;
 
-    syncMode: number;
-
     gameEmptyTimeStemp: number;
 
     mainLoopIntervallId: any;
 
     shouldBeDeleted: boolean;
 
-    constructor(gameRoomId: string, syncMode: number, io: any) {
+    constructor(gameRoomId: string, io: any) {
 
         this.gameRoomId = gameRoomId;
-        this.syncMode = syncMode;
 
         var now = new Date();
         this.gameCreatedTimestamp = now.getTime();
 
         this.game = new Game();
         this.game.initGameSimulation();
+
+        this.gameRoomStatistics = new GameRoomStatistics(this.gameRoomId, this.game.gameStatistics);
+        this.gameRoomStatistics.createdTimestamp = this.gameCreatedTimestamp;
 
         this.gameEmptyTimeStemp = null;
 
@@ -40,7 +43,7 @@ export class GameRoom {
             (function (self) {
                 return function () {
                     self.updateGame();
-                    if(self.game != null) io.to(gameRoomId).emit('state', self.game.getPlayerStateList(), self.game.getBallStateList(), self.game.timer.getSyncState(), self.game.flipchart.getSyncState(), self.game.getSyncState());
+                    if(self.game != null) io.to(gameRoomId).emit('state', self.game.getPlayerStateList(), self.game.getBallStateList(), self.game.timer.getSyncState(), self.game.flipchart.getSyncState(), self.game.getSyncState(), self.game.getRadioStateList());
                 }
             })(this), 1000 / 60);
     }
@@ -54,7 +57,7 @@ export class GameRoom {
         this.timeDiff = time - this.lastTime;
         this.lastTime = time;
 
-        if (this.syncMode == GameEngine.SYNC_MODE_SERVER) this.game.updateGame(this.timeDiff);
+        this.game.updateGame(this.timeDiff);
 
         if (Object.keys(this.game.players).length == 0) {
             if (this.gameEmptyTimeStemp == null) {
@@ -72,6 +75,9 @@ export class GameRoom {
 
     public markToDelete() {
         if (this.log) console.log('mark room with id ', this.gameRoomId, ' to delete');
+        
+        this.gameRoomStatistics.setClosedTimestamp();
+        this.gameRoomStatistics.logStatics();
 
         clearInterval(this.mainLoopIntervallId);
         this.game = null;

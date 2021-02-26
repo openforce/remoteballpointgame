@@ -56,3 +56,10 @@ Don't use this one:
 <ul>
   <li><s>syncMode (1 - the clients only send their inputs to the server and the server updates the game state; 0 - the clients update their own state and send the state to the server). Use 1, otherwise the client can easily hack the state... </s></li>
 </ul>
+
+
+<h3>credits</h3>
+
+<ul> 
+  <li>Sound effects obtained from https://www.zapsplat.com</li>
+</ul>

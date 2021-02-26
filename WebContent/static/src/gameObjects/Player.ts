@@ -1,6 +1,4 @@
-import { GameEngine } from '../engine/GameEngine';
 import { Game } from '../game/Game';
-import { GameSyncer } from '../game/syncer/GameSyncer';
 import { Inputs } from '../game/Inputs';
 
 import { RandomUtils } from '../utils/RandomUtils1';
@@ -10,11 +8,13 @@ import { GeometryUtils } from '../utils/GeometryUtils1';
 import { Ball } from './Ball';
 import { PlayerInputState } from './syncObjects/PlayerInputState';
 import { PlayerState } from './syncObjects/PlayerState';
-import { throws } from 'assert';
+import { PlayerAnimation } from './drawer/animationStates/PlayerAnimation';
+
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
+import { ISound } from '../interfaces/ISound';
 import { GameConfigs } from '../game/Configs';
 
-
-export class Player {
+export class Player implements ISound {
 
     static HAND_LEFT = 0;
     static HAND_RIGHT = 1;
@@ -42,9 +42,8 @@ export class Player {
     radius: number;
     rotation: number;
 
+    actionCircle: TempColliderCircle;
     actionCircleRadius: number = 25;
-    actionCircleX: number;
-    actionCircleY: number;
 
     rightHand: Ball;
     leftHand: Ball;
@@ -63,10 +62,9 @@ export class Player {
 
     game: Game;
 
-    walkAnimationFrames: number = 2;
-    walkAnimationCount: number = 0;
-    walkAnimationTime: number = 200;
-    walkAnimationTimeDif: number = 0;
+    animationState: PlayerAnimation;
+
+    soundRadius: number = 500;
 
     // controls 
     controleMode: number;
@@ -91,6 +89,10 @@ export class Player {
     moveBackward: boolean;
     rotateLeft: boolean;
     rotateRight: boolean;
+
+    // hotkeys
+    triggerFlipchartTimestamp = 0;
+    triggerTimerTimestamp = 0;
 
 
     constructor(game: Game, x: number, y: number, name: string, color: string, gender: string, controlMode: number) {
@@ -120,6 +122,11 @@ export class Player {
 
         this.inputState = new PlayerInputState();
         this.inputState.playerId = this.id;
+
+        this.actionCircle = new TempColliderCircle(0, 0, this.actionCircleRadius);
+        this.setActionAreaCircle();
+
+        this.animationState = new PlayerAnimation(this);
     }
 
 
@@ -157,12 +164,15 @@ export class Player {
 
         syncObject.lookX = this.lookX;
         syncObject.lookY = this.lookY;
-        syncObject.walkAnimationCount = this.walkAnimationCount;
 
         if (this.rightHand != null) syncObject.rightHand = this.rightHand.color;
         if (this.leftHand != null) syncObject.leftHand = this.leftHand.color;
 
         syncObject.leaveRoom = this.leaveRoom;
+
+
+        // animation
+        syncObject.walkAnimationCount = this.animationState.walkAnimationCount;
 
         return syncObject;
     }
@@ -198,8 +208,6 @@ export class Player {
         this.lookX = playerSyncState.lookX;
         this.lookY = playerSyncState.lookY;
 
-        this.walkAnimationCount = playerSyncState.walkAnimationCount;
-
         if (playerSyncState.rightHand != null) {
             if (this.rightHand == null) this.rightHand = new Ball(this.game, this.x, this.y, playerSyncState.rightHand);
         } else this.rightHand = null;
@@ -209,12 +217,20 @@ export class Player {
         } else this.leftHand = null;
 
         this.leaveRoom = playerSyncState.leaveRoom;
+
+
+        // animation
+        this.animationState.walkAnimationCount = playerSyncState.walkAnimationCount;
     }
+
 
     // CONTROLS
 
     // used in MODE_CLIENT
     public updateInputs(inputs: Inputs) {
+
+        // keys for result table input
+        this.inputState.keys = inputs.keys;
 
         // W | UP
         if (inputs.keys[87] || inputs.keys[38]) this.inputState.w = true;
@@ -229,7 +245,7 @@ export class Player {
         if (inputs.keys[68] || inputs.keys[39]) this.inputState.d = true;
         else this.inputState.d = false;
 
-        //space
+        // space
         if (inputs.keys[32]) {
             this.inputState.space = true;
             if (this.inputState.spacePressedTimeStamp == null) this.inputState.spacePressedTimeStamp = new Date().getTime();
@@ -239,7 +255,7 @@ export class Player {
             this.inputState.spacePressedTimeStamp = null;
         }
 
-        //shift
+        // shift
         if (inputs.keys[16]) {
             this.inputState.shift = true;
             if (this.inputState.shiftPressedTimeStamp == null) this.inputState.shiftPressedTimeStamp = new Date().getTime();
@@ -248,6 +264,27 @@ export class Player {
             this.inputState.shift = false;
             this.inputState.shiftPressedTimeStamp = null;
         }
+
+        // F --> activate Flipchart
+        if (inputs.keys[70]) {
+            this.inputState.f = true;
+            this.inputState.fPressedTimestamp = inputs.keysPressedTimeStamp[70];
+        }
+        else {
+            this.inputState.f = false;
+            this.inputState.fPressedTimestamp = null;
+        }
+
+        // T --> activate Timer
+        if (inputs.keys[84]) {
+            this.inputState.t = true;
+            this.inputState.tPressedTimestamp = inputs.keysPressedTimeStamp[84];
+        }
+        else {
+            this.inputState.t = false;
+            this.inputState.tPressedTimestamp = null;
+        }
+
 
         this.inputState.mouseX = inputs.mousePosX;
         this.inputState.mouseY = inputs.mousePosY;
@@ -263,6 +300,22 @@ export class Player {
     // used in MODE_SIMULATION
     public setControlesFromInputState() {
 
+        // HOTKEYS
+
+        // F
+        if (this.inputState.f && this.inputState.fPressedTimestamp > this.triggerFlipchartTimestamp) {
+            this.game.flipchart.triggerFlipchart(this.id);
+            this.triggerFlipchartTimestamp = this.inputState.fPressedTimestamp;
+        }
+
+        // T
+        if (this.inputState.t && this.inputState.tPressedTimestamp > this.triggerTimerTimestamp) {
+            this.game.timer.triggerTimer();
+            this.triggerTimerTimestamp = this.inputState.tPressedTimestamp;
+        }
+
+
+        // PLAYER
         if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
 
             this.moveUp = this.inputState.w;
@@ -328,7 +381,7 @@ export class Player {
         if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
             this.rotation = -this.getLookAngle(this.lookX, this.lookY, this.x + this.width / 2, this.y + this.height / 2) - 90;
         }
-        
+
         if (move) {
 
             if (this.controleMode == Player.CONTROLE_MODE_MOUSE) {
@@ -353,58 +406,60 @@ export class Player {
                 }
             }
 
-            this.walkAnimationTimeDif += timeDiff;
-
             this.middleX = this.x + this.width / 2;
             this.middleY = this.y + this.height / 2;
 
+
             // animation
-            if (this.moveDown || this.moveLeft || this.moveRight || this.moveUp || this.moveForward || this.moveBackward) {
-                if (this.walkAnimationTimeDif > this.walkAnimationTime) {
-                    this.walkAnimationCount++;
-                    if (this.walkAnimationCount > this.walkAnimationFrames) this.walkAnimationCount = 1;
-                    this.walkAnimationTimeDif = 0;
-                }
-            } else this.walkAnimationCount = 0;
+            this.animationState.update(timeDiff);
+
 
         }
 
         // CHECK COLLISIONS
         var col = false;
 
+        var playerCollider = new TempColliderCircle(this.middleX, this.middleY, this.radius);
+
         // Meeting Room
-        if (this.middleX - this.radius <= this.game.meetingRoom.border) col = true; //left
-        else if (this.middleY + this.radius >= GameEngine.CANVAS_HEIGHT - this.game.meetingRoom.border) col = true; //down
-        else if (this.middleY - this.radius <= this.game.meetingRoom.border) col = true; //up
-        else if (this.middleX + this.radius >= GameEngine.CANVAS_WIDTH - this.game.meetingRoom.border) col = true; //right
+        if (this.game.meetingRoom.checkCollisionsCyrcle(playerCollider)) col = true;
 
-        //Flipchart
-        else if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) col = true;
+        // Flipchart
+        else if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.flipchart.getCollider())) col = true;
 
-        //Timer
-        else if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) col = true;
+        // Timer
+        else if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.timer.getCollider())) col = true;
 
-        //Baskets
-        for (var i = 0; i < this.game.ballBaskets.length; i++) {
-            if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+
+        // Radios
+        for (var i = 0; i < this.game.radios.length; i++) {
+            if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.radios[i].getCollider())) {
                 col = true;
                 break;
             }
         }
 
-        //Balls
+        // Baskets
+        for (var i = 0; i < this.game.ballBaskets.length; i++) {
+            if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.ballBaskets[i])) {
+                col = true;
+                break;
+            }
+        }
+
+        // Balls
         for (var id in this.game.balls) {
             if (this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR) {
-                if (CollisionUtils.colCheckCirlces(this.middleX, this.middleY, this.radius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.balls[id])) {
                     col = true;
                     break;
                 }
             }
         }
 
-        //Players   
+        // Players   
         for (var id in this.game.players) {
-            //if(colCheckCirlces(this.x, this.y, this.radius, players[id].middleX, players[id].middleY, players[id].radius)) col = true;
+            //if (CollisionUtils.colCheckCircleColliders(playerCollider, this.game.players[id].getCollider())) col = true;
         }
 
 
@@ -446,21 +501,29 @@ export class Player {
             }
         }
 
-        this.automaticCatch();
+        if(GameConfigs.autocatch == 1) this.automaticCatch();
+
+
+    }
+
+    public getCollider() {
+        return new TempColliderCircle(this.middleX, this.middleY, this.radius);
     }
 
     public automaticCatch() {
         for (var id in this.game.balls) {
             if (this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR
                 && (this.rightHand == null || this.leftHand == null)
-                && CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                && CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
 
                 if (this.leftHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_LEFT);
                     delete this.game.balls[id];
+                    this.game.gameStatistics.numberOfBallAutoCatches++;
                 } else if (this.rightHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_RIGHT);
                     delete this.game.balls[id];
+                    this.game.gameStatistics.numberOfBallAutoCatches++;
                 }
 
             }
@@ -470,11 +533,11 @@ export class Player {
     public setActionAreaCircle() {
         var fAngle = GeometryUtils.degreeToRad(-this.rotation + 90);
 
-        var diagonalDistX = (this.radius + this.actionCircleRadius) * (Math.cos(fAngle));
-        var diagonalDistY = -(this.radius + this.actionCircleRadius) * (Math.sin(fAngle));
+        var diagonalDistX = (this.radius + this.actionCircle.radius) * (Math.cos(fAngle));
+        var diagonalDistY = -(this.radius + this.actionCircle.radius) * (Math.sin(fAngle));
 
-        this.actionCircleX = this.middleX - diagonalDistX / 3;
-        this.actionCircleY = this.middleY - diagonalDistY / 3;
+        this.actionCircle.x = this.middleX - diagonalDistX / 3;
+        this.actionCircle.y = this.middleY - diagonalDistY / 3;
     }
 
 
@@ -485,7 +548,8 @@ export class Player {
 
             //check BallBaskets
             for (var i = 0; i < this.game.ballBaskets.length; i++) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.ballBaskets[i])) {
+
                     if (hand == Player.HAND_LEFT) this.leftHand = null;
                     if (hand == Player.HAND_RIGHT) this.rightHand = null;
 
@@ -500,8 +564,9 @@ export class Player {
 
             // check Balls
             for (var id in this.game.balls) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.balls[id].x, this.game.balls[id].y, this.game.balls[id].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
                     this.takeBall(this.game.balls[id], hand);
+                    this.game.gameStatistics.numberOfBallsTaken++;
                     delete this.game.balls[id];
                     return true;
                 }
@@ -509,30 +574,43 @@ export class Player {
 
             //check BallBaskets
             for (var i = 0; i < this.game.ballBaskets.length; i++) {
-                if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.ballBaskets[i].x, this.game.ballBaskets[i].y, this.game.ballBaskets[i].radius)) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.ballBaskets[i])) {
                     var newBall = this.game.ballBaskets[i].getNewBall();
                     newBall.x = this.middleX;
                     newBall.y = this.middleY;
                     this.takeBall(newBall, hand);
+                    this.game.gameStatistics.numberOfBallsTakenFromBasket++;
                     return true;
                 }
             }
 
             //check Flipchart
-            if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.flipchart.middleX, this.game.flipchart.middleY, this.game.flipchart.radius)) {
+            if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.flipchart.getCollider())) {
                 this.game.flipchart.triggerFlipchart(this.id);
+                this.game.gameStatistics.numberOfFlipchartTriggers++;
                 return true;
             }
 
             //check Timer
-            if (CollisionUtils.colCheckCirlces(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.timer.middleX, this.game.timer.middleY, this.game.timer.radius)) {
+            if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.timer.getCollider())) {
                 this.game.timer.triggerTimer();
+                this.game.gameStatistics.numberOfTimerTriggers++;
                 return true;
             }
 
+            //check Radios
+            for (var i = 0; i < this.game.radios.length; i++) {
+                if (CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.radios[i].getCollider())) {
+                    this.game.radios[i].triggerRadio();
+                    this.game.gameStatistics.numberOfRadioTriggers++;
+                    return true;
+                }
+            }
+
             //check Door
-            if (CollisionUtils.colCheckCircleRect(this.actionCircleX, this.actionCircleY, this.actionCircleRadius, this.game.meetingRoom.doorCollider.x, this.game.meetingRoom.doorCollider.y, this.game.meetingRoom.doorCollider.width, this.game.meetingRoom.doorCollider.height)) {
+            if (CollisionUtils.colCheckCircleRectCollider(this.actionCircle, this.game.meetingRoom.colliders['doorCollider'])) {
                 this.leaveRoom = true;
+                this.game.gameStatistics.numberOfDoorTriggers++;
                 return true;
             }
         }
@@ -567,6 +645,8 @@ export class Player {
 
         if (hand == Player.HAND_RIGHT) this.rightHand = null;
         if (hand == Player.HAND_LEFT) this.leftHand = null;
+
+        this.game.gameStatistics.numberOfBallShots++;
     }
 
     public getLookAngle(shootTargetX: number, shootTargetY: number, playerPosX: number, playerPosY: number) {

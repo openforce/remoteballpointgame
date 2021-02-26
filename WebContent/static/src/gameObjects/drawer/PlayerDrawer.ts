@@ -47,23 +47,23 @@ export class PlayerDrawer {
         ctx.rotate(GeometryUtils.degreeToRad(player.rotation));
 
         // @ts-ignore
-        ctx.drawImage(this.sprites[player.gender + player.color][player.walkAnimationCount],
+        ctx.drawImage(this.sprites[player.gender + player.color][player.animationState.walkAnimationCount],
             0, 0, this.spriteWidth, this.spriteHeight, // sprite cutout position and size
             -player.width / 2, -player.height / 2, player.width, player.height); // draw position and size
 
         if (player.leftHand != null) {
             var myBall = player.leftHand;
 
-            DrawUtils.drawCyrcle(ctx, 13, 13, myBall.radius + 1, 'black');
-            DrawUtils.drawCyrcle(ctx, 13, 13, myBall.radius, myBall.color);
+            DrawUtils.drawCircle(ctx, 13, 13, myBall.radius + 1, 'black');
+            DrawUtils.drawCircle(ctx, 13, 13, myBall.radius, myBall.color);
 
         }
 
         if (player.rightHand != null) {
             var myBall = player.rightHand;
 
-            DrawUtils.drawCyrcle(ctx, -13, 15, myBall.radius + 1, 'black');
-            DrawUtils.drawCyrcle(ctx, -13, 15, myBall.radius, myBall.color);
+            DrawUtils.drawCircle(ctx, -13, 15, myBall.radius + 1, 'black');
+            DrawUtils.drawCircle(ctx, -13, 15, myBall.radius, myBall.color);
         }
 
 
@@ -86,8 +86,9 @@ export class PlayerDrawer {
     }
 
     public drawActionArea(ctx: CanvasRenderingContext2D, player: Player) {
-        DrawUtils.drawCyrcleOutline(ctx, player.middleX, player.middleY, player.radius, 'blue');
-        DrawUtils.drawCyrcleOutline(ctx, player.actionCircleX, player.actionCircleY, player.actionCircleRadius, 'green');
+        DrawUtils.drawCircleOutlineObject(ctx, player.getCollider(), 'blue');
+        player.setActionAreaCircle();
+        DrawUtils.drawCircleOutlineObject(ctx, player.actionCircle, 'green');
     }
 
 }

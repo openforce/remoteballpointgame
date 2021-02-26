@@ -1,6 +1,9 @@
 import { Game } from '../game/Game';
 import { TimerState } from './syncObjects/TimerState';
 
+import { TempColliderCircle } from '../gameObjectLibrary/TempCollider';
+import { TimerSound } from './sound/TimerSound';
+
 
 export class Timer {
 
@@ -13,13 +16,15 @@ export class Timer {
 
     sprite: CanvasImageSource;
     width: number = 72;
-    height: number = 85;
+    height: number = 85-30;
 
     targetTime: number = 120 * 1000; //2 Minuten
     startTime: number = null;
     playTime: number = this.targetTime;
 
     game: Game;
+
+    sound: TimerSound;
 
     constructor(game: Game, x: number, y: number) {
 
@@ -28,8 +33,7 @@ export class Timer {
         this.x = x;
         this.y = y;
 
-        this.middleX = this.x + this.width / 2;
-        this.middleY = this.y + this.height / 2 - 15;
+        this.updateMiddle();
 
     }
 
@@ -68,6 +72,25 @@ export class Timer {
 
         }
 
+    }
+
+    public updateMiddle(){
+        this.middleX = this.x + this.width / 2;
+        this.middleY = this.y + this.height / 2 - 15;
+    } 
+
+    public getCollider(){
+
+        this.updateMiddle();
+        return new TempColliderCircle(this.middleX, this.middleY, this.radius);
+    }
+
+    public updateSounds(){
+        if(this.playTime > 0 && this.playTime < 10  && !this.sound.countDownStarted) this.sound.playCountdown();
+        else if (this.sound.countDownStarted) this.sound.stopCountdown();
+
+        if(this.playTime == 0 && !this.sound.ringingStarted) this.sound.playRinging();
+        else if (this.playTime != 0 && this.sound.ringingStarted) this.sound.stopRinging();
     }
 
     public triggerTimer() {

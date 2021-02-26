@@ -2,10 +2,18 @@ export class PlayerInputState {
 
     playerId: number;
 
+    keys: boolean[];
+
     w: boolean;
     s: boolean;
     a: boolean;
     d: boolean;
+
+    f: boolean;
+    fPressedTimestamp: number;
+
+    t: boolean;
+    tPressedTimestamp: number;
 
     space: boolean;
     spacePressedTimeStamp: number;
@@ -21,4 +29,5 @@ export class PlayerInputState {
 
     clickedLeftTimeStemp: number;
     clickedRightTimeStemp: number;
+
 }
