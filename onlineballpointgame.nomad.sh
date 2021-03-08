@@ -13,7 +13,6 @@ job "$JOB_NAME" {
       driver = "docker"
       config {
         image = "$CONTAINER_STAGING_TAG"
-        
         auth {
           username = "$CI_DEPLOY_USER"
           password = "$CI_DEPLOY_PASSWORD"
@@ -40,6 +39,10 @@ job "$JOB_NAME" {
       resources {
         cpu    = 500 # MHz
         memory = 256 # MB
+        network {
+          mbits = 100
+          port "app" {}
+        }
       }
     }
   }
