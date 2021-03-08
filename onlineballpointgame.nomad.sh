@@ -7,9 +7,9 @@ job "$JOB_NAME" {
   datacenters = ["dc1"]
   type = "service"
 
-  group "ballpointgame_$STAGE_group" {
+  group "game" {
     count = 1
-    task "ballpointgame_$STAGE" {
+    task "game" {
       driver = "docker"
       config {
         image = "$CONTAINER_STAGING_TAG"
