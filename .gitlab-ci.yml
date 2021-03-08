@@ -14,7 +14,7 @@ build:
     - docker -H unix:///var/run/docker.sock build --tag $CONTAINER_STAGING_TAG .
     - docker -H unix:///var/run/docker.sock push $CONTAINER_STAGING_TAG
   tags:
-    - docker
+    - "cloud2-docker"
 
 deploy:
   stage: deploy
@@ -30,15 +30,17 @@ deploy:
     # and is this ref protected
     - echo $CI_COMMIT_REF_PROTECTED
     - echo $GA_TRACKING_ID
+    - export NOMAD_ADDR=https://nomad.service.consul:4646
+    - export NOMAD_CACERT=/etc/hashi/nomad-ca.pem
+    - export NOMAD_CLIENT_CERT=/etc/hashi/nomad-cli.pem
+    - export NOMAD_CLIENT_KEY=/etc/hashi/nomad-cli-key.pem
     - chmod +x onlineballpointgame.nomad.sh
     - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
     - nomad job run onlineballpointgame.nomad
   only:
     - develop
   tags:
-    - bastion
-    - nomad
-    - vault
+    - "cloud2-shell"
 
 deploy_prod:
   stage: deploy
@@ -54,6 +56,10 @@ deploy_prod:
     # and is this ref protected
     - echo $CI_COMMIT_REF_PROTECTED
     - echo $GA_TRACKING_ID
+    - export NOMAD_ADDR=https://nomad.service.consul:4646
+    - export NOMAD_CACERT=/etc/hashi/nomad-ca.pem
+    - export NOMAD_CLIENT_CERT=/etc/hashi/nomad-cli.pem
+    - export NOMAD_CLIENT_KEY=/etc/hashi/nomad-cli-key.pem
     - chmod +x onlineballpointgame.nomad.sh
     - ./onlineballpointgame.nomad.sh > onlineballpointgame.nomad
     - nomad job run onlineballpointgame.nomad
@@ -61,6 +67,4 @@ deploy_prod:
     - master
   when: manual
   tags:
-    - bastion
-    - nomad
-    - vault
+    - "cloud2-shell"
