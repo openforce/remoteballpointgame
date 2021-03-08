@@ -14,7 +14,6 @@ job "$JOB_NAME" {
       port "http" {
         to     = 5000
       }
-      dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
     }
 
     service {
