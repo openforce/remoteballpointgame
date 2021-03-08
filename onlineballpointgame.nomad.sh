@@ -9,12 +9,12 @@ job "$JOB_NAME" {
 
   group "game" {
     count = 1
-    network {
-      mode = "bridge"
-      port "http" {
-        to     = 5000
-      }
-    }
+#    network {
+#      mode = "bridge"
+#      port "http" {
+#        to     = 5000
+#      }
+#    }
 
     service {
       port = "http"
@@ -45,7 +45,10 @@ job "$JOB_NAME" {
           username = "$CI_DEPLOY_USER"
           password = "$CI_DEPLOY_PASSWORD"
         }
-        dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
+        port_map {
+          app = 5000
+        }
+       dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
       }
       resources {
         cpu    = 500 # MHz
