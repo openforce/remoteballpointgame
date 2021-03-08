@@ -17,7 +17,7 @@ job "$JOB_NAME" {
 #    }
 
     service {
-      port = "http"
+      port = 5000 
       check {
         type     = "http"
         path     = "/"
@@ -45,10 +45,7 @@ job "$JOB_NAME" {
           username = "$CI_DEPLOY_USER"
           password = "$CI_DEPLOY_PASSWORD"
         }
-        port_map {
-          app = 5000
-        }
-       dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
+        dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
       }
       resources {
         cpu    = 500 # MHz
