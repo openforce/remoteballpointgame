@@ -7,12 +7,13 @@ job "$JOB_NAME" {
   datacenters = ["dc1"]
   type = "service"
 
-  group "game" {
+  group "ballpointgame_$STAGE_group" {
     count = 1
-    task "game" {
+    task "ballpointgame_$STAGE" {
       driver = "docker"
       config {
         image = "$CONTAINER_STAGING_TAG"
+        
         auth {
           username = "$CI_DEPLOY_USER"
           password = "$CI_DEPLOY_PASSWORD"
