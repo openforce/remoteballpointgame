@@ -13,7 +13,7 @@ import { GameRoom } from './serverSrc/GameRoom';
 import { ServerStatistics } from './serverSrc/ServerStatistics';
 
 
-var log = true;
+var log = false;
 
 
 // init socket.io 
@@ -74,6 +74,20 @@ app.get('/:gameRoomId', function (request: any, response: any) {
 
   var gameRoomId: string = request.params.gameRoomId;
 
+  console.log('gameRoomId: ', gameRoomId)
+  
+  // get roomId without parameters
+  if(gameRoomId.includes('?')){
+    gameRoomId = gameRoomId.split('?')[0];
+    console.log('gameRoomId after split: ', gameRoomId)
+  }
+  
+
+  // proximity Chat option... should the server or the client handle this? :think:
+  var proximityChatParameter = request.query.useProximityChat;
+  if (log) console.log('proximityChatParameter', proximityChatParameter);
+
+  
   if (gameRoomId == 'trainerinstructions') {
     // @ts-ignore
     response.send(trainerinstructionsHTML);

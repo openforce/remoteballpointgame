@@ -25,6 +25,8 @@ export class GameEngine {
 	mode: number;
 	state: number;
 
+	useProximityChat: number;
+
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 
@@ -56,6 +58,10 @@ export class GameEngine {
 	constructor() {
 		this.inputs = new Inputs();
 		this.gameSyncer = new GameSyncerServerMode();
+
+		//@ts-ignore
+		if(useProximityChat != null) this.useProximityChat = useProximityChat; // set in HTML from url parameter
+		else this.useProximityChat = 0;
 	}
 
 	public initMenu(canvas: HTMLCanvasElement) {
@@ -85,7 +91,8 @@ export class GameEngine {
 		this.initGameSyncerServer();
 
 		// init peer connector (for peer to peer connections with webRTC)
-		if (GameConfigs.useProximityChat == 1) {
+
+		if (this.useProximityChat == 1) {
 			//this.peerConnectorTest = new PeerConnectorTest(this.game);
 
 			this.peerConnector = new PeerConnector(this.game);
@@ -148,7 +155,7 @@ export class GameEngine {
 		this.gameDrawer.draw(this.ctx, this.game);
 		this.gameSounds.update();
 
-		if (GameConfigs.useProximityChat == 1) this.peerConnector.update();
+		if (this.useProximityChat == 1) this.peerConnector.update();
 
 	}
 
