@@ -39,4 +39,5 @@ export class PlayerState {
 
     leaveRoom: boolean;
 
+    useProximityChat: number; // ToDo: also sync this option so that a peer knows if it should try to connect!
 }

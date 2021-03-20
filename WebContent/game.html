@@ -114,6 +114,21 @@
 		displayStartPage();
 		displayRoomUrl();
 
+
+		function getAndSaveProximityChatParameter() {
+			var queryString = window.location.search;
+			var urlParams = new URLSearchParams(queryString);
+
+			var useProximityChatParameter = urlParams.get('useProximityChat')
+			if(useProximityChatParameter != null) useProximityChat = useProximityChatParameter;
+			
+			//console.log('useProximityChat', useProximityChat);
+		}
+
+		var useProximityChat = 0;
+		getAndSaveProximityChatParameter();
+
+
 		function sendFeedbackPerMail(feedbackText){
 			var mailtoString = 'mailto:remoteballpointgame@openforce.com?';
 			

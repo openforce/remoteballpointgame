@@ -11,17 +11,17 @@ import { RandomUtils } from '../utils/RandomUtils1';
 import { SoundUtils } from '../utils/SoundUtils';
 
 
-export class Radio implements ISound{
+export class Radio implements ISound {
 
     id: number;
 
     x: number;
     y: number;
     radius: number = 25;
-    
+
     width: number = 55;
     height: number = 40;
-    
+
     rotation: number;
 
     middleX: number;
@@ -88,25 +88,32 @@ export class Radio implements ISound{
 
     }
 
-    public update(timeDiff: number){
+    public update(timeDiff: number) {
         this.animationState.update(timeDiff);
     }
 
     public updateSound() {
 
         if (this.on) {
-            var volume = SoundUtils.getVolumeFromDistanceSoundObject(this, this.game.player.x, this.game.player.y);
+
+            if (this.game.flipchart.active) {
+                volume = 0;
+            } else {
+                var volume = SoundUtils.getVolumeFromDistanceSoundObject(this, this.game.player.x, this.game.player.y);
+            }
+            
             this.sound.setVolume(volume);
+
         }
 
     }
 
-    public updateMiddle(){
+    public updateMiddle() {
         this.middleX = this.x + this.width / 2;
         this.middleY = this.y + this.height / 2;
-    } 
+    }
 
-    public getCollider(){
+    public getCollider() {
 
         this.updateMiddle();
         return new TempColliderCircle(this.middleX, this.middleY, this.radius);

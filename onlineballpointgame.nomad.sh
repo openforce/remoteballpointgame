@@ -9,35 +9,7 @@ job "$JOB_NAME" {
 
   group "game" {
     count = 1
-    network {
-      mode = "bridge"
-      port "http" {
-        to     = 5000
-      }
-    }
-
-    service {
-      port = "http"
-      check {
-        type     = "http"
-        path     = "/"
-        interval = "10s"
-        timeout  = "2s"
-      }
-      tags = [
-        "traefik.enable=true",
-        "traefik.tags=service",
-        "traefik.http.routers.ballpointgame_$STAGE.rule=Host(\`$ENDPOINT_URL\`)",
-        "traefik.http.routers.ballpointgame_$STAGE.tls=true",
-        "traefik.http.routers.ballpointgame_$STAGE.tls.certresolver=letsencrypt",
-        "traefik.http.routers.ballpointgame_$STAGE.entrypoints=https",
-      ]
-    }
-
     task "game" {
-      env {
-        ANALYTICS_KEY = "$GA_TRACKING_ID"
-      }
       driver = "docker"
       config {
         image = "$CONTAINER_STAGING_TAG"
@@ -45,10 +17,32 @@ job "$JOB_NAME" {
           username = "$CI_DEPLOY_USER"
           password = "$CI_DEPLOY_PASSWORD"
         }
+        port_map {
+          app = 5000 
+        }
+        dns_servers = ["10.0.2.3", "10.0.2.4", "10.0.2.5"]
+      }
+      service {
+        port = "app"
+        tags = [
+          "traefik.enable=true",
+          "traefik.tags=service",
+          "traefik.http.routers.ballpointgame_$STAGE.rule=Host(\`$ENDPOINT_URL\`)",
+          "traefik.http.routers.ballpointgame_$STAGE.tls=true",
+          "traefik.http.routers.ballpointgame_$STAGE.tls.certresolver=letsencrypt",
+          "traefik.http.routers.ballpointgame_$STAGE.entrypoints=https",
+        ]
+      }
+      env {
+        ANALYTICS_KEY = "$GA_TRACKING_ID"
       }
       resources {
         cpu    = 500 # MHz
         memory = 256 # MB
+        network {
+          mbits = 100
+          port "app" {}
+        }
       }
     }
   }

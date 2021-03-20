@@ -59,6 +59,9 @@
 						<span class="label-font-size urltext">
 							the url of your game room will be: <span id="roomUrl"></span> </br>
 						</span>
+						<span class="label-font-size urltext">
+							with proximity chat: <span id="roomUrlWithProximityChat"></span> </br>
+						</span>
 					</div>
 				</div>
 			</div>
@@ -165,6 +168,7 @@
 		function displayRoomUrl() {
 			var url = getRoomUrl();
 			document.getElementById("roomUrl").innerHTML = '<a href=' + url + '>' + url + '</a>';
+			document.getElementById("roomUrlWithProximityChat").innerHTML = '<a href=' + url + '?useProximityChat=1>' + url + '?useProximityChat=1</a>';
 		}
 
 		function displayTrainerInstructionsUrl() {

@@ -17,11 +17,16 @@ export class GameSyncer {
 		var url = window.location.href;
 		var splittedUrl = url.split('/');
 
-		this.gameRoomId = splittedUrl[splittedUrl.length-1];
+		this.gameRoomId = splittedUrl[splittedUrl.length - 1];
+
+		// get roomId without parameters
+		if (this.gameRoomId.includes('?')) {
+			this.gameRoomId = this.gameRoomId.split('?')[0];
+		}
 
 	}
 
-	public closeConnection(){
+	public closeConnection() {
 		this.socket.close();
 	}
 

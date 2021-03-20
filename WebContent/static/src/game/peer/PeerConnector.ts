@@ -134,7 +134,13 @@ export class PeerConnector {
 		for (var playerId in this.game.players) {
 			if (this.streamReceived[playerId]) {
 
-				var volume = SoundUtils.getVolumeFromDistanceSoundObject(this.game.players[playerId], this.game.player.x, this.game.player.y);
+				var volume;
+
+				if (this.game.flipchart.active) {
+					volume = 1;
+				} else {
+					volume = SoundUtils.getVolumeFromDistanceSoundObject(this.game.players[playerId], this.game.player.x, this.game.player.y);
+				}
 
 				var videoContainer = document.getElementById(playerId);
 
