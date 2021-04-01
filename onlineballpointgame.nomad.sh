@@ -8,7 +8,7 @@ job "$JOB_NAME" {
   type = "service"
 
   group "game" {
-    count = 1
+    count = 4
     task "game" {
       driver = "docker"
       config {
