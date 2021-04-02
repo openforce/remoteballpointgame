@@ -8,7 +8,7 @@ job "$JOB_NAME" {
   type = "service"
 
   group "game" {
-    count = 1
+    count = 4
     task "game" {
       driver = "docker"
       config {
@@ -27,6 +27,7 @@ job "$JOB_NAME" {
         tags = [
           "traefik.enable=true",
           "traefik.tags=service",
+          "traefik.http.services.ballpointgame_$STAGE.loadbalancer.sticky.cookie=true",
           "traefik.http.routers.ballpointgame_$STAGE.rule=Host(\`$ENDPOINT_URL\`)",
           "traefik.http.routers.ballpointgame_$STAGE.tls=true",
           "traefik.http.routers.ballpointgame_$STAGE.tls.certresolver=letsencrypt",
@@ -45,6 +46,7 @@ job "$JOB_NAME" {
         }
       }
     }
+
   }
 }
 EOF
