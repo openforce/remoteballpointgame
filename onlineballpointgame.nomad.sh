@@ -38,8 +38,8 @@ job "$JOB_NAME" {
         ANALYTICS_KEY = "$GA_TRACKING_ID"
       }
       resources {
-        cpu    = 500 # MHz
-        memory = 256 # MB
+        cpu    = 1000 # MHz
+        memory = 512 # MB
         network {
           mbits = 100
           port "app" {}
