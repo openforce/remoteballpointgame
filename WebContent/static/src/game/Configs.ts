@@ -4,7 +4,7 @@ export class GameConfigs {
 
     static arcadeMode = false;
 
-    static maxGameRooms = 4;
+    static maxGameRooms = 10;
     static emptyRoomDeleteDelay = 40 * 1000 //40 * 1000;
 
     static hostPeerJsServer = 0;
