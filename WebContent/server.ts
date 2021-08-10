@@ -22,6 +22,18 @@ var server = new http.Server(app);
 var io = socketIO(server);
 
 
+/* changes that have to be made to run the game on multiple cloud instances
+var gameWorker = ['remoteballpointgame.worker1.openforce.com', 'remoteballpointgame.worker2.openforce.com'];
+
+// redirect --> remoteballpointgame.worker1.openforce.com/roomname
+
+var gameRoomsWorkerMap = {
+  'test1': 'remoteballpointgame.worker1.openforce.com',
+  'testx': 'remoteballpointgame.worker2.openforce.com'
+};
+*/
+
+
 var gameRooms = {};
 var serverStatistics = new ServerStatistics();
 
@@ -88,6 +100,16 @@ app.get('/:gameRoomId', function (request: any, response: any) {
   if (log) console.log('proximityChatParameter', proximityChatParameter);
 
   
+  // the blacklisting ist a hack to prevent that rooms are created... 
+  // ToDo: return valid sitemap and robot stuff the get better SEO ranking ;) 
+  var gameRoomNameBlacklist = ['sitemap_index.xml', 'sitemap.xml', 'sitemap.txt', 'sitemap.xml.gz', 'atom.xml', 'robots.txt'];
+
+  if (gameRoomNameBlacklist.includes(gameRoomId)) {
+    response.send('');
+    return;
+  }
+
+
   if (gameRoomId == 'trainerinstructions') {
     // @ts-ignore
     response.send(trainerinstructionsHTML);
