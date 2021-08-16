@@ -102,7 +102,8 @@ app.get('/:gameRoomId', function (request: any, response: any) {
   
   // the blacklisting ist a hack to prevent that rooms are created... 
   // ToDo: return valid sitemap and robot stuff the get better SEO ranking ;) 
-  var gameRoomNameBlacklist = ['sitemap_index.xml', 'sitemap.xml', 'sitemaps.xml', 'sitemap.txt', 'sitemap.xml.gz', 'atom.xml', 'robots.txt'];
+  // ToDo: create some kind of room name not allowed message
+  var gameRoomNameBlacklist = ['sitemap_index.xml', 'sitemap.xml', 'sitemaps.xml', 'sitemap.txt', 'sitemap.xml.gz', 'atom.xml', 'robots.txt', 'wp-login.php', 'files', 'images', 'uploads', '.well-known'];
 
   if (gameRoomNameBlacklist.includes(gameRoomId)) {
     response.send('');
