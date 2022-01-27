@@ -5,10 +5,11 @@ export class GameConfigs {
     static arcadeMode = false;
 
     static maxGameRooms = 10;
-    static emptyRoomDeleteDelay = 40 * 1000 //40 * 1000;
+    static emptyRoomDeleteDelay = 40 * 1000;
 
     static hostPeerJsServer = 0;
     
     static autocatch = 1;
+    static failCatchProbability = 5; // in percent (0 - 100)
     
 }

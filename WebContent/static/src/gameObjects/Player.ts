@@ -473,20 +473,24 @@ export class Player implements ISound {
             this.lastX = this.x;
             this.lastY = this.y;
         }
-
-
+        
+        
         // Actions
-
+        
         this.setActionAreaCircle();
-
+        
         if (this.rightHand != null) {
             this.rightHand.x = this.middleX;
             this.rightHand.y = this.middleY;
+            this.rightHand.lastX = this.middleX;
+            this.rightHand.lastY = this.middleY;
         }
-
+        
         if (this.leftHand != null) {
             this.leftHand.x = this.middleX;
             this.leftHand.y = this.middleY;
+            this.leftHand.lastX = this.middleX;
+            this.leftHand.lastY = this.middleY;
         }
 
         if (this.doActionLeft) {
@@ -515,6 +519,18 @@ export class Player implements ISound {
             if (this.id != this.game.balls[id].lastHolderId && this.game.balls[id].state == Ball.BALL_STATE_INAIR
                 && (this.rightHand == null || this.leftHand == null)
                 && CollisionUtils.colCheckCircleColliders(this.actionCircle, this.game.balls[id])) {
+
+
+                // with a certain probability the ball will not be caught
+                var failCatch:boolean = RandomUtils.getRandomNumber(1,100) <= GameConfigs.failCatchProbability;
+                
+                if(failCatch){
+                    this.game.balls[id].lastHolderId = this.id;
+                    this.game.balls[id].fallInRandomDirection();
+                    return;
+                }
+
+            
 
                 if (this.leftHand == null) {
                     this.takeBall(this.game.balls[id], Player.HAND_LEFT);
