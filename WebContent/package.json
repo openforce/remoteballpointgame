@@ -11,7 +11,7 @@
     "start": "ts-node server.ts"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "peer": "^0.6.1",
     "serve-favicon": "^2.5.0",
     "socket.io": "^1.7.4"
